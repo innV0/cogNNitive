@@ -4,9 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "npm --prefix ../../packages/format-core run build",
     "dev": "vite",
+    "prebuild": "npm --prefix ../../packages/format-core run build",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
+    "pretest": "npm --prefix ../../packages/format-core run build",
     "test": "vitest run",
     "test:watch": "vitest"
   },
