@@ -3,44 +3,48 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseModel, parseFrontmatter, parseIndexBlock, parseMarkdownTable, validateModel } from '../src/index';
 
-const verifyDir = join(import.meta.dirname!, '..', '..', '..', 'verification');
+const specsDir = join(import.meta.dirname!, '..', '..', '..', 'specs');
+const modelsDir = join(import.meta.dirname!, '..', '..', '..', 'models');
 
-function readVerify(name: string): string {
-  return readFileSync(join(verifyDir, name), 'utf-8');
+function readSpec(name: string): string {
+  return readFileSync(join(specsDir, name), 'utf-8');
+}
+function readModel(name: string): string {
+  return readFileSync(join(modelsDir, name), 'utf-8');
 }
 
 describe('defiNNe (level 0)', () => {
-  const content = readVerify('defiNNe_V_0-2-0_FORMAT.md');
+  const content = readSpec('defiNNe_V_0-1-0_FORMAT.md');
   const fm = parseFrontmatter(content)!;
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(0);
-    expect(fm.specification_version).toBe('V_0-2-0');
+    expect(fm.specification_version).toBe('V_0-1-0');
     expect(fm.parent).toBeUndefined();
     expect(fm.title).toContain('defiNNe');
   });
 });
 
 describe('FORMAT (level 1)', () => {
-  const content = readVerify('FORMAT_V_0-2-0_FORMAT.md');
+  const content = readSpec('FORMAT_V_0-1-0_FORMAT.md');
   const fm = parseFrontmatter(content)!;
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(1);
     expect(fm.parent).toBeDefined();
-    expect(fm.parent!.name).toBe('defiNNe_V_0-2-0');
+    expect(fm.parent!.name).toBe('defiNNe_V_0-1-0');
     expect(fm.modes).toEqual(['FILE', 'FOLDER']);
     expect(fm.relationship_types).toHaveLength(4);
   });
 });
 
 describe('business template (level 2)', () => {
-  const content = readVerify('business_V_1-0-0_FORMAT.md');
+  const content = readSpec('business_V_0-1-0_FORMAT.md');
   const fm = parseFrontmatter(content)!;
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(2);
-    expect(fm.parent!.name).toBe('FORMAT_V_0-2-0');
+    expect(fm.parent!.name).toBe('FORMAT_V_0-1-0');
     expect(fm.mode).toBe('FILE');
     expect(fm.concepts).toBeDefined();
     expect(fm.concepts!.length).toBeGreaterThan(60);
@@ -58,14 +62,14 @@ describe('business template (level 2)', () => {
 });
 
 describe('Ghostbusters model (level 3)', () => {
-  const content = readVerify('Ghostbusters_V_0-3-0_business_FORMAT.md');
+  const content = readModel('Ghostbusters_V_0-1-0_business_FORMAT.md');
   const model = parseModel(content);
   const fm = model.frontmatter;
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(3);
-    expect(fm.parent!.name).toBe('business_V_1-0-0');
-    expect(fm.model_version).toBe('V_0-3-0');
+    expect(fm.parent!.name).toBe('business_V_0-1-0');
+    expect(fm.model_version).toBe('V_0-1-0');
     expect(fm.mode).toBe('FILE');
   });
 
@@ -104,19 +108,19 @@ describe('Ghostbusters model (level 3)', () => {
   it('serializes and re-parses correctly', async () => {
     const { serializeModel } = await import('../src/index');
     const serialized = serializeModel(model);
-    expect(serialized).toContain('specification_version: "V_0-2-0"');
+    expect(serialized).toContain('specification_version: "V_0-1-0"');
     expect(serialized).toContain('<!-- block: concepts --> Stakeholders');
     expect(serialized).toContain('<!-- block: matrices --> problems-value propositions matrix');
   });
 });
 
 describe('procedures template (level 2)', () => {
-  const content = readVerify('procedures_V_1-0-0_FORMAT.md');
+  const content = readSpec('procedures_V_0-1-0_FORMAT.md');
   const fm = parseFrontmatter(content)!;
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(2);
-    expect(fm.parent!.name).toBe('FORMAT_V_0-2-0');
+    expect(fm.parent!.name).toBe('FORMAT_V_0-1-0');
     expect(fm.mode).toBe('FILE');
     expect(fm.concepts).toHaveLength(7);
     expect(fm.markers).toHaveLength(1);
@@ -125,12 +129,12 @@ describe('procedures template (level 2)', () => {
 });
 
 describe('kb template (level 2, FOLDER mode)', () => {
-  const content = readVerify('kb_V_1-0-0_FORMAT.md');
+  const content = readSpec('kb_V_0-1-0_FORMAT.md');
   const fm = parseFrontmatter(content)!;
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(2);
-    expect(fm.parent!.name).toBe('FORMAT_V_0-2-0');
+    expect(fm.parent!.name).toBe('FORMAT_V_0-1-0');
     expect(fm.mode).toBe('FOLDER');
     expect(fm.concepts).toHaveLength(3);
     expect(fm.relationship_declarations?.hierarchy?.enabled).toBe(true);
@@ -140,15 +144,15 @@ describe('kb template (level 2, FOLDER mode)', () => {
 
 describe('validator', () => {
   it('validates Ghostbusters against business template', () => {
-    const modelContent = readVerify('Ghostbusters_V_0-3-0_business_FORMAT.md');
-    const templateContent = readVerify('business_V_1-0-0_FORMAT.md');
+    const modelContent = readModel('Ghostbusters_V_0-1-0_business_FORMAT.md');
+    const templateContent = readSpec('business_V_0-1-0_FORMAT.md');
     const model = parseModel(modelContent);
     const templateFm = parseFrontmatter(templateContent)!;
 
     const result = validateModel(model, {
-      name: 'business_V_1-0-0',
+      name: 'business_V_0-1-0',
       level: 2,
-      parentName: 'FORMAT_V_0-2-0',
+      parentName: 'FORMAT_V_0-1-0',
       frontmatter: templateFm,
       rawContent: templateContent,
     }, null);
@@ -158,17 +162,17 @@ describe('validator', () => {
   });
 
   it('rejects model with unknown concept', () => {
-    const modelContent = readVerify('Ghostbusters_V_0-3-0_business_FORMAT.md');
-    const templateContent = readVerify('business_V_1-0-0_FORMAT.md');
+    const modelContent = readModel('Ghostbusters_V_0-1-0_business_FORMAT.md');
+    const templateContent = readSpec('business_V_0-1-0_FORMAT.md');
     const model = parseModel(modelContent);
     const templateFm = parseFrontmatter(templateContent)!;
 
     model.elements.set('NonExistentConcept', [{ type: 'NonExistentConcept', name: 'Test', description: '', fields: {}, markers: {} }]);
 
     const result = validateModel(model, {
-      name: 'business_V_1-0-0',
+      name: 'business_V_0-1-0',
       level: 2,
-      parentName: 'FORMAT_V_0-2-0',
+      parentName: 'FORMAT_V_0-1-0',
       frontmatter: templateFm,
       rawContent: templateContent,
     }, null);
