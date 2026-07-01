@@ -163,6 +163,7 @@ async function parseFileNode(
       markers: {},
       relationships: [],
       rawSections: {},
+      rawContent: content,
       source: { path: sourcePath },
     }
     ctx.nodes[qualifiedId] = rootNode
@@ -206,6 +207,7 @@ async function parseFolderNode(
       markers: {},
       relationships: [],
       rawSections: {},
+      rawContent: content,
       source: { path: sourcePath },
     }
     ctx.nodes[qualifiedId] = folderNode

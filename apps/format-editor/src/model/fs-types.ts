@@ -2,17 +2,24 @@
  * Minimal subset of the File System Access API we depend on, so tests
  * can supply lightweight fakes instead of real browser handles.
  */
+export interface WritableStreamLike {
+  write(data: string): Promise<void>
+  close(): Promise<void>
+}
+
 export interface FileHandleLike {
   kind: 'file'
   name: string
   getFile(): Promise<{ text(): Promise<string> }>
+  /** Optional: only handles obtained with write intent implement this (mirrors FileSystemFileHandle.createWritable). */
+  createWritable?(): Promise<WritableStreamLike>
 }
 
 export interface DirectoryHandleLike {
   kind: 'directory'
   name: string
   entries(): AsyncIterableIterator<[string, FileHandleLike | DirectoryHandleLike]>
-  getFileHandle(name: string): Promise<FileHandleLike>
+  getFileHandle(name: string, options?: { create?: boolean }): Promise<FileHandleLike>
 }
 
 export function isDirectoryHandle(h: FileHandleLike | DirectoryHandleLike): h is DirectoryHandleLike {

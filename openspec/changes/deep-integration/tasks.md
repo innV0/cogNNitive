@@ -59,13 +59,13 @@ Chain strategy: feature-branch-chain
 
 ## Phase 4: Recursive serializer (write) + full round-trip (PR 4)
 
-- [ ] 4.1 Create `apps/format-editor/src/model/recursiveSerializer.ts`: walks the graph; FILE node → `serializeModel` → write; FOLDER node → per-dir `_FORMAT.md` write matching that node's recorded `storageMode` (R6)
-- [ ] 4.2 Resolve open question: write-back granularity — serialize only dirty nodes (using `modelStore` dirty-tracking) vs. all nodes; implement dirty-only write-back as the default
-- [ ] 4.3 Golden-file round-trip test: parse → serialize (no edits) on every `models/*` FILE fixture — output structurally/byte-equivalent to source (R7)
-- [ ] 4.4 Golden-file round-trip test: parse → serialize (no edits) on the synthetic FOLDER fixture and mixed-tree fixture from 3.6 (R7)
-- [ ] 4.5 Unit test: node identity (`qualifiedId`) unchanged after a no-edit parse→serialize round-trip (R12)
-- [ ] 4.6 Unit test: FOLDER node with field edits is still written as FOLDER after save — editing fields does not alter `storageMode` (R8 scenario "Mode preserved despite edits")
-- [ ] 4.7 Confirm no in-place conversion code path exists (no UI control, no store action swaps `storageMode`) (R8, R19 partial)
+- [x] 4.1 Create `apps/format-editor/src/model/recursiveSerializer.ts`: walks the graph; FILE node → `serializeModel` → write; FOLDER node → per-dir `_FORMAT.md` write matching that node's recorded `storageMode` (R6)
+- [x] 4.2 Resolve open question: write-back granularity — serialize only dirty nodes (using `modelStore` dirty-tracking) vs. all nodes; implement dirty-only write-back as the default. Resolved: `recursiveSerialize` takes an explicit `dirtyIds: Set<string>` and no-ops entirely when empty; only nodes in that set are written.
+- [x] 4.3 Golden-file round-trip test: parse → serialize (no edits) on every `models/*` FILE fixture — output structurally/byte-equivalent to source (R7). NOTE (design open question resolved): `serializeModel` performs canonical reformatting (confirmed by format-core's own "structurally equivalent, not byte-identical" contract in `packages/format-core/tests/index.test.ts`), so `tests/golden/roundtrip.models.golden.test.ts` compares **structure** (re-parse and diff the normalized `ModelNode` graph) rather than raw bytes — consistent with the design's fallback guidance to lean on structural/raw-passthrough comparison.
+- [x] 4.4 Golden-file round-trip test: parse → serialize (no edits) on the synthetic FOLDER fixture and mixed-tree fixture from 3.6 (R7) — `tests/golden/roundtrip.synthetic.golden.test.ts`
+- [x] 4.5 Unit test: node identity (`qualifiedId`) unchanged after a no-edit parse→serialize round-trip (R12)
+- [x] 4.6 Unit test: FOLDER node with field edits is still written as FOLDER after save — editing fields does not alter `storageMode` (R8 scenario "Mode preserved despite edits")
+- [x] 4.7 Confirm no in-place conversion code path exists (no UI control, no store action swaps `storageMode`) (R8, R19 partial) — `tests/unit/no-conversion.test.ts`
 
 ## Phase 5: Recursive metamodel resolution (PR 5)
 

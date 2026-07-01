@@ -42,5 +42,14 @@ export interface ModelNode {
   markers: Record<string, number | string>
   relationships: ModelRelationship[]
   rawSections: Record<string, string> // round-trip fidelity
+  /**
+   * Full original source text for FILE/FOLDER root nodes (the node whose
+   * own `_FORMAT.md`/file was parsed via `parseModel`). Undefined for
+   * element nodes nested inside a document (they have no own file).
+   * Used by the serializer for byte/structurally-equivalent no-edit
+   * round-trip (R7) instead of re-deriving through `serializeModel`'s
+   * canonical reformatting, which is not guaranteed to match source bytes.
+   */
+  rawContent?: string
   source: { path: string } // FS location for write-back
 }
