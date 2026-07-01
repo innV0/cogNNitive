@@ -1,15 +1,45 @@
 import {
   SpecFrontmatter, ParsedModel, ElementNode, MatrixData, MatrixCell,
-  TaxonomyEdge, ConceptType
+  TaxonomyEdge, ConceptType, ElementsMap, TreeNode, Relationship, AnalysisEntry
 } from './types';
 
 const YAML_BLOCK_RE = /^---\n([\s\S]*?)\n---/;
 const SECTION_RE = /^#\s+(.*)$/gm;
-const CONCEPT_BLOCK_MARKER = '<!-- block: concepts -->';
-const MATRIX_BLOCK_MARKER = '<!-- block: matrices -->';
-const ELEMENT_BLOCK_RE = /<!--\s*block:\s+([\w\s-]+?)\s*-->\s*(.*)$/gm;
 const WIKILINK_RE = /\[\[([^\]]+)\]\]/g;
 const YAML_FENCE_RE = /```yaml\n([\s\S]*?)```/;
+
+/* ── Marker patterns (support both `_F` and legacy `<!-- block: -->`) ── */
+
+// Section-level markers: `# _F concepts: name` or `# <!-- block: concepts --> name`
+const F_SECTION_RE = /^#\s+(?:_F\s+(\w+):\s*(.*)|<!--\s*block:\s*(\w+)\s*-->\s*(.*))$/m;
+
+// Element-level markers: `* _F Concept: Name` or `* <!-- _F Concept: --> Name` or `* <!-- block: Concept --> Name`
+const F_ELEMENT_VISIBLE_RE = /^\s*[*\-]\s+_F\s+([\w\s-]+?):\s+(.*)$/;
+const F_ELEMENT_HIDDEN_RE = /^\s*[*\-]\s+<!--\s+(?:_F\s+([\w\s-]+?):|block:\s*([\w\s-]+?))\s*-->\s*(.*)$/;
+
+function isIndexSection(rawTitle: string): boolean {
+  const t = rawTitle.toLowerCase();
+  return t.includes('concepts') && (t.includes('index') || t.includes('_f'));
+}
+
+function sectionName(rawTitle: string): string | null {
+  // Try _F syntax first: `# _F concepts: Name`
+  const fm = rawTitle.match(/^_F\s+(\w+):\s*(.*)/);
+  if (fm) return fm[1]; // 'concepts' or 'matrices'
+  // Try legacy syntax: `<!-- block: concepts --> Name`
+  const legacy = rawTitle.match(/<!--\s*block:\s*(\w+)\s*-->/);
+  if (legacy) return legacy[1];
+  return null;
+}
+
+function sectionTitle(rawTitle: string): string {
+  // Extract the name portion after the marker
+  const fm = rawTitle.match(/^_F\s+\w+:\s*(.*)/);
+  if (fm) return fm[1].trim();
+  const legacy = rawTitle.match(/<!--\s*block:\s*\w+\s*-->\s*(.*)/);
+  if (legacy) return legacy[1].trim();
+  return rawTitle;
+}
 
 export function parseYaml(yamlStr: string): any {
   const lines = yamlStr.split(/\r?\n/);
@@ -134,6 +164,16 @@ function parseFencedYaml(text: string): Record<string, unknown> {
   return parseYaml(match[1]) as Record<string, unknown>;
 }
 
+function parseElementMarker(line: string): string | null {
+  // Visible: `* _F ConceptName: Element`
+  const vis = line.match(F_ELEMENT_VISIBLE_RE);
+  if (vis) return vis[2].trim();
+  // Hidden: `* <!-- _F ConceptName: --> Element` or `* <!-- block: ConceptName --> Element`
+  const hid = line.match(F_ELEMENT_HIDDEN_RE);
+  if (hid) return (hid[3] ?? hid[4] ?? '').trim();
+  return null;
+}
+
 function parseConceptSection(conceptName: string, content: string): ElementNode[] {
   const nodes: ElementNode[] = [];
   const lines = content.split('\n');
@@ -143,14 +183,13 @@ function parseConceptSection(conceptName: string, content: string): ElementNode[
   let inYaml = false;
 
   for (const line of lines) {
-    const blockMatch = line.match(ELEMENT_BLOCK_RE);
-    if (blockMatch) {
+    const elemName = parseElementMarker(line);
+    if (elemName !== null) {
       if (current) {
         current.description = descriptionLines.join('\n').trim();
         nodes.push(current);
       }
-      const name = line.replace(/.*<!--\s*block:\s*\S+\s*-->\s*/, '').trim();
-      current = { type: conceptName, name, description: '', fields: {}, markers: {} };
+      current = { type: conceptName, name: elemName, description: '', fields: {}, markers: {} };
       descriptionLines = [];
       inYaml = false;
       continue;
@@ -202,24 +241,22 @@ function parseMatrixSection(content: string, matrixName: string): MatrixCell[] {
   return cells;
 }
 
-function cleanTitle(title: string): string {
-  return title.replace(CONCEPT_BLOCK_MARKER, '').replace(MATRIX_BLOCK_MARKER, '').trim();
-}
-
-export function getSectionType(title: string): 'index' | 'concept' | 'matrix' | 'other' {
-  const t = title.trim();
-  if (t.includes(CONCEPT_BLOCK_MARKER)) {
-    const name = t.replace(CONCEPT_BLOCK_MARKER, '').trim();
-    if (name.toLowerCase() === 'index') return 'index';
+export function getSectionType(rawTitle: string): 'index' | 'concept' | 'matrix' | 'other' {
+  const sn = sectionName(rawTitle);
+  if (!sn) return 'other';
+  const s = sn.toLowerCase();
+  if (s === 'concepts') {
+    const name = sectionTitle(rawTitle).toLowerCase();
+    if (name === 'index') return 'index';
     return 'concept';
   }
-  if (t.includes(MATRIX_BLOCK_MARKER)) return 'matrix';
+  if (s === 'matrices') return 'matrix';
   return 'other';
 }
 
 export function parseModel(content: string): ParsedModel {
   const frontmatter = parseFrontmatter(content);
-  const elements = new Map<string, ElementNode[]>();
+  const elements = new ElementsMap();
   const matrices: MatrixData[] = [];
   const nodeMarkers: Record<string, Record<string, number | string>> = {};
   let taxonomy: TaxonomyEdge[] = [];
@@ -232,7 +269,7 @@ export function parseModel(content: string): ParsedModel {
     if (!headerMatch) continue;
     const rawTitle = headerMatch[1].trim();
     const type = getSectionType(rawTitle);
-    const name = cleanTitle(rawTitle);
+    const name = sectionTitle(rawTitle);
     const bodyContent = section.replace(/^#\s+.*$/m, '').trim();
 
     if (type === 'index') {
@@ -297,7 +334,7 @@ export function serializeModel(model: ParsedModel): string {
   lines.push('');
 
   if (model.taxonomy.length > 0) {
-    lines.push('# <!-- block: concepts --> index');
+    lines.push('# _F concepts: index');
     const roots = model.taxonomy.filter(e => !model.taxonomy.some(p => p.child === e.parent));
     for (const root of roots) {
       printTaxonomy(root, model.taxonomy, lines, 0);
@@ -305,11 +342,11 @@ export function serializeModel(model: ParsedModel): string {
     lines.push('');
   }
 
-  for (const [conceptName, elementNodes] of model.elements) {
-    lines.push(`# <!-- block: concepts --> ${conceptName}`);
+  for (const [conceptName, elementNodes] of model.elements.entries()) {
+    lines.push(`# _F concepts: ${conceptName}`);
     for (const node of elementNodes) {
       const prefix = node.type === 'steps' || node.type === 'sequence' ? '1.' : '*';
-      lines.push(`${prefix} <!-- block: ${conceptName} --> ${node.name}`);
+      lines.push(`${prefix} _F ${conceptName}: ${node.name}`);
       if (Object.keys(node.fields).length > 0) {
         lines.push('  ```yaml');
         for (const [k, v] of Object.entries(node.fields)) {
@@ -328,7 +365,7 @@ export function serializeModel(model: ParsedModel): string {
 
   for (const matrix of model.matrices) {
     if (matrix.cells.length === 0) continue;
-    lines.push(`# <!-- block: matrices --> ${matrix.name}`);
+    lines.push(`# _F matrices: ${matrix.name}`);
     const colSet = new Set(matrix.cells.map(c => c.col));
     const rowSet = new Set(matrix.cells.map(c => c.row));
     const cols = Array.from(colSet);
@@ -356,4 +393,193 @@ function printTaxonomy(edge: TaxonomyEdge, allEdges: TaxonomyEdge[], lines: stri
   for (const child of children) {
     printTaxonomy(child, allEdges, lines, depth + 1);
   }
+}
+
+/* ── Extended parsing: tree, relationships, analysis ── */
+
+/** Build a hierarchical tree from taxonomy + elements + hierarchy matrices.
+ *  Hierarchy matrices are matrices named like `{src}-{tgt} hierarchy matrix`.
+ *  Elements with concept types that appear in the taxonomy chain are placed at the correct depth. */
+export function buildHierarchyTree(
+  taxonomy: TaxonomyEdge[],
+  elements: ElementsMap,
+  matrices: MatrixData[],
+): TreeNode[] {
+  const roots: TreeNode[] = [];
+  const nodeMap = new Map<string, TreeNode>();
+
+  // Build flat node list from elements
+  for (const [conceptName, elementNodes] of elements.entries()) {
+    for (const en of elementNodes) {
+      const id = en.name.toLowerCase().replace(/\s+/g, '-');
+      nodeMap.set(id, {
+        id,
+        name: en.name,
+        type: en.type,
+        description: en.description,
+        fields: en.fields,
+        markers: en.markers,
+        children: [],
+      });
+    }
+  }
+
+  // Apply taxonomy edges
+  for (const edge of taxonomy) {
+    const parentId = edge.parent.toLowerCase().replace(/\s+/g, '-');
+    const childId = edge.child.toLowerCase().replace(/\s+/g, '-');
+    const parent = nodeMap.get(parentId);
+    const child = nodeMap.get(childId);
+    if (parent && child) {
+      parent.children.push(child);
+    }
+  }
+
+  // Apply hierarchy matrices: rows marked with 'X' become parent→child
+  for (const matrix of matrices) {
+    const mn = matrix.name.toLowerCase();
+    if (mn.includes('hierarchy matrix') || mn.includes('jerarqu')) {
+      for (const cell of matrix.cells) {
+        if (cell.value.toLowerCase() === 'x') {
+          const parentId = cell.col.toLowerCase().replace(/\s+/g, '-');
+          const childId = cell.row.toLowerCase().replace(/\s+/g, '-');
+          const parent = nodeMap.get(parentId);
+          const child = nodeMap.get(childId);
+          if (parent && child && !parent.children.includes(child)) {
+            parent.children.push(child);
+          }
+        }
+      }
+    }
+  }
+
+  // Collect roots (nodes that are not children of any other node)
+  const allChildren = new Set<string>();
+  for (const [id, node] of nodeMap) {
+    for (const child of node.children) {
+      allChildren.add(child.id);
+    }
+  }
+  for (const [id, node] of nodeMap) {
+    if (!allChildren.has(id)) {
+      roots.push(node);
+    }
+  }
+
+  // Return taxonomy-edge roots if the tree is empty
+  if (roots.length === 0 && taxonomy.length > 0) {
+    const rootNames = taxonomy
+      .filter(e => !taxonomy.some(p => p.child === e.parent))
+      .map(e => e.parent);
+    for (const name of rootNames) {
+      const id = name.toLowerCase().replace(/\s+/g, '-');
+      if (nodeMap.has(id)) roots.push(nodeMap.get(id)!);
+    }
+  }
+
+  return roots;
+}
+
+/** Extract relationships from graph_edges frontmatter and wikilinks in element descriptions. */
+export function extractRelationships(
+  frontmatter: SpecFrontmatter,
+  elements: ElementsMap,
+): Relationship[] {
+  const rels: Relationship[] = [];
+
+  // From frontmatter graph_edges
+  const graphEdges = frontmatter.graph_edges as Array<{ target: string; label: string; weight?: number }> | undefined;
+  if (graphEdges) {
+    for (const edge of graphEdges) {
+      rels.push({
+        sourceId: frontmatter.title ?? '',
+        targetId: edge.target,
+        label: edge.label,
+        value: edge.weight,
+      });
+    }
+  }
+
+  // From wikilinks in element descriptions and names
+  for (const [conceptName, elementNodes] of elements.entries()) {
+    for (const el of elementNodes) {
+      const sourceId = el.name;
+      const textToScan = el.name + ' ' + el.description;
+      const matches = textToScan.match(WIKILINK_RE);
+      if (matches) {
+        for (const m of matches) {
+          const target = m.slice(2, -2);
+          if (target !== el.name) {
+            rels.push({ sourceId, targetId: target, label: 'references' });
+          }
+        }
+      }
+      // Also scan fields for wikilinks
+      for (const [, v] of Object.entries(el.fields)) {
+        if (typeof v === 'string' && v.includes('[[')) {
+          const fm = v.match(WIKILINK_RE);
+          if (fm) {
+            for (const m of fm) {
+              const target = m.slice(2, -2);
+              rels.push({ sourceId, targetId: target, label: 'references' });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Deduplicate
+  const seen = new Set<string>();
+  return rels.filter(r => {
+    const key = `${r.sourceId}||${r.targetId}||${r.label}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** Parse an Analysis Evaluations section from raw body content.
+ *  Detects sections titled "Analysis" or "Evaluation" and extracts structured entries. */
+export function extractAnalysis(content: string): AnalysisEntry[] {
+  const entries: AnalysisEntry[] = [];
+  // Look for analysis/evaluation sections
+  const sectionRe = /^#\s+(.*an?lisis|.*evaluation|.*analysis)(.*)$/im;
+  const match = content.match(sectionRe);
+  if (!match) return entries;
+
+  const afterHeader = content.slice(match.index! + match[0].length);
+  const sectionBody = afterHeader.split(/(?=^#\s)/m)[0] || afterHeader;
+
+  // Parse table or bullet-list entries
+  const tableRows = parseMarkdownTable(sectionBody);
+  if (tableRows.length > 0) {
+    for (const row of tableRows) {
+      const keys = Object.keys(row);
+      if (keys.length >= 4) {
+        entries.push({
+          timestamp: row[keys[0]] || '',
+          evaluator: row[keys[1]] || '',
+          evaluatorType: (row[keys[2]] || '').toLowerCase().includes('ai') ? 'ai' : 'human',
+          score: Number(row[keys[3]]) || 0,
+          comment: row[keys[4]] || '',
+        });
+      }
+    }
+  } else {
+    // Try bullet list format: `- **Evaluator**: score — comment`
+    const bulletRe = /^\s*[*\-]\s+\*\*(.+?)\*\*:\s*(\d+(?:\.\d+)?)\s*[—–-]+\s*(.+)$/gm;
+    let bm: RegExpExecArray | null;
+    while ((bm = bulletRe.exec(sectionBody)) !== null) {
+      entries.push({
+        timestamp: '',
+        evaluator: bm[1].trim(),
+        evaluatorType: 'human',
+        score: Number(bm[2]),
+        comment: bm[3].trim(),
+      });
+    }
+  }
+
+  return entries;
 }

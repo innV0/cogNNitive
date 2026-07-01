@@ -7,6 +7,9 @@ export {
   parseIndexBlock,
   parseMarkdownTable,
   getSectionType,
+  buildHierarchyTree,
+  extractRelationships,
+  extractAnalysis,
 } from './parser';
 
 export {

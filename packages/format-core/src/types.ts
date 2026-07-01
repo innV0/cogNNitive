@@ -115,13 +115,82 @@ export interface FolderElement {
   children: FolderElement[];
 }
 
+/** Case-insensitive wrapper around Map<string, ElementNode[]> */
+export class ElementsMap {
+  private _map = new Map<string, { key: string; nodes: ElementNode[] }>();
+  set(key: string, nodes: ElementNode[]) {
+    this._map.set(key.toLowerCase(), { key, nodes });
+  }
+  has(key: string): boolean {
+    return this._map.has(key.toLowerCase());
+  }
+  get(key: string): ElementNode[] | undefined {
+    return this._map.get(key.toLowerCase())?.nodes;
+  }
+  keys(): string[] {
+    return Array.from(this._map.values()).map(e => e.key);
+  }
+  entries(): Array<[string, ElementNode[]]> {
+    return Array.from(this._map.values()).map(e => [e.key, e.nodes]);
+  }
+  forEach(fn: (nodes: ElementNode[], key: string) => void) {
+    for (const { key, nodes } of this._map.values()) {
+      fn(nodes, key);
+    }
+  }
+  get size() { return this._map.size; }
+  [Symbol.iterator]() { return this.entries()[Symbol.iterator](); }
+}
+
+/** Hierarchical tree node built from taxonomy + hierarchy matrices */
+export interface TreeNode {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  fields: Record<string, unknown>;
+  markers: Record<string, number | string>;
+  children: TreeNode[];
+}
+
+/** A relationship extracted from wikilinks or graph_edges */
+export interface Relationship {
+  sourceId: string;
+  targetId: string;
+  label: string;
+  value?: string | number;
+}
+
+/** An analysis/evaluation score entry */
+export interface AnalysisEntry {
+  timestamp: string;
+  evaluator: string;
+  evaluatorType: 'human' | 'ai';
+  score: number;
+  comment: string;
+}
+
+/** Raw section content preserved for round-trip fidelity */
+export interface RawSection {
+  rawTitle: string;
+  body: string;
+}
+
 export interface ParsedModel {
   frontmatter: SpecFrontmatter;
   taxonomy: TaxonomyEdge[];
-  elements: Map<string, ElementNode[]>;
+  elements: ElementsMap;
   matrices: MatrixData[];
   nodeMarkers: Record<string, Record<string, number | string>>;
   rawContent: string;
+  /** Optional: hierarchy tree built from taxonomy + hierarchy matrices */
+  tree?: TreeNode[];
+  /** Optional: relationships from graph_edges + wikilinks */
+  relationships?: Relationship[];
+  /** Optional: analysis/evaluation entries */
+  analysis?: AnalysisEntry[];
+  /** Optional: raw body text per concept for round-trip fidelity */
+  rawSections?: Record<string, string>;
 }
 
 export interface SpecCache {

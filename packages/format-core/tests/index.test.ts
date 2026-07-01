@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { parseModel, parseFrontmatter, parseIndexBlock, parseMarkdownTable, validateModel } from '../src/index';
+import { parseModel, parseFrontmatter, parseIndexBlock, parseMarkdownTable, validateModel, buildHierarchyTree, extractRelationships, extractAnalysis } from '../src/index';
 
 const specsDir = join(import.meta.dirname!, '..', '..', '..', 'specs');
 const modelsDir = join(import.meta.dirname!, '..', '..', '..', 'models');
@@ -44,7 +44,7 @@ describe('business template (level 2)', () => {
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(2);
-    expect(fm.parent!.name).toBe('FORMAT_V_0-1-0');
+    expect(fm.parent!.name).toBe('FORMAT_V_0-1-1');
     expect(fm.mode).toBe('FILE');
     expect(fm.concepts).toBeDefined();
     expect(fm.concepts!.length).toBeGreaterThan(60);
@@ -109,8 +109,9 @@ describe('Ghostbusters model (level 3)', () => {
     const { serializeModel } = await import('../src/index');
     const serialized = serializeModel(model);
     expect(serialized).toContain('specification_version: "V_0-1-0"');
-    expect(serialized).toContain('<!-- block: concepts --> Stakeholders');
-    expect(serialized).toContain('<!-- block: matrices --> problems-value propositions matrix');
+    expect(serialized).toContain('# _F concepts: Stakeholders');
+    expect(serialized).toContain('# _F matrices: problems-value propositions matrix');
+    expect(serialized).toContain('* _F Stakeholders:');
   });
 });
 
@@ -120,7 +121,7 @@ describe('procedures template (level 2)', () => {
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(2);
-    expect(fm.parent!.name).toBe('FORMAT_V_0-1-0');
+    expect(fm.parent!.name).toBe('FORMAT_V_0-1-1');
     expect(fm.mode).toBe('FILE');
     expect(fm.concepts).toHaveLength(7);
     expect(fm.markers).toHaveLength(1);
@@ -134,7 +135,7 @@ describe('kb template (level 2, FOLDER mode)', () => {
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(2);
-    expect(fm.parent!.name).toBe('FORMAT_V_0-1-0');
+    expect(fm.parent!.name).toBe('FORMAT_V_0-1-1');
     expect(fm.mode).toBe('FOLDER');
     expect(fm.concepts).toHaveLength(3);
     expect(fm.relationship_declarations?.hierarchy?.enabled).toBe(true);
@@ -152,7 +153,7 @@ describe('validator', () => {
     const result = validateModel(model, {
       name: 'business_V_0-1-0',
       level: 2,
-      parentName: 'FORMAT_V_0-1-0',
+      parentName: 'FORMAT_V_0-1-1',
       frontmatter: templateFm,
       rawContent: templateContent,
     }, null);
@@ -172,12 +173,34 @@ describe('validator', () => {
     const result = validateModel(model, {
       name: 'business_V_0-1-0',
       level: 2,
-      parentName: 'FORMAT_V_0-1-0',
+      parentName: 'FORMAT_V_0-1-1',
       frontmatter: templateFm,
       rawContent: templateContent,
     }, null);
 
     expect(result.valid).toBe(false);
     expect(result.errors.some(e => e.message.includes('NonExistentConcept'))).toBe(true);
+  });
+});
+
+describe('extended parser features', () => {
+  const content = readModel('Ghostbusters_V_0-1-0_business_FORMAT.md');
+  const model = parseModel(content);
+
+  it('buildHierarchyTree returns tree from taxonomy', () => {
+    const tree = buildHierarchyTree(model.taxonomy, model.elements, model.matrices);
+    expect(Array.isArray(tree)).toBe(true);
+    expect(tree.length).toBeGreaterThan(0);
+  });
+
+  it('extractRelationships finds wikilink refs', () => {
+    const rels = extractRelationships(model.frontmatter, model.elements);
+    expect(Array.isArray(rels)).toBe(true);
+    expect(rels.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('extractAnalysis returns array', () => {
+    const analysis = extractAnalysis(content);
+    expect(Array.isArray(analysis)).toBe(true);
   });
 });

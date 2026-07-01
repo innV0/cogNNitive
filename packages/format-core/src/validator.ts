@@ -1,6 +1,6 @@
 import {
   ParsedModel, SpecDocument, ValidationResult, ValidationError,
-  Concept, Marker, MatrixDecl, ElementNode, SpecFrontmatter
+  Concept, Marker, MatrixDecl, ElementNode, SpecFrontmatter, ElementsMap
 } from './types';
 
 export function validateModel(
