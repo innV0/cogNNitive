@@ -1,0 +1,56 @@
+import { describe, it, expect } from 'vitest'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+const srcDir = join(import.meta.dirname!, '..', '..', 'src')
+
+function walk(dir: string): string[] {
+  const files: string[] = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) files.push(...walk(full))
+    else files.push(full)
+  }
+  return files
+}
+
+const allSrcFiles = walk(srcDir)
+const codeFiles = allSrcFiles.filter((f) => f.endsWith('.ts') || f.endsWith('.vue'))
+
+describe('out-of-scope feature absence (R19)', () => {
+  it('ships no conversion UI/control or file<->folder conversion logic', () => {
+    const offendingPaths = allSrcFiles.filter((f) => /convert/i.test(f))
+    expect(offendingPaths).toEqual([])
+  })
+
+  it('ships no cross-boundary wikilink resolution/UI', () => {
+    const offendingPaths = allSrcFiles.filter((f) => /wikilink/i.test(f))
+    expect(offendingPaths).toEqual([])
+
+    const offendingContent = codeFiles.filter((f) => /wikilink|\[\[.*\]\]/i.test(readFileSync(f, 'utf-8')))
+    expect(offendingContent).toEqual([])
+  })
+
+  it('ships no relationship view editors (grid/table/graph/matrix editor components)', () => {
+    const offendingPaths = allSrcFiles.filter((f) =>
+      /(relationship.*(grid|table|graph|matrix)|matrix.*editor|graph.*editor)/i.test(f),
+    )
+    expect(offendingPaths).toEqual([])
+  })
+
+  it('ships no rules/workflows features', () => {
+    const offendingPaths = allSrcFiles.filter((f) => /\brules?\b|\bworkflows?\b/i.test(f))
+    expect(offendingPaths).toEqual([])
+  })
+
+  it('ships no AI imports/SDKs/generation UI', () => {
+    const offendingPaths = allSrcFiles.filter((f) => /\bai[-_]?(sdk|generat|assist)/i.test(f))
+    expect(offendingPaths).toEqual([])
+
+    const offendingContent = codeFiles.filter((f) => {
+      const content = readFileSync(f, 'utf-8')
+      return /from ['"](openai|anthropic|@anthropic-ai|@google\/generative-ai|langchain)/i.test(content)
+    })
+    expect(offendingContent).toEqual([])
+  })
+})

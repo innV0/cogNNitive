@@ -9,6 +9,14 @@ const WIKILINK_RE = /\[\[([^\]]+)\]\]/g;
 const INDEX_F_RE = /_F\s+index:\s*(.*)$/;
 const YAML_FENCE_RE = /```yaml\n([\s\S]*?)```/;
 
+/** Normalize CRLF (and legacy CR) line endings to LF.
+ *  Called once at every public parse entry point so downstream regexes and
+ *  `split('\n')` calls never see a trailing `\r`, which breaks `$`-anchored
+ *  patterns (e.g. element/index bullet markers) on CRLF-saved files. */
+function normalizeLineEndings(text: string): string {
+  return text.replace(/\r\n?/g, '\n');
+}
+
 /* ── Marker patterns (support both `_F` and legacy `<!-- block: -->`) ── */
 
 // Section-level markers: `# _F ConceptName`, `# _F matrices: name`, or `# <!-- block: concepts --> name`
@@ -127,13 +135,13 @@ function parseYamlValue(v: string): string | number | boolean | null | unknown[]
 }
 
 export function parseFrontmatter(content: string): SpecFrontmatter | null {
-  const match = content.match(YAML_BLOCK_RE);
+  const match = normalizeLineEndings(content).match(YAML_BLOCK_RE);
   if (!match) return null;
   return parseYaml(match[1]) as SpecFrontmatter;
 }
 
 export function parseMarkdownTable(md: string): Record<string, string>[] {
-  const lines = md.split('\n').filter(l => l.trim().startsWith('|'));
+  const lines = normalizeLineEndings(md).split('\n').filter(l => l.trim().startsWith('|'));
   if (lines.length < 2) return [];
   const header = parseTableRow(lines[0]);
   if (lines.length < 3) return [];
@@ -151,7 +159,7 @@ function parseTableRow(line: string): string[] {
 
 export function parseIndexBlock(content: string): TaxonomyEdge[] {
   const edges: TaxonomyEdge[] = [];
-  const lines = content.split('\n');
+  const lines = normalizeLineEndings(content).split('\n');
   const stack: Array<{ name: string; depth: number }> = [];
 
   for (const line of lines) {
@@ -279,13 +287,14 @@ export function getSectionType(rawTitle: string): 'index' | 'concept' | 'matrix'
 }
 
 export function parseModel(content: string): ParsedModel {
-  const frontmatter = parseFrontmatter(content);
+  const normalizedContent = normalizeLineEndings(content);
+  const frontmatter = parseFrontmatter(normalizedContent);
   const elements = new ElementsMap();
   const matrices: MatrixData[] = [];
   const nodeMarkers: Record<string, Record<string, number | string>> = {};
   let taxonomy: TaxonomyEdge[] = [];
 
-  const body = content.replace(YAML_BLOCK_RE, '').trim();
+  const body = normalizedContent.replace(YAML_BLOCK_RE, '').trim();
   const sections = body.split(/(?=^#\s)/m);
 
   for (const section of sections) {
@@ -626,7 +635,8 @@ export function extractRelationships(
 
 /** Parse an Analysis Evaluations section from raw body content.
  *  Detects sections titled "Analysis" or "Evaluation" and extracts structured entries. */
-export function extractAnalysis(content: string): AnalysisEntry[] {
+export function extractAnalysis(rawContent: string): AnalysisEntry[] {
+  const content = normalizeLineEndings(rawContent);
   const entries: AnalysisEntry[] = [];
   // Look for analysis/evaluation sections
   const sectionRe = /^#\s+(.*an?lisis|.*evaluation|.*analysis)(.*)$/im;

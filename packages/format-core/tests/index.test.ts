@@ -219,6 +219,61 @@ describe('validator', () => {
   });
 });
 
+describe('CRLF line-ending handling', () => {
+  it('parses a CRLF-encoded model with the same fidelity as LF', () => {
+    const lfContent = [
+      '---',
+      'specification_version: "V_0-1-1"',
+      'level: 3',
+      'model_version: "V_0-1-1"',
+      'title: "CRLF fixture"',
+      'mode: "FILE"',
+      '---',
+      '',
+      '# _F index',
+      '',
+      '* _F index: Parent',
+      '  * _F index: Child',
+      '',
+      '# _F Stakeholders',
+      '* _F Stakeholders: First Stakeholder',
+      '  Description text for the stakeholder.',
+      '* _F Stakeholders: Second Stakeholder',
+      '  Another description.',
+      '',
+    ].join('\n');
+    const crlfContent = lfContent.replace(/\n/g, '\r\n');
+
+    const lfModel = parseModel(lfContent);
+    const crlfModel = parseModel(crlfContent);
+
+    expect(crlfModel.taxonomy.length).toBe(lfModel.taxonomy.length);
+    expect(crlfModel.taxonomy.length).toBeGreaterThan(0);
+
+    expect(crlfModel.elements.has('Stakeholders')).toBe(true);
+    expect(crlfModel.elements.get('Stakeholders')!.length).toBe(2);
+    expect(crlfModel.elements.get('Stakeholders')![0].name).toBe('First Stakeholder');
+    expect(crlfModel.elements.get('Stakeholders')![0].description).toBe('Description text for the stakeholder.');
+
+    expect(crlfModel.elements.size).toBe(lfModel.elements.size);
+  });
+
+  it('parses the real CRLF-saved Ghostbusters model with full fidelity', () => {
+    const content = readModel('Ghostbusters_V_0-1-1_business_FORMAT.md');
+    expect(content.includes('\r\n')).toBe(true); // fixture must be CRLF on disk
+
+    const model = parseModel(content);
+
+    // Taxonomy: the index block declares ~30+ nested bullets.
+    expect(model.taxonomy.length).toBeGreaterThan(20);
+
+    // Elements: multiple concept sections, not just the first one.
+    expect(model.elements.size).toBeGreaterThan(5);
+    expect(model.elements.has('Stakeholders')).toBe(true);
+    expect(model.elements.get('Stakeholders')!.length).toBeGreaterThanOrEqual(7);
+  });
+});
+
 describe('extended parser features', () => {
   const content = readModel('Ghostbusters_V_0-1-1_business_FORMAT.md');
   const model = parseModel(content);
