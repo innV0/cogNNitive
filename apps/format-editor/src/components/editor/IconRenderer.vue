@@ -319,8 +319,14 @@ const resolvedIcon = computed(() => {
   if (nameMap[normalized]) {
     return nameMap[normalized];
   }
-  // If not mapped, we return null to let template render as text/emoji
-  return null;
+  // If not mapped:
+  // If it is a short string (e.g. an emoji), return null to let the template render it.
+  // Otherwise, return the fallback icon.
+  const isShort = Array.from(trimmed).length <= 2;
+  if (isShort) {
+    return null;
+  }
+  return nameMap[normalize(props.fallback)] || FileText;
 });
 
 const isLucide = computed(() => resolvedIcon.value !== null);

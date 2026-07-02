@@ -1,192 +1,189 @@
 <template>
   <div class="flex-1 flex flex-col min-h-0">
-    <!-- When no matrix is selected, show a prompt -->
-    <div v-if="activeMatrixIndex < 0" class="flex-1 flex items-center justify-center">
-      <div class="text-slate-400 dark:text-slate-500 text-xs italic text-center">
-        Select a matrix from the sidebar to begin.
+    <!-- Matrix Dropdown Selector Header -->
+    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3 shrink-0 mb-4 bg-slate-50 dark:bg-slate-900/60 p-2 rounded-lg gap-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Select Matrix:</span>
+        <div v-if="matrixDefs.length" ref="dropdownRef" class="relative">
+          <button
+            @click="isOpen = !isOpen"
+            class="min-w-[200px] flex items-center justify-between gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-2xs hover:border-slate-300 dark:hover:border-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer transition-all"
+          >
+            <span class="truncate">{{ activeMatrix ? activeMatrix.name : 'Select Matrix' }}</span>
+            <ChevronDown class="w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" />
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div
+            v-if="isOpen"
+            class="absolute left-0 z-20 mt-1 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg py-1 max-h-60 overflow-y-auto"
+          >
+            <MatrixPill
+              v-for="(matrix, idx) in matrixDefs"
+              :key="matrix.name"
+              :name="matrix.name"
+              :source="matrix.source"
+              :target="matrix.target"
+              :label="matrix.label"
+              :selected="activeMatrixIndex === idx"
+              :full-width="true"
+              interactive
+              show-source-target
+              as="button"
+              @click="selectMatrix(idx)"
+            />
+          </div>
+        </div>
+        <div v-else class="text-slate-400 dark:text-slate-500 text-xs italic">
+          No relational matrices defined. Define them in Metamatrix Config.
+        </div>
+      </div>
+
+      <div v-if="activeMatrix" class="text-slate-400 dark:text-slate-500 text-xs font-medium">
+        Total: {{ matrixDefs.length }} matrices
       </div>
     </div>
 
-    <!-- Matrix Dropdown + Grid when a matrix is selected -->
-    <template v-else>
-      <!-- Matrix Dropdown Selector Header -->
-      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3 shrink-0 mb-4 bg-slate-50 dark:bg-slate-900/60 p-2 rounded-lg gap-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Select Matrix:</span>
-          <div v-if="matrixDefs.length" ref="dropdownRef" class="relative">
-            <button
-              @click="isOpen = !isOpen"
-              class="min-w-[200px] flex items-center justify-between gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-2xs hover:border-slate-300 dark:hover:border-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer transition-all"
-            >
-              <span class="truncate">{{ activeMatrix ? activeMatrix.name : 'Select Matrix' }}</span>
-              <ChevronDown class="w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" />
-            </button>
+    <!-- When no matrix is selected, show a prompt -->
+    <div v-if="activeMatrixIndex < 0" class="flex-1 flex items-center justify-center">
+      <div class="text-slate-400 dark:text-slate-500 text-xs italic text-center">
+        Select a matrix from the sidebar or dropdown to begin.
+      </div>
+    </div>
 
-            <!-- Dropdown Menu -->
-            <div
-              v-if="isOpen"
-              class="absolute left-0 z-20 mt-1 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg py-1 max-h-60 overflow-y-auto"
-            >
-              <MatrixPill
-                v-for="(matrix, idx) in matrixDefs"
-                :key="matrix.name"
-                :name="matrix.name"
-                :source="matrix.source"
-                :target="matrix.target"
-                :label="matrix.label"
-                :selected="activeMatrixIndex === idx"
-                :full-width="true"
-                interactive
-                show-source-target
-                as="button"
-                @click="selectMatrix(idx)"
-              />
-            </div>
-          </div>
-          <div v-else class="text-slate-400 dark:text-slate-500 text-xs italic">
-            No relational matrices defined. Define them in Metamatrix Config.
-          </div>
+    <!-- Active Matrix View -->
+    <div v-else-if="activeMatrix" class="flex-1 flex flex-col min-h-0 overflow-y-auto">
+      <div class="mb-4 flex items-center justify-between">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Matrix:</span>
+          <BlockPill kind="concept" :concept-type="activeMatrix.source" />
+          <span class="text-slate-400 dark:text-slate-500">&rarr;</span>
+          <BlockPill kind="concept" :concept-type="activeMatrix.target" />
+          <Badge class="text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-400">{{ activeMatrix.widgetType }}</Badge>
         </div>
 
-        <div v-if="activeMatrix" class="text-slate-400 dark:text-slate-500 text-xs font-medium">
-          Total: {{ matrixDefs.length }} matrices
-        </div>
+        <button
+          @click="copyMatrixMarkdown"
+          class="inline-flex items-center gap-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer shadow-2xs"
+        >
+          <Copy class="w-3 h-3 text-slate-500 dark:text-slate-400" />
+          Copy Table MD
+        </button>
       </div>
 
-      <!-- Active Matrix View -->
-      <div v-if="activeMatrix" class="flex-1 flex flex-col min-h-0 overflow-y-auto">
-        <div class="mb-4 flex items-center justify-between">
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Matrix:</span>
-            <BlockPill kind="concept" :concept-type="activeMatrix.source" />
-            <span class="text-slate-400 dark:text-slate-500">&rarr;</span>
-            <BlockPill kind="concept" :concept-type="activeMatrix.target" />
-            <Badge class="text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-400">{{ activeMatrix.widgetType }}</Badge>
-          </div>
+      <!-- Value Distribution Card -->
+      <div v-if="Object.keys(valueDistribution).length > 0" class="mb-3 flex items-center gap-1.5 flex-wrap text-xs">
+        <span class="font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider shrink-0">Values:</span>
+        <span
+          v-for="(count, value) in valueDistribution"
+          :key="value"
+          class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold border"
+          :class="getDistClasses(value)"
+        >
+          {{ value === '-' ? '\u2014' : value }}: {{ count }}
+        </span>
+      </div>
 
-          <button
-            @click="copyMatrixMarkdown"
-            class="inline-flex items-center gap-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer shadow-2xs"
-          >
-            <Copy class="w-3 h-3 text-slate-500 dark:text-slate-400" />
-            Copy Table MD
-          </button>
-        </div>
+      <!-- Relational Data Table -->
+      <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-x-auto max-w-full">
+        <table class="min-w-full border-collapse text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+            <tr>
+              <th class="border-r border-slate-200 dark:border-slate-700 px-4 py-3 text-left font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider sticky left-0 bg-slate-50 dark:bg-slate-900/60 min-w-[150px]">
+                <div class="flex items-center gap-1 flex-wrap">
+                  <BlockPill kind="concept" :concept-type="activeMatrix.source" />
+                  <span class="text-slate-400 dark:text-slate-500 font-normal">\</span>
+                  <BlockPill kind="concept" :concept-type="activeMatrix.target" />
+                </div>
+              </th>
+              <th
+                v-for="col in columns"
+                :key="col"
+                class="px-3 py-3 text-center min-w-[100px] border-r border-slate-100 dark:border-slate-800"
+              >
+                <BlockPill kind="instance" :concept-type="activeMatrix.target" :name="col" :interactive="true" :block-id="resolveBlockId(col, activeMatrix.target)" />
+              </th>
+              <th v-if="!columns.length" class="px-3 py-3 text-center font-bold text-slate-400 dark:text-slate-500">
+                No items defined in {{ activeMatrix.target }}
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
+            <tr v-for="row in rows" :key="row">
+              <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-2.5 sticky left-0 bg-white dark:bg-slate-900 shadow-2xs min-w-[150px]">
+                <BlockPill kind="instance" :concept-type="activeMatrix.source" :name="row" :interactive="true" :block-id="resolveBlockId(row, activeMatrix.source)" />
+              </td>
 
-        <!-- Value Distribution Card -->
-        <div v-if="Object.keys(valueDistribution).length > 0" class="mb-3 flex items-center gap-1.5 flex-wrap text-xs">
-          <span class="font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider shrink-0">Values:</span>
-          <span
-            v-for="(count, value) in valueDistribution"
-            :key="value"
-            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold border"
-            :class="getDistClasses(value)"
-          >
-            {{ value === '-' ? '\u2014' : value }}: {{ count }}
-          </span>
-        </div>
-
-        <!-- Relational Data Table -->
-        <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-x-auto max-w-full">
-          <table class="min-w-full border-collapse text-xs">
-            <thead class="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
-              <tr>
-                <th class="border-r border-slate-200 dark:border-slate-700 px-4 py-3 text-left font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider sticky left-0 bg-slate-50 dark:bg-slate-900/60 min-w-[150px]">
-                  <div class="flex items-center gap-1 flex-wrap">
-                    <BlockPill kind="concept" :concept-type="activeMatrix.source" />
-                    <span class="text-slate-400 dark:text-slate-500 font-normal">\</span>
-                    <BlockPill kind="concept" :concept-type="activeMatrix.target" />
-                  </div>
-                </th>
-                <th
-                  v-for="col in columns"
-                  :key="col"
-                  class="px-3 py-3 text-center min-w-[100px] border-r border-slate-100 dark:border-slate-800"
-                >
-                  <BlockPill kind="instance" :concept-type="activeMatrix.target" :name="col" :interactive="true" :block-id="resolveBlockId(col, activeMatrix.target)" />
-                </th>
-                <th v-if="!columns.length" class="px-3 py-3 text-center font-bold text-slate-400 dark:text-slate-500">
-                  No items defined in {{ activeMatrix.target }}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
-              <tr v-for="row in rows" :key="row">
-                <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-2.5 sticky left-0 bg-white dark:bg-slate-900 shadow-2xs min-w-[150px]">
-                  <BlockPill kind="instance" :concept-type="activeMatrix.source" :name="row" :interactive="true" :block-id="resolveBlockId(row, activeMatrix.source)" />
-                </td>
-
-                <td
-                  v-for="col in columns"
-                  :key="col"
-                  class="px-2 py-2 text-center border-r border-slate-100 dark:border-slate-800"
-                  :class="getHeatmapClasses(row, col)"
-                >
-                  <!-- 1. Widget Boolean Checkbox -->
-                  <div v-if="activeMatrix.widgetType === 'boolean'" class="flex items-center justify-center">
-                    <input
-                      type="checkbox"
-                      :checked="getVal(row, col) === 'X' || getVal(row, col) === true"
-                      @change="setVal(row, col, ($event.target as HTMLInputElement).checked ? 'X' : '-')"
-                      class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary cursor-pointer"
-                    >
-                  </div>
-
-                  <!-- 2. Widget Cycle Buttons -->
-                  <button
-                    v-else-if="activeMatrix.widgetType === 'cycle'"
-                    @click="rotateCycle(row, col)"
-                    :class="[
-                      getCycleBgColor(getVal(row, col)),
-                      'px-2 py-1 rounded border text-xs font-bold w-full transition-all cursor-pointer'
-                    ]"
-                  >
-                    {{ getVal(row, col) === '-' ? '' : getVal(row, col) }}
-                  </button>
-
-                  <!-- 3. Widget Rating Scale -->
-                  <select
-                    v-else-if="activeMatrix.widgetType === 'scale'"
-                    :value="getVal(row, col) === '-' ? '' : getVal(row, col)"
-                    @change="setVal(row, col, ($event.target as HTMLSelectElement).value || '-')"
-                    class="border rounded px-1.5 py-1 text-xs w-full text-center outline-none focus:ring-1 focus:ring-primary border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-300"
-                  >
-                    <option value="">-</option>
-                    <option v-for="num in scaleRange" :key="num" :value="num">{{ num }}</option>
-                  </select>
-
-                  <!-- 4. Widget Custom Set Options -->
-                  <select
-                    v-else-if="activeMatrix.widgetType === 'set'"
-                    :value="getVal(row, col) === '-' ? '' : getVal(row, col)"
-                    @change="setVal(row, col, ($event.target as HTMLSelectElement).value || '-')"
-                    class="border rounded px-1.5 py-1 text-xs w-full outline-none focus:ring-1 focus:ring-primary border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-300"
-                  >
-                    <option value="">-</option>
-                    <option v-for="opt in getSetOptionsList()" :key="opt" :value="opt">{{ opt }}</option>
-                  </select>
-
-                  <!-- 5. Widget Free Text -->
+              <td
+                v-for="col in columns"
+                :key="col"
+                class="px-2 py-2 text-center border-r border-slate-100 dark:border-slate-800"
+                :class="getHeatmapClasses(row, col)"
+              >
+                <!-- 1. Widget Boolean Checkbox -->
+                <div v-if="activeMatrix.widgetType === 'boolean'" class="flex items-center justify-center">
                   <input
-                    v-else-if="activeMatrix.widgetType === 'text'"
-                    type="text"
-                    :value="getVal(row, col) === '-' ? '' : getVal(row, col)"
-                    @input="setVal(row, col, ($event.target as HTMLInputElement).value || '-')"
-                    placeholder="-"
-                    class="border rounded px-1.5 py-1 text-xs w-full outline-none focus:ring-1 focus:ring-primary border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-300"
+                    type="checkbox"
+                    :checked="getVal(row, col) === 'X' || getVal(row, col) === true"
+                    @change="setVal(row, col, ($event.target as HTMLInputElement).checked ? 'X' : '-')"
+                    class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary cursor-pointer"
                   >
-                </td>
-              </tr>
-              <tr v-if="!rows.length">
-                <td :colspan="columns.length + 1" class="text-center text-slate-400 dark:text-slate-500 text-xs italic py-6">
-                  No items defined in {{ activeMatrix.source }}. Make sure to add items to the hierarchy tree.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                </div>
+
+                <!-- 2. Widget Cycle Buttons -->
+                <button
+                  v-else-if="activeMatrix.widgetType === 'cycle'"
+                  @click="rotateCycle(row, col)"
+                  :class="[
+                    getCycleBgColor(getVal(row, col)),
+                    'px-2 py-1 rounded border text-xs font-bold w-full transition-all cursor-pointer'
+                  ]"
+                >
+                  {{ getVal(row, col) === '-' ? '' : getVal(row, col) }}
+                </button>
+
+                <!-- 3. Widget Rating Scale -->
+                <select
+                  v-else-if="activeMatrix.widgetType === 'scale'"
+                  :value="getVal(row, col) === '-' ? '' : getVal(row, col)"
+                  @change="setVal(row, col, ($event.target as HTMLSelectElement).value || '-')"
+                  class="border rounded px-1.5 py-1 text-xs w-full text-center outline-none focus:ring-1 focus:ring-primary border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-300"
+                >
+                  <option value="">-</option>
+                  <option v-for="num in scaleRange" :key="num" :value="num">{{ num }}</option>
+                </select>
+
+                <!-- 4. Widget Custom Set Options -->
+                <select
+                  v-else-if="activeMatrix.widgetType === 'set'"
+                  :value="getVal(row, col) === '-' ? '' : getVal(row, col)"
+                  @change="setVal(row, col, ($event.target as HTMLSelectElement).value || '-')"
+                  class="border rounded px-1.5 py-1 text-xs w-full outline-none focus:ring-1 focus:ring-primary border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-300"
+                >
+                  <option value="">-</option>
+                  <option v-for="opt in getSetOptionsList()" :key="opt" :value="opt">{{ opt }}</option>
+                </select>
+
+                <!-- 5. Widget Free Text -->
+                <input
+                  v-else-if="activeMatrix.widgetType === 'text'"
+                  type="text"
+                  :value="getVal(row, col) === '-' ? '' : getVal(row, col)"
+                  @input="setVal(row, col, ($event.target as HTMLInputElement).value || '-')"
+                  placeholder="-"
+                  class="border rounded px-1.5 py-1 text-xs w-full outline-none focus:ring-1 focus:ring-primary border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-300"
+                >
+              </td>
+            </tr>
+            <tr v-if="!rows.length">
+              <td :colspan="columns.length + 1" class="text-center text-slate-400 dark:text-slate-500 text-xs italic py-6">
+                No items defined in {{ activeMatrix.source }}. Make sure to add items to the hierarchy tree.
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </template>
+    </div>
   </div>
 </template>
 
@@ -194,6 +191,7 @@
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { Copy, ChevronDown } from 'lucide-vue-next';
 import { useModelStore } from '../../stores/modelStore';
+import { useUiStore } from '../../stores/uiStore';
 import BlockPill from './BlockPill.vue';
 import MatrixPill from './MatrixPill.vue';
 import Badge from '../ui/Badge.vue';
@@ -247,6 +245,7 @@ const dropdownRef = ref<HTMLElement | null>(null);
 const selectMatrix = (idx: number) => {
   activeMatrixIndex.value = idx;
   isOpen.value = false;
+  useUiStore().setActiveMatrixIndex(idx);
 };
 
 const handleClickOutside = (event: MouseEvent) => {

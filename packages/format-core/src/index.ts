@@ -1,4 +1,5 @@
 export * from './types';
+
 export {
   parseYaml,
   parseFrontmatter,
@@ -34,4 +35,14 @@ export {
 
 export {
   validateModel,
+  validateFormatContent,
+  validateFormatSyntax,
 } from './validator';
+
+export * from './identity';
+export * from './metamodel';
+export * from './recursiveParser';
+export * from './driver';
+export type { ModelDriver, ModelEntry, DriverType } from './driver';
+export { createDriver } from './driver';
+export * from './fs-types';

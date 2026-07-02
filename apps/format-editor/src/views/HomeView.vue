@@ -141,6 +141,42 @@ async function reopenFolder(entry: FolderHistoryEntry): Promise<void> {
   }
 }
 
+/**
+ * Tries to resolve a relative directory path from any previously stored handle
+ * in the workspace history. This lets us navigate to a sample's parent folder
+ * from a previously-opened workspace root without knowing the absolute path.
+ *
+ * Iterates each history handle and attempts to walk through the path segments
+ * via getDirectoryHandle(). Returns the first handle that fully resolves, or
+ * undefined if none of the stored handles contain the full path.
+ */
+async function resolveAncestorHandle(
+  segments: string[],
+): Promise<FileSystemDirectoryHandle | undefined> {
+  for (const entry of history.value) {
+    try {
+      const handle = await getStoredHandle(entry.handleKey)
+      if (!handle) continue
+
+      // At runtime, stored handles are real FileSystemDirectoryHandle instances.
+      let dir: FileSystemDirectoryHandle = handle as unknown as FileSystemDirectoryHandle
+      for (const seg of segments) {
+        const next = await dir.getDirectoryHandle(seg).catch(() => null)
+        if (!next) {
+          dir = null!
+          break
+        }
+        dir = next
+      }
+      if (dir) return dir
+    } catch {
+      // Stale handle or permission issue — try the next history entry
+      continue
+    }
+  }
+  return undefined
+}
+
 /** Removes a single history entry. */
 async function removeEntry(handleKey: string): Promise<void> {
   await removeFromHistory(handleKey)
@@ -154,9 +190,9 @@ async function clearAllHistory(): Promise<void> {
 }
 
 /**
- * Handles a sample card click — opens the folder picker and tries to start at
- * a recently used workspace location (if available) so the user can quickly
- * navigate to the sample folder.
+ * Handles a sample card click — resolves the sample's parent directory from
+ * workspace history and opens the folder picker starting at that location so
+ * the user can quickly select the sample folder without browsing from scratch.
  */
 async function onSampleClick(sample: SampleFolder): Promise<void> {
   error.value = null
@@ -170,18 +206,20 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
   try {
     busy.value = true
 
-    // Attempt to start the picker at a recently used location
-    let options: { startIn: FileSystemHandle } | undefined
-    if (history.value.length > 0) {
-      const handle = await getStoredHandle(history.value[0].handleKey)
-      if (handle) {
-        // The stored handles are real FileSystemDirectoryHandle instances
-        options = { startIn: handle as unknown as FileSystemHandle }
-      }
-    }
+    // Resolve the sample's parent directory from stored workspace history
+    // FILE-mode: parent = directory that contains the file (what user selects)
+    // FOLDER-mode: parent = directory that contains the sample folder
+    const parentSegments = sample.path.replace(/\/+$/, '').split('/').slice(0, -1)
+    const ancestorHandle = parentSegments.length > 0
+      ? await resolveAncestorHandle(parentSegments)
+      : undefined
 
-    const dirHandle = options
-      ? await picker.call(window, options)
+    const pickerOpts = ancestorHandle
+      ? { startIn: ancestorHandle as FileSystemHandle }
+      : undefined
+
+    const dirHandle = pickerOpts
+      ? await picker.call(window, pickerOpts)
       : await picker.call(window)
 
     await workspace.open(dirHandle)

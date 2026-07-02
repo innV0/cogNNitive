@@ -4,10 +4,14 @@ import { join } from 'node:path';
 import { parseModel, parseFrontmatter, parseIndexBlock, parseMarkdownTable, validateModel, buildHierarchyTree, extractRelationships, extractAnalysis } from '../src/index';
 
 const specsDir = join(import.meta.dirname!, '..', '..', '..', 'specs');
+const archiveDir = join(import.meta.dirname!, '..', '..', '..', 'archive', 'specs');
 const modelsDir = join(import.meta.dirname!, '..', '..', '..', 'specs', 'business_V_0-1-1', 'samples');
 
 function readSpec(name: string): string {
   return readFileSync(join(specsDir, name), 'utf-8');
+}
+function readArchiveSpec(name: string): string {
+  return readFileSync(join(archiveDir, name), 'utf-8');
 }
 function readModel(name: string): string {
   return readFileSync(join(modelsDir, name), 'utf-8');
@@ -26,7 +30,7 @@ describe('defiNNe (level 0)', () => {
 });
 
 describe('FORMAT (level 1)', () => {
-  const content = readSpec('FORMAT_V_0-1-0_FORMAT.md');
+  const content = readArchiveSpec('FORMAT_V_0-1-0_FORMAT.md');
   const fm = parseFrontmatter(content)!;
 
   it('parses frontmatter', () => {

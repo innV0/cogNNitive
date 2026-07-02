@@ -134,8 +134,10 @@ import { Copy, Save, ChevronDown, Info } from 'lucide-vue-next';
 import { useWorkspaceStore } from '../../stores/workspaceStore';
 import { useModelStore } from '../../stores/modelStore';
 import { DEFAULT_FORMAT_VERSION, DEFAULT_TEMPLATE_NAME, DEFAULT_TEMPLATE_VERSION } from '../../utils/constants';
+import { useToast } from '../../shared/useToast';
 
 const workspaceStore = useWorkspaceStore();
+const { show } = useToast();
 const modelStore = useModelStore();
 
 const saveDropdownOpen = ref(false);
@@ -201,24 +203,24 @@ const unsavedChanges = computed(() => modelStore.dirtyIds.size > 0);
 
 async function handleSave(): Promise<void> {
   if (!hasRootNode.value) return;
-
-  // Phase 2: save through workspaceStore + modelStore dirtyIds.
-  // Full recursive serializer integration comes in Phase 6.
-  // For now, mark all dirtyIds as clean (placeholder — real write-back in Phase 3/6).
-  const dirty = Array.from(modelStore.dirtyIds);
-  for (const id of dirty) {
-    modelStore.clearDirty(id);
+  try {
+    await workspaceStore.saveActiveFile();
+    saveDropdownOpen.value = false;
+    show('Saved successfully.', 'success');
+  } catch (err) {
+    bumpError.value = err instanceof Error ? err.message : 'Save failed';
   }
 }
 
 async function bumpVersion(level: 'major' | 'minor' | 'patch'): Promise<void> {
   bumpError.value = '';
+  if (!hasRootNode.value) return;
   try {
-    // Version bump placeholder — will use buildFormatFilename/parseFormatFilename
-    // from version.ts in Phase 6 with proper file rename flow.
+    await workspaceStore.saveActiveFileWithVersionBump(level);
     saveDropdownOpen.value = false;
-  } catch {
-    bumpError.value = 'Could not bump version.';
+    show('Version bumped to ' + modelVersion.value, 'success');
+  } catch (err) {
+    bumpError.value = err instanceof Error ? err.message : 'Version bump failed';
   }
 }
 

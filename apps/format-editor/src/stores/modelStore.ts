@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import type { ModelNode } from '../model/types'
 import type { DirectoryHandleLike } from './workspaceStore'
 import { recursiveParse } from '../model/recursiveParser'
+import type { ModelDriver } from '@innv0/format-core'
 
 export interface ModelState {
   nodes: Record<string, ModelNode>
@@ -67,8 +68,8 @@ export const useModelStore = defineStore('model', {
      * walking/parsing lands in Phase 3 (recursiveParser.ts); this wires
      * the call so workspaceStore.open() has a single integration point.
      */
-    async parseFromHandle(handle: DirectoryHandleLike): Promise<void> {
-      const result = await recursiveParse(handle)
+    async parseFromHandle(handle: DirectoryHandleLike, driver?: ModelDriver): Promise<void> {
+      const result = await recursiveParse(handle, driver)
       this.setGraph(result.nodes, result.rootIds)
     },
 

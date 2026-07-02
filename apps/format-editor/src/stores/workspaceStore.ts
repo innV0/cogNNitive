@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { useModelStore } from './modelStore'
+import { recursiveSerialize } from '../model/recursiveSerializer'
+import { parseFormatFilename, buildFormatFilename, bumpVersion, formatVersionString } from '../utils/version'
 import type { DirectoryHandleLike } from '../model/fs-types'
+import type { BumpLevel } from '../utils/version'
+import type { ModelDriver, DriverType } from '@innv0/format-core'
 
 export type { DirectoryHandleLike }
 
@@ -48,10 +52,13 @@ async function loadStoredHandle(): Promise<DirectoryHandleLike | null> {
 
 export interface WorkspaceState {
   handle: DirectoryHandleLike | null
+  driver: ModelDriver | null
+  driverType: DriverType | null
   hasHandle: boolean
   isParsing: boolean
   hasParsed: boolean
   parseCount: number
+  saving: boolean
   error: string | null
 }
 
@@ -64,10 +71,13 @@ export interface WorkspaceState {
 export const useWorkspaceStore = defineStore('workspace', {
   state: (): WorkspaceState => ({
     handle: null,
+    driver: null,
+    driverType: null,
     hasHandle: false,
     isParsing: false,
     hasParsed: false,
     parseCount: 0,
+    saving: false,
     error: null,
   }),
   actions: {
@@ -81,6 +91,10 @@ export const useWorkspaceStore = defineStore('workspace', {
       this.hasHandle = true
       this.error = null
 
+      // Detect storage mode from the handle kind
+      const mode: DriverType = handle.kind === 'directory' ? 'FOLDER' : 'FILE'
+      this.driverType = mode
+
       if (this.hasParsed && !options.force) {
         return
       }
@@ -92,7 +106,7 @@ export const useWorkspaceStore = defineStore('workspace', {
       try {
         await storeHandle(handle)
         const modelStore = useModelStore()
-        await modelStore.parseFromHandle(handle)
+        await modelStore.parseFromHandle(handle, this.driver)
         this.hasParsed = true
         this.parseCount += 1
       } catch (err) {
@@ -115,11 +129,82 @@ export const useWorkspaceStore = defineStore('workspace', {
 
     reset(): void {
       this.handle = null
+      this.driver = null
+      this.driverType = null
       this.hasHandle = false
       this.isParsing = false
       this.hasParsed = false
       this.parseCount = 0
+      this.saving = false
       this.error = null
+    },
+
+    /**
+     * Serializes all dirty nodes and writes them back to disk via
+     * recursiveSerialize. Clears dirty flags on success.
+     */
+    async saveActiveFile(): Promise<void> {
+      if (!this.handle) throw new Error('No workspace handle')
+      this.saving = true
+      try {
+        const modelStore = useModelStore()
+        await recursiveSerialize(this.handle, modelStore.nodes, modelStore.rootIds, modelStore.dirtyIds, this.driver ?? undefined)
+        // Clear dirty flags after successful write
+        for (const id of Array.from(modelStore.dirtyIds)) {
+          modelStore.clearDirty(id)
+        }
+      } catch (err) {
+        this.error = err instanceof Error ? err.message : String(err)
+        throw err
+      } finally {
+        this.saving = false
+      }
+    },
+
+    /**
+     * Saves the active file under a new version-bumped filename, then
+     * persists all dirty nodes. The original file is NOT deleted.
+     */
+    async saveActiveFileWithVersionBump(level: BumpLevel): Promise<void> {
+      if (!this.handle) throw new Error('No workspace handle')
+
+      const modelStore = useModelStore()
+      const rootId = modelStore.rootIds[0]
+      const rootNode = modelStore.getNode(rootId)
+      if (!rootNode) throw new Error('No root node found for version bump')
+
+      const parsed = parseFormatFilename(rootNode.source.path)
+      if (!parsed) throw new Error('Could not parse filename for version bump')
+
+      const newVersion = bumpVersion(parsed.version, level)
+      const newFilename = buildFormatFilename(parsed.baseName, parsed.templateName, newVersion)
+      const versionStr = formatVersionString(newVersion)
+
+      // Create the new file and write current content
+      const newFileHandle = await this.handle.getFileHandle(newFilename, { create: true })
+      if (!newFileHandle.createWritable) {
+        throw new Error(`New file handle "${newFilename}" does not support writing`)
+      }
+      const writable = await newFileHandle.createWritable()
+      await writable.write(rootNode.rawContent ?? '')
+      await writable.close()
+
+      // Update the root node's in-memory frontmatter version
+      if (rootNode.rawContent) {
+        rootNode.rawContent = rootNode.rawContent.replace(
+          /^(model_version|version):\s*"V_\d+-\d+-\d+"/m,
+          `$1: "${versionStr}"`,
+        )
+      }
+
+      // Update the root node's source path
+      rootNode.source.path = newFilename
+
+      // Mark root node dirty so saveActiveFile persists changes
+      modelStore.markDirty(rootId)
+
+      // Persist all dirty nodes (including the updated root)
+      await this.saveActiveFile()
     },
   },
 })

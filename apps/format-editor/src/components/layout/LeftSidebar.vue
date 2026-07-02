@@ -50,6 +50,7 @@
           :selected-id="selectedId"
           :depth="0"
           :expanded-generation="expandedGeneration"
+          group-by-concept
           @select="(id: string) => $emit('select-node', id)"
           @move-up="(id: string) => $emit('move-up', id)"
           @move-down="(id: string) => $emit('move-down', id)"
@@ -59,22 +60,66 @@
           No nodes loaded
         </p>
       </div>
+
+      <!-- Relations Section -->
+      <div class="space-y-1">
+        <div
+          @click="relationsOpen = !relationsOpen"
+          class="flex items-center justify-between px-2 py-1 rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        >
+          <div class="flex items-center gap-2">
+            <ChevronRight class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-90': relationsOpen }" />
+            <Table2 class="w-3.5 h-3.5" />
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Relations</h2>
+          </div>
+          <button
+            @click.stop="navigateToConfig"
+            class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-primary transition-colors"
+            title="Metamatrix Config"
+          >
+            <Settings class="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div v-if="relationsOpen" class="space-y-0.5 pl-1">
+          <MatrixPill
+            v-for="(matrix, idx) in matrixDefs"
+            :key="matrix.name"
+            :name="matrix.name"
+            :source="matrix.source"
+            :target="matrix.target"
+            :label="matrix.label"
+            :selected="uiStore.activeMatrixIndex === idx"
+            :full-width="true"
+            interactive
+            show-source-target
+            as="button"
+            @click="selectMatrix(idx)"
+          />
+          <p v-if="matrixDefs.length === 0" class="px-3 py-2 text-xs text-slate-400 dark:text-slate-500 italic">
+            No relations defined.
+          </p>
+        </div>
+      </div>
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { ChevronsDown, ChevronsUp, LayoutDashboard } from 'lucide-vue-next';
+import { ChevronsDown, ChevronsUp, LayoutDashboard, ChevronRight, Table2, Settings } from 'lucide-vue-next';
 import { useModelStore } from '../../stores/modelStore';
 import { useUiStore } from '../../stores/uiStore';
 import { useResizablePanel } from '../../composables/useResizablePanel';
 import ConceptTreeNode from './ConceptTreeNode.vue';
+import MatrixPill from '../editor/MatrixPill.vue';
 
-defineEmits<{
+const emit = defineEmits<{
   'select-node': [nodeId: string];
   'move-up': [nodeId: string];
   'move-down': [nodeId: string];
+  'select-matrix': [idx: number];
+  'select-view': [view: string];
 }>();
 
 const modelStore = useModelStore();
@@ -103,4 +148,26 @@ function collapseAll(): void {
 
 // Selected node for highlighting — driven by uiStore in Phase 6
 const selectedId = computed(() => uiStore.selectedNodeId);
+
+// Relations section
+const MATRIX_DEFS_KEY = '__matrix_defs';
+const relationsOpen = ref(true);
+
+const matrixDefs = computed(() => {
+  if (modelStore.rootIds.length === 0) return [];
+  const root = modelStore.getNode(modelStore.rootIds[0]);
+  if (!root) return [];
+  const field = root.fields[MATRIX_DEFS_KEY];
+  if (!field?.value) return [];
+  return field.value as any[];
+});
+
+function selectMatrix(idx: number): void {
+  emit('select-matrix', idx);
+  emit('select-view', 'matrices');
+}
+
+function navigateToConfig(): void {
+  emit('select-view', 'metamatrix-config');
+}
 </script>

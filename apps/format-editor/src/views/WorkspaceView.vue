@@ -44,6 +44,9 @@ const selectedNode = computed(() =>
 
 const selectedNodeName = computed(() => selectedNode.value?.name ?? '')
 const selectedNodeType = computed(() => selectedNode.value?.type ?? 'text')
+const conceptType = computed(() => {
+  return selectedNode.value?.conceptBinding?.name ?? selectedNode.value?.type ?? null
+})
 const rootNode = computed(() => {
   const ids = modelStore.rootIds
   return ids.length > 0 ? modelStore.getNode(ids[0]) : null
@@ -104,6 +107,18 @@ function setActiveView(view: ActiveView): void {
   uiStore.setActiveView(view)
 }
 
+function onSelectMatrix(idx: number): void {
+  uiStore.setActiveMatrixIndex(idx)
+  uiStore.setActiveView('matrices')
+}
+
+function onSelectView(view: string): void {
+  if (view === 'metamatrix-config') {
+    uiStore.setActiveView('matrices')
+    // We stay in matrices view which already shows MetamatrixConfig above MatricesGrid
+  }
+}
+
 // ── Validation ──
 
 async function runValidation(): Promise<void> {
@@ -157,15 +172,11 @@ function closeWorkspace(): void {
 // ── Keyboard shortcuts ──
 
 function onKeydown(e: KeyboardEvent): void {
-  // Ctrl+S → save (placeholder — wire to workspaceStore save flow)
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault()
-    // Mark all dirty nodes as clean for now
-    const dirty = Array.from(modelStore.dirtyIds)
-    for (const id of dirty) {
-      modelStore.clearDirty(id)
-    }
-    show('Saved.', 'success')
+    workspaceStore.saveActiveFile().catch(() => {
+      show('Save failed.', 'error')
+    })
   }
 }
 
@@ -187,6 +198,8 @@ onUnmounted(() => {
         @select-node="onSelectNode"
         @move-up="onMoveUp"
         @move-down="onMoveDown"
+        @select-matrix="onSelectMatrix"
+        @select-view="onSelectView"
       />
 
       <main class="flex-1 flex flex-col overflow-y-auto min-w-0">
@@ -321,6 +334,7 @@ onUnmounted(() => {
 
       <RightGuidanceSidebar
         :concept-name="selectedNodeId ? modelStore.getNode(selectedNodeId)?.name : null"
+        :concept-type="conceptType"
       />
 
       <ToastMessage />
