@@ -189,22 +189,26 @@ markers:
 
 ## Examples
 
-### Sample KB: Team Knowledge Base
+### Creating a Sample
+
+This template currently has no canonical sample model. To create one:
+
+1. Create a FOLDER-mode model at `specs/kb_V_0-1-1/samples/` following the naming convention `<Name>_V_x-y-z_kb/`.
+2. Reference historic models in `archive/2026-07-02/models/TeamKB_V_0-1-1_kb/` for reference structure.
+
+Expected structure for a KB model:
 
 ```
-📁 TeamKB_V_0-1-1_kb/
-  📄 _FORMAT.md
-  📁 Alice/
-    📄 _FORMAT.md        → type: Persona, role: researcher
-    📄 photo.jpg
-  📁 MachineLearning/
-    📄 _FORMAT.md        → type: Topic, category: technology
-    📁 Transformers/
-      📄 _FORMAT.md      → child topic, type: Topic
-    📁 CNNs/
-      📄 _FORMAT.md      → child topic, type: Topic
-  📁 AttentionPaper/
-    📄 _FORMAT.md        → type: Reference, url: "..."
-  📁 downloads/
-    📄 paper.pdf         ← asset folder (no _FORMAT.md)
+📁 <Name>_V_x-y-z_kb/
+  📄 _FORMAT.md                        ← root: type "Persona", fields: { purpose: "..." }
+  📁 PersonaName/
+    📄 _FORMAT.md                      → type: Persona, fields: { role: ... }
+  📁 TopicName/
+    📄 _FORMAT.md                      → type: Topic, fields: { category: ... }
+    📁 Subtopic/
+      📄 _FORMAT.md                    → child topic, type: Topic
+  📁 ReferenceName/
+    📄 _FORMAT.md                      → type: Reference, fields: { url: "..." }
+  📁 assets/
+    📄 file.pdf                        ← plain asset folder (no _FORMAT.md)
 ```

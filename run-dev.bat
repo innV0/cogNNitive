@@ -1,53 +1,69 @@
 @echo off
 setlocal
 set ROOT=%~dp0
-title iNNv0 Dev Environment
+title cogNNitive Dev Environment
 
 echo.
 echo +----------------------------------------------------+
-echo ^|            iNNv0 - Dev Environment                 ^|
+echo ^|       cogNNitive — Dev Environment                ^|
 echo +----------------------------------------------------+
 echo.
 
-REM ── Kill any stale node/vite processes to free ports ──
-echo   Cleaning up stale processes...
-taskkill /f /im node.exe >nul 2>&1
-timeout /t 2 /nobreak >nul
+REM ── Kill any previous dev windows (targeted, not all node.exe!) ──
+echo   Cleaning up previous dev servers...
+taskkill /fi "WINDOWTITLE eq format-editor*" /f >nul 2>&1
+taskkill /fi "WINDOWTITLE eq cogNNitive - docs*" /f >nul 2>&1
+timeout /t 1 /nobreak >nul
 echo   Done.
 echo.
 
-echo Starting 4 development servers in their own windows...
+REM ── Install dependencies if missing ──
+if not exist "%ROOT%node_modules" (
+    echo   Installing workspace dependencies...
+    cd /d "%ROOT%" && call npm install
+    if !ERRORLEVEL! NEQ 0 (
+        echo   ERROR: npm install failed!
+        pause
+        exit /b 1
+    )
+    echo.
+)
+
+REM ── Pre-build format-core (required by format-editor) ──
+echo   Building @innv0/format-core...
+cd /d "%ROOT%packages\format-core" && call npx tsc
+if %ERRORLEVEL% NEQ 0 (
+    echo   ERROR: format-core build failed!
+    pause
+    exit /b 1
+)
 echo.
 
-echo   [cogNNitive]  http://localhost:8080
-start "cogNNitive" cmd /c "title cogNNitive && cd /d %ROOT% && npx http-server docs/ -p 8080 -c-1 --silent"
+echo Starting development servers...
+echo.
 
-echo   [file-format]  http://localhost:3001
-start "file-format" cmd /c "title file-format && cd /d %ROOT%..\file-format && npx vite --port 3001 --host"
+echo   [format-editor] http://localhost:5174
+start "format-editor" cmd /c "title format-editor && cd /d "%ROOT%" && npm run dev -w @innv0/format-editor -- --port 5174 --host"
 
-echo   [folder-format] http://localhost:3002
-start "folder-format" cmd /c "title folder-format && cd /d %ROOT%..\folder-format && npx vite --port 3002 --host"
-
-echo   [launcher]     http://localhost:5173
-start "launcher" cmd /c "title launcher && cd /d %ROOT%apps\launcher && npx vite --port 5173 --host"
+echo   [docs]          http://localhost:8080
+start "cogNNitive - docs" cmd /c "title cogNNitive - docs && cd /d "%ROOT%" && npx http-server docs/ -p 8080 -c-1 --silent"
 
 echo.
 echo +----------------------------------------------------+
-echo ^|  Server            Window Title       URL           ^|
-echo ^|  cogNNitive     - cogNNitive       - http://localhost:8080 ^|
-echo ^|  file-format    - file-format      - http://localhost:3001 ^|
-echo ^|  folder-format  - folder-format    - http://localhost:3002 ^|
-echo ^|  launcher       - launcher         - http://localhost:5173 ^|
+echo ^|  Server            Window Title               URL  ^|
+echo ^|  format-editor   - format-editor    - http://localhost:5174 ^|
+echo ^|  docs            - cogNNitive - docs - http://localhost:8080 ^|
 echo +----------------------------------------------------+
 echo.
 echo Each server runs in its own window. Close the windows
-echo or press Ctrl+C here to stop all servers.
+echo or press any key here to stop all servers.
 echo.
 pause >nul
 
 echo.
 echo Stopping all servers...
-taskkill /f /im node.exe >nul 2>&1
+taskkill /fi "WINDOWTITLE eq format-editor" /f >nul 2>&1
+taskkill /fi "WINDOWTITLE eq cogNNitive - docs" /f >nul 2>&1
 echo Done.
 echo.
 

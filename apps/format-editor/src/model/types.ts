@@ -90,5 +90,23 @@ export interface ModelNode {
    * closest subtree override wins (R9) — see `metamodel.ts`.
    */
   localMetamodel?: LocalMetamodel
+  /**
+   * Optional node-kind discriminator.
+   * - 'root': the top-level FILE/FOLDER node of a workspace (parentId === null).
+   * - 'concept': a bare directory or `# _F` section representing a type/group.
+   * - 'element': a `type:`-bearing directory or index-block instance.
+   * Undefined means the node was created before this discriminator existed
+   * (backward-compatible with existing graphs).
+   */
+  kind?: 'root' | 'concept' | 'element'
+  /**
+   * Optional metamodel binding for concept/group nodes.
+   * - `source: 'metamodel'`: the concept name matched a declared concept in
+   *    the resolved metamodel.
+   * - `source: 'structural'`: no matching concept found; the node is a
+   *    structural concept/group placeholder.
+   * Undefined means the node is not a concept node or pre-dates this field.
+   */
+  conceptBinding?: { name: string; source: 'metamodel' | 'structural' }
   source: { path: string } // FS location for write-back
 }

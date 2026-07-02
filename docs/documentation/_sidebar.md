@@ -1,6 +1,7 @@
 - [Home](README)
-- [Launcher](launcher)
+- [format-editor](format-editor)
 - [format-core](format-core)
+- [Launcher](launcher) *(legacy)*
 - [Ecosystem](ecosystem)
 - [Specifications](specifications)
 - [Usage](usage)

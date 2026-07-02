@@ -350,14 +350,26 @@ mode: "FILE"
 
 ## Examples
 
-### Parent Chain from a Model
+### Canonical Samples
 
-From `Ghostbusters_V_0-1-1_business_FORMAT.md`:
+Every template defined in this repo has a canonical sample under `samples/`:
+
+| Template | Sample | Mode | Path |
+|---|---|---|---|
+| **Business** | `Ghostbusters_V_0-1-2_business_FORMAT.md` | FILE | `specs/business_V_0-1-1/samples/` |
+| **Procedures** | `CodeReviewProcess_V_1-0-0_procedures_FORMAT.md` | FILE | `specs/procedures_V_0-1-1/samples/` |
+| **Catalog** | `Music_History_V_1-0-0_catalog/` | FOLDER | `specs/catalog_V_0-1-2/samples/` |
+
+> **Note:** The Knowledge Base template (`kb_V_0-1-1`) has no sample model. If you need one, create it at `specs/kb_V_0-1-1/samples/`.
+
+### Parent Chain from Ghostbusters
+
+From `specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_FORMAT.md`:
 
 ```yaml
 parent:
   name: "business_V_0-1-1"
-  url: "https://raw.githubusercontent.com/innV0/FORMAT/v0.1.1/docs/templates/business/V_0-1-1/business_V_0-1-1_FORMAT.md"
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 ```
 
-The application resolves: business_V_0-1-1 → FORMAT_V_0-1-1 → defiNNe_V_0-1-0.
+The application resolves: Ghostbusters → business_V_0-1-1 → FORMAT_V_0-1-2 → defiNNe_V_0-1-0.

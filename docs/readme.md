@@ -6,6 +6,21 @@ Built with the [iNNv0 Web Design Guide](https://skills.innv0.com/innv0-web-desig
 
 ---
 
+## About this site
+
+This is the public website for the **cogNNitive** monorepo, published via GitHub Pages from the `docs/` folder.
+
+### What's inside the monorepo
+
+| Component | Description |
+|-----------|-------------|
+| `apps/format-editor` | Unified Vue 3 workspace editor (FILE + FOLDER in one tree) |
+| `apps/launcher` | Legacy drag-and-drop detector — being consolidated into format-editor |
+| `packages/format-core` | Shared TypeScript parser, resolver, and validator |
+| `specs/` | defiNNe, FORMAT, business, procedures, kb, catalog specs |
+| `models/` | Example FORMAT models |
+| `docs/` | This website + Docsify documentation at `/documentation` |
+
 ## Analytics (Umami)
 
 This site uses [Umami](https://umami.is) for privacy-focused analytics.

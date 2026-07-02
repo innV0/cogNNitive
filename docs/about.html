@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About — cogNNitive</title>
-  <meta name="description" content="Learn about cogNNitive, the central hub for the iNNv0 FORMAT ecosystem — architecture, packages, and apps.">
+  <meta name="description" content="Learn about cogNNitive, the central hub for the iNNv0 FORMAT ecosystem — format-editor, format-core, and the spec chain.">
   <meta name="generator" content="https://skills.innv0.com/innv0-web-design-guide">
   <link rel="canonical" href="https://innv0.github.io/cogNNitive/about">
   <link rel="alternate" type="text/markdown" href="/about.md">
@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/analytics.js" defer></script>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"WebSite","name":"cogNNitive","url":"https://innv0.github.io/cogNNitive/","description":"Central hub for the iNNv0 FORMAT ecosystem. Launcher, format-core, and spec chain.","author":{"@type":"Organization","name":"iNNv0"},"inLanguage":"en","isAccessibleForFree":true}
+  {"@context":"https://schema.org","@type":"WebSite","name":"cogNNitive","url":"https://innv0.github.io/cogNNitive/","description":"Central hub for the iNNv0 FORMAT ecosystem. format-editor, format-core, and spec chain.","author":{"@type":"Organization","name":"iNNv0"},"inLanguage":"en","isAccessibleForFree":true}
   </script>
 </head>
 <body>
@@ -43,33 +43,40 @@
 
       <div style="max-width:720px;margin:0 auto;">
         <h2 style="font-size:22px;margin-bottom:var(--space-md);">Architecture</h2>
-        <p style="margin-bottom:var(--space-lg);">cogNNitive is organized as a npm workspaces monorepo with two main areas:</p>
+        <p style="margin-bottom:var(--space-lg);">cogNNitive is organized as an npm workspaces monorepo with two main areas:</p>
 
         <div style="background:var(--canvas-inert);border:1px solid var(--border-soft);border-radius:var(--radius);padding:var(--space-lg);margin-bottom:var(--space-xl);font-family:var(--mono);font-size:14px;line-height:1.8;">
           cogNNitive/<br/>
           ├── apps/<br/>
-          │&nbsp;&nbsp; └── launcher/ &nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Vue 3 + Vite drop-zone app</span><br/>
+          │&nbsp;&nbsp; ├── format-editor/ &nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Vue 3 unified workspace editor (FILE + FOLDER)</span><br/>
+          │&nbsp;&nbsp; └── launcher/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Legacy — being consolidated into format-editor</span><br/>
           ├── packages/<br/>
           │&nbsp;&nbsp; └── format-core/ <span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// TS parser, resolver, validator</span><br/>
           ├── specs/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Specification files</span><br/>
-          ├── models/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Example models</span><br/>
+          ├── models/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Example models</span><br/>
           └── docs/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// This website</span>
         </div>
 
-        <h2 style="font-size:22px;margin-bottom:var(--space-md);">Packages</h2>
+        <h2 style="font-size:22px;margin-bottom:var(--space-md);">Apps</h2>
+
+        <div class="card" style="margin-bottom:var(--space-md);">
+          <span class="card-tag">@innv0/format-editor v0.1.0</span>
+          <h3 style="margin-top:var(--space-sm);">format-editor</h3>
+          <p>Unified Vue 3 workspace editor with Pinia state management and Vue Router. Uses the File System Access API to open workspace folders, runs a single recursive parse pass over every directory, and renders FILE and FOLDER mode models in one mixed tree. Features a sidebar tree navigator, metamodel-driven NodeForm, and IndexedDB handle persistence for fast reopen.</p>
+        </div>
+
+        <div class="card" style="margin-bottom:var(--space-md);">
+          <span class="card-tag">@innv0/launcher v0.1.0 &mdash; Legacy</span>
+          <h3 style="margin-top:var(--space-sm);">cogNNitive Launcher</h3>
+          <p>The original Vue 3 drag-and-drop app that detected FILE vs FOLDER mode and routed to separate editors. Now being consolidated into format-editor — its validation, history, and toast components are being ported over. Still available during the transition.</p>
+        </div>
+
+        <h2 style="font-size:22px;margin-bottom:var(--space-md);margin-top:var(--space-xl);">Package</h2>
 
         <div class="card" style="margin-bottom:var(--space-md);">
           <span class="card-tag">@innv0/format-core v0.1.0</span>
           <h3 style="margin-top:var(--space-sm);">format-core</h3>
-          <p>Framework-agnostic TypeScript library with a unified parser for FILE and FOLDER modes, model types, a validator against template schemas, and IO drivers for both modes.</p>
-        </div>
-
-        <h2 style="font-size:22px;margin-bottom:var(--space-md);margin-top:var(--space-xl);">Apps</h2>
-
-        <div class="card" style="margin-bottom:var(--space-md);">
-          <span class="card-tag">@innv0/launcher v0.1.0</span>
-          <h3 style="margin-top:var(--space-sm);">cogNNitive Launcher</h3>
-          <p>A Vue 3 application with drag-and-drop zone that reads FORMAT frontmatter, detects FILE/FOLDER/BOTH mode, and routes to the appropriate editor (file-format or folder-format).</p>
+          <p>Framework-agnostic TypeScript library with a unified parser for FILE and FOLDER modes, model types, a validator against template schemas, IO drivers for both modes, and a parent-spec-chain resolver.</p>
         </div>
 
         <h2 style="font-size:22px;margin-bottom:var(--space-md);margin-top:var(--space-xl);">Specifications</h2>

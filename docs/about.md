@@ -1,6 +1,6 @@
 ---
 title: About — cogNNitive
-description: Learn about cogNNitive, the central hub for the iNNv0 FORMAT ecosystem.
+description: Learn about cogNNitive, the central hub for the iNNv0 FORMAT ecosystem — format-editor, format-core, and the spec chain.
 html_url: https://innv0.github.io/cogNNitive/about
 generator: https://skills.innv0.com/innv0-web-design-guide
 ---
@@ -13,6 +13,17 @@ The monorepo that ties the iNNv0 FORMAT ecosystem together.
 
 npm workspaces monorepo with apps/, packages/, specs/, models/, and docs/.
 
+## Apps
+
+**format-editor** (`@innv0/format-editor`) — unified Vue 3 workspace editor:
+- File System Access API to open workspace folders
+- Single recursive parse pass over every directory
+- FILE and FOLDER mode models in one mixed tree
+- Sidebar tree navigator + metamodel-driven NodeForm
+- IndexedDB handle persistence for fast reopen
+
+**cogNNitive Launcher** (`@innv0/launcher`) — legacy. The original drag-and-drop app that detected FILE vs FOLDER mode and routed to separate editors. Being consolidated into format-editor.
+
 ## Package
 
 **@innv0/format-core** — framework-agnostic TypeScript library with:
@@ -20,10 +31,7 @@ npm workspaces monorepo with apps/, packages/, specs/, models/, and docs/.
 - Model types (concepts, elements, fields, markers, relationships)
 - Validator against template schemas
 - IO drivers for both FILE and FOLDER modes
-
-## App
-
-**cogNNitive Launcher** — Vue 3 drag-and-drop app that detects FILE/FOLDER mode from FORMAT frontmatter and routes to the right editor.
+- Parent-spec-chain resolver
 
 ## Specifications
 

@@ -8,17 +8,23 @@ Welcome to the cogNNitive documentation. cogNNitive is the monorepo that powers 
 # Install dependencies
 npm install
 
-# Start the Launcher dev server
-npm run dev -w @innv0/launcher
-
-# Build format-core
+# Build format-core first (required by the editor)
 npm run build -w @innv0/format-core
+
+# Start the format-editor dev server
+npm run dev -w @innv0/format-editor
+
+# Or start the legacy launcher (during transition)
+npm run dev -w @innv0/launcher
 ```
 
 ## Sections
 
-### [Launcher](launcher)
-The cogNNitive Launcher is a Vue 3 application that detects FORMAT model modes (FILE or FOLDER) and routes them to the correct editor. Drag-and-drop or pick a file/folder.
+### [format-editor](format-editor)
+The unified Vue 3 workspace editor. Opens any folder via the File System Access API, runs a single recursive parse pass, and renders FILE and FOLDER mode models in one mixed tree. Features a sidebar tree navigator and metamodel-driven NodeForm.
+
+### [Launcher](launcher) *(legacy)*
+The original drag-and-drop app that detected FILE vs FOLDER mode and routed to separate editors. Being consolidated into format-editor — its validation, history, and toast components are being ported over.
 
 ### [format-core](format-core)
 `@innv0/format-core` is a framework-agnostic TypeScript library providing:
@@ -26,6 +32,7 @@ The cogNNitive Launcher is a Vue 3 application that detects FORMAT model modes (
 - Model types: Concept, Element, Field, Marker, Matrix, Relationship
 - Validator against template schemas
 - IO drivers for both modes
+- Parent-spec-chain resolver
 
 ### [Ecosystem](ecosystem)
 The four-level specification chain:

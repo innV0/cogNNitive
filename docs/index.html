@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>cogNNitive — iNNv0 Ecosystem Hub</title>
-  <meta name="description" content="cogNNitive is the central hub for the iNNv0 FORMAT ecosystem. Open, detect, and edit FORMAT models with the Launcher, or dive into the spec chain.">
+  <title>cogNNitive — iNNv0 FORMAT Ecosystem Hub</title>
+  <meta name="description" content="cogNNitive is the central hub for the iNNv0 FORMAT ecosystem. Open, edit, and validate FORMAT models with the unified format-editor.">
   <meta name="generator" content="https://skills.innv0.com/innv0-web-design-guide">
   <link rel="canonical" href="https://innv0.github.io/cogNNitive/">
   <link rel="alternate" type="text/markdown" href="/index.md">
@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/analytics.js" defer></script>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"WebSite","name":"cogNNitive","url":"https://innv0.github.io/cogNNitive/","description":"Central hub for the iNNv0 FORMAT ecosystem. Launcher, format-core, and spec chain.","author":{"@type":"Organization","name":"iNNv0"},"inLanguage":"en","isAccessibleForFree":true}
+  {"@context":"https://schema.org","@type":"WebSite","name":"cogNNitive","url":"https://innv0.github.io/cogNNitive/","description":"Central hub for the iNNv0 FORMAT ecosystem. format-editor, format-core, and the spec chain.","author":{"@type":"Organization","name":"iNNv0"},"inLanguage":"en","isAccessibleForFree":true}
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"iNNv0 Web Design Guide","applicationCategory":"WebApplication","description":"Comprehensive light-mode design system with strict spacing grid, typography stack, and Morado Nazareno (#4D0E4E) brand palette.","url":"https://skills.innv0.com/innv0-web-design-guide","operatingSystem":"Any","browserRequirements":"Requires JavaScript"}
@@ -40,13 +40,13 @@
   <section class="hero">
     <div class="container">
       <div class="hero-badge">v0.1.0 &mdash; iNNv0 FORMAT ecosystem</div>
-      <h1>Open, detect, and edit <span class="serif-accent">FORMAT</span> models</h1>
-      <p>cogNNitive is the central hub for the iNNv0 ecosystem. Drop any FORMAT model into the Launcher to detect its mode — FILE or FOLDER — and route it to the right editor.</p>
+      <h1>Open, edit, and validate <span class="serif-accent">FORMAT</span> models</h1>
+      <p>cogNNitive is the central hub for the iNNv0 ecosystem. The unified <strong>format-editor</strong> opens any FORMAT workspace — FILE or FOLDER mode — in a single tree-driven editor backed by @innv0/format-core.</p>
       <div class="hero-actions">
-        <a href="http://localhost:5173/app/" class="btn btn-primary btn-lg">Open Launcher</a>
-        <a href="/documentation" class="btn btn-secondary">Read the Docs</a>
+        <a href="/documentation" class="btn btn-primary btn-lg">Explore the Docs</a>
+        <a href="/about" class="btn btn-secondary">How It Works</a>
       </div>
-      <p style="margin-top:var(--space-md);font-size:15px;color:var(--ink-muted);">Drop a <strong>.md</strong> file or folder — detect its mode and launch the right editor.</p>
+      <p style="margin-top:var(--space-md);font-size:15px;color:var(--ink-muted);">Open a workspace folder — parse, validate, and edit FORMAT models in one place.</p>
     </div>
   </section>
 
@@ -54,22 +54,22 @@
     <div class="container">
       <div class="section-header">
         <h2>What is <span class="serif-accent">cogNNitive</span>?</h2>
-        <p>A monorepo that ties together the iNNv0 specification ecosystem: the Launcher app, the format-core library, and all specs.</p>
+        <p>A monorepo that ties together the iNNv0 specification ecosystem: the unified format-editor, the format-core library, and all specs.</p>
       </div>
       <div class="grid-3">
         <div class="card">
           <div class="card-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           </div>
-          <h3>cogNNitive Launcher</h3>
-          <p>Drop a <code>.md</code> file or folder and the Launcher instantly detects whether it's a FILE mode or FOLDER mode FORMAT model, then routes you to the correct editor.</p>
+          <h3>format-editor</h3>
+          <p>Unified Vue 3 workspace editor. Open any folder, parse FILE and FOLDER mode models into a single tree, edit nodes with metamodel-driven forms, and validate against FORMAT specs.</p>
         </div>
         <div class="card">
           <div class="card-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M9 9h6v6H9z"/></svg>
           </div>
           <h3>@innv0/format-core</h3>
-          <p>Shared TypeScript library — parser, resolver, and validator used by both the FORMAT app (FILE mode) and iNNfo app (FOLDER mode).</p>
+          <p>Shared TypeScript library — parser, resolver, and validator used by the format-editor. Framework-agnostic with IO drivers for both FILE and FOLDER modes.</p>
         </div>
         <div class="card">
           <div class="card-icon">
@@ -85,24 +85,24 @@
   <section class="section">
     <div class="container">
       <div class="section-header">
-        <h2>How the <span class="serif-accent">Launcher</span> works</h2>
-        <p>Three simple steps from file to editor.</p>
+        <h2>How <span class="serif-accent">format-editor</span> works</h2>
+        <p>Three steps from folder to editable tree.</p>
       </div>
       <div class="grid-3">
         <div class="card" style="text-align:center">
           <div style="width:48px;height:48px;border-radius:50%;background:var(--brand-primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;margin:0 auto var(--space-md);">1</div>
-          <h3>Drop or select</h3>
-          <p>Drag a <code>.md</code> file or an entire folder onto the Launcher, or use the file/folder picker buttons.</p>
+          <h3>Open workspace</h3>
+          <p>Pick a folder via the File System Access API. The editor stores the handle in IndexedDB for fast reopen.</p>
         </div>
         <div class="card" style="text-align:center">
           <div style="width:48px;height:48px;border-radius:50%;background:var(--brand-primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;margin:0 auto var(--space-md);">2</div>
-          <h3>Detect mode</h3>
-          <p>The Launcher parses the FORMAT frontmatter and identifies <strong>FILE</strong>, <strong>FOLDER</strong>, or <strong>BOTH</strong> mode.</p>
+          <h3>Single parse pass</h3>
+          <p>The recursive parser walks every directory. <code>_FORMAT.md</code> directories become element nodes; bare directories become concept nodes. One tree for FILE and FOLDER together.</p>
         </div>
         <div class="card" style="text-align:center">
           <div style="width:48px;height:48px;border-radius:50%;background:var(--brand-primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;margin:0 auto var(--space-md);">3</div>
-          <h3>Launch editor</h3>
-          <p>Click to open in the matching editor — <strong>file-format</strong> for single documents, <strong>folder-format</strong> for node-based models.</p>
+          <h3>Edit &amp; validate</h3>
+          <p>Select any node in the sidebar tree and edit its fields in the metamodel-driven form. Run FORMAT compliance validation against spec contracts.</p>
         </div>
       </div>
     </div>
@@ -139,11 +139,71 @@
     </div>
   </section>
 
-  <section id="contact" class="section">
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2><span class="serif-accent">Monorepo</span> at a glance</h2>
+        <p>npm workspaces with two apps, one shared package, and the spec chain.</p>
+      </div>
+      <div style="background:var(--canvas-inert);border:1px solid var(--border-soft);border-radius:var(--radius);padding:var(--space-lg);max-width:600px;margin:0 auto;font-family:var(--mono);font-size:14px;line-height:1.8;">
+        cogNNitive/<br/>
+        ├── apps/<br/>
+        │&nbsp;&nbsp; ├── format-editor/ &nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Vue 3 unified workspace editor</span><br/>
+        │&nbsp;&nbsp; └── launcher/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Legacy — being consolidated into format-editor</span><br/>
+        ├── packages/<br/>
+        │&nbsp;&nbsp; └── format-core/ &nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// TS parser, resolver, validator</span><br/>
+        ├── specs/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Specification files</span><br/>
+        ├── models/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// Example models</span><br/>
+        └── docs/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-muted);font-family:var(--sans);font-size:12px;">// This website</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-inert">
+    <div class="container">
+      <div class="section-header">
+        <h2>Sample <span class="serif-accent">Models</span></h2>
+        <p>Four ready-to-open FORMAT models &mdash; one per template &mdash; that ship with the repo. Open any of these folders in the format-editor to see the tree, edit nodes, and validate against the spec chain.</p>
+      </div>
+      <div class="grid-2">
+
+        <div class="card">
+          <span class="card-tag" style="background:var(--accent-green, #2e7d32);color:#fff;">business &bull; FILE mode</span>
+          <h3 style="margin-top:var(--space-sm);">Ghostbusters</h3>
+          <p>A complete business model for a fictional ghost-catching franchise. Covers analysis (SWOT, risks, assumptions), business idea, objectives, market segments, finance, legal, and operations. Single-file <code>_FORMAT.md</code> with the full <code>_F index</code> tree.</p>
+          <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_FORMAT.md</p>
+        </div>
+
+        <div class="card">
+          <span class="card-tag" style="background:var(--accent-blue, #1565c0);color:#fff;">catalog &bull; FOLDER mode</span>
+          <h3 style="margin-top:var(--space-sm);">Music History</h3>
+          <p>Multi-directory catalog with 4 genres (Rock, Pop, Jazz, Electronic), 6 artists (The Beatles, Queen, Michael Jackson, Miles Davis, Kraftwerk), and 5 albums — each node is a folder with its own <code>_FORMAT.md</code>. Demonstrates the full FOLDER-mode tree structure with nested concepts.</p>
+          <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">specs/catalog_V_0-1-2/samples/Music_History_V_1-0-0_catalog/</p>
+        </div>
+
+        <div class="card">
+          <span class="card-tag" style="background:var(--accent-orange, #e65100);color:#fff;">procedures &bull; FILE mode</span>
+          <h3 style="margin-top:var(--space-sm);">Code Review Process</h3>
+          <p>Structured procedure document for PR-based code reviews. Defines roles (Author, Reviewer, Maintainer), step-by-step workflow with tool bindings, artifacts (checklist, report), and an expedited hotfix path. Single <code>_FORMAT.md</code> with <code>_F Procedure</code>, <code>_F Roles</code>, and <code>_F Work</code> sections.</p>
+          <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">specs/procedures_V_0-1-1/samples/CodeReviewProcess_V_1-0-0_procedures_FORMAT.md</p>
+        </div>
+
+        <div class="card">
+          <span class="card-tag" style="background:var(--accent-purple, #6a1b9a);color:#fff;">kb &bull; FOLDER mode</span>
+          <h3 style="margin-top:var(--space-sm);">Team Knowledge Base</h3>
+          <p>FOLDER-mode knowledge base model. A TeamKB root node ready to be populated with Persona, Topic, and Reference concept folders — each a directory with metadata and physical assets. The starting point for building a team-wide documentation base using the KB template.</p>
+          <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">archive/2026-07-02/models/TeamKB_V_0-1-1_kb/</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="section section-inert">
     <div class="container">
       <div class="section-header">
         <h2>Get in <span class="serif-accent">Touch</span></h2>
-        <p>Questions about the ecosystem or the Launcher? We'd love to hear from you.</p>
+        <p>Questions about the ecosystem or the editor? We'd love to hear from you.</p>
       </div>
       <div class="contact-links" style="text-align:center;padding:var(--space-xl) var(--space-lg);">
         <a href="https://innv0.com/contact?ref=cogNNitive" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Contact Us</a>

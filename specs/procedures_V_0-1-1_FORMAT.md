@@ -223,32 +223,38 @@ Description of the overall procedure.
 
 ## Examples
 
+### Canonical Sample
+
+The official sample for this template is `specs/procedures_V_0-1-1/samples/CodeReviewProcess_V_1-0-0_procedures_FORMAT.md` (FILE mode). It exercises all concept types (text, sequence, list), YAML element fields, and the `work-roles` RACI matrix.
+
 ### Model Directory after First Load
 
+When `specs/procedures_V_0-1-1/samples/CodeReviewProcess_V_1-0-0_procedures_FORMAT.md` is loaded for the first time:
+
 ```
-📁 Onboarding_V_0-1-1_procedures/
-  📄 Onboarding_V_0-1-1_procedures_FORMAT.md
+📁 CodeReviewProcess_V_1-0-0_procedures/
+  📄 CodeReviewProcess_V_1-0-0_procedures_FORMAT.md
   📁 specs/
     📄 procedures_V_0-1-1_FORMAT.md
-    📄 FORMAT_V_0-1-1_FORMAT.md
+    📄 FORMAT_V_0-1-2_FORMAT.md
     📄 defiNNe_V_0-1-0_FORMAT.md
 ```
 
 ### Parent Chain
 
 ```yaml
-# From any model using this template:
+# From the CodeReviewProcess sample:
 parent:
   name: "procedures_V_0-1-1"
-  url: "..."   # → resolves to this template
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/procedures_V_0-1-1_FORMAT.md"
 
 # This template's parent:
 parent:
   name: "FORMAT_V_0-1-1"
-  url: "..."   # → resolves to FORMAT spec
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-1_FORMAT.md"
 
 # FORMAT's parent:
 parent:
   name: "defiNNe_V_0-1-0"
-  url: "..."   # → resolves to defiNNe
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.0/specs/defiNNe_V_0-1-0_FORMAT.md"
 ```

@@ -682,34 +682,38 @@ The application will resolve the `parent` URL, download this template, and use i
 
 ## Examples
 
+### Canonical Sample
+
+The official sample for this template is `specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_FORMAT.md` (FILE mode). It exercises all concept types, two matrix types, and the `_F index:` index syntax.
+
 ### Model Directory after First Load
 
-When a model named `Acme_V_0-1-1_business_FORMAT.md` is loaded for the first time:
+When the sample `specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_FORMAT.md` is loaded for the first time:
 
 ```
-📁 Acme_V_0-1-1_business/
-  📄 Acme_V_0-1-1_business_FORMAT.md
+📁 Ghostbusters_V_0-1-2_business/
+  📄 Ghostbusters_V_0-1-2_business_FORMAT.md
   📁 specs/
-    📄 business_V_0-1-1_FORMAT.md    ← this file (downloaded from parent.url)
-    📄 FORMAT_V_0-1-1_FORMAT.md       ← downloaded from this file's parent.url
-    📄 defiNNe_V_0-1-0_FORMAT.md      ← downloaded from FORMAT's parent.url
+    📄 business_V_0-1-1_FORMAT.md     ← this file (downloaded from parent.url)
+    📄 FORMAT_V_0-1-2_FORMAT.md        ← downloaded from this file's parent.url
+    📄 defiNNe_V_0-1-0_FORMAT.md       ← downloaded from FORMAT's parent.url
 ```
 
 ### Parent Chain
 
 ```yaml
-# From any model using this template:
+# From the Ghostbusters sample:
 parent:
   name: "business_V_0-1-1"
-  url: "..."   # → resolves to this template
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 
 # This template's parent:
 parent:
   name: "FORMAT_V_0-1-1"
-  url: "..."   # → resolves to FORMAT spec
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-1_FORMAT.md"
 
 # FORMAT's parent:
 parent:
   name: "defiNNe_V_0-1-0"
-  url: "..."   # → resolves to defiNNe
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.0/specs/defiNNe_V_0-1-0_FORMAT.md"
 ```

@@ -1,9 +1,10 @@
 # cogNNitive
 
-> Central hub for the iNNv0 FORMAT ecosystem. Open, detect, and edit FORMAT models.
+> Central hub for the iNNv0 FORMAT ecosystem. Open, edit, and validate FORMAT models with the unified format-editor.
 
 # Generator: https://skills.innv0.com/innv0-web-design-guide
 
 Pages:
 - [Home](https://innv0.github.io/cogNNitive/index.md): cogNNitive landing page
-- [About](https://innv0.github.io/cogNNitive/about.md): Architecture, packages, and apps
+- [About](https://innv0.github.io/cogNNitive/about.md): Architecture, apps, and specs
+- [format-editor](https://innv0.github.io/cogNNitive/documentation/format-editor): Unified workspace editor docs

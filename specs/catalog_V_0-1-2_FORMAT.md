@@ -349,10 +349,43 @@ mode: "FOLDER"
 
 ## Examples
 
+### Canonical Sample
+
+The official sample for this template is at `specs/catalog_V_0-1-2/samples/Music_History_V_1-0-0_catalog/` (FOLDER mode). It exercises all catalog concepts (Artist, Album, Genre, Instrument) with hierarchy via subdirectories.
+
+```
+📁 Music_History_V_1-0-0_catalog/     ← `specs/catalog_V_0-1-2/samples/Music_History_V_1-0-0_catalog/`
+  📄 _FORMAT.md                        ← root frontmatter (level: 3, parent catalog_V_1-0-0)
+  📁 Artist/
+    📄 _FORMAT.md                      → type: Artist, fields: genre, country, bio
+    📁 The Beatles/
+      📄 _FORMAT.md
+    📁 Miles Davis/
+      📄 _FORMAT.md
+  📁 Genre/
+    📄 _FORMAT.md                      → type: Genre, fields: era, description
+    📁 Rock/
+      📄 _FORMAT.md
+    📁 Jazz/
+      📄 _FORMAT.md
+  📁 Album/
+    📄 _FORMAT.md                      → type: Album, fields: artist, release_year, label
+    📁 Sgt. Pepper's/
+      📄 _FORMAT.md
+    📁 Kind of Blue/
+      📄 _FORMAT.md
+```
+
 ### Parent Chain
 
 ```yaml
+# From the Music_History sample:
 parent:
-  name: "catalog_V_0-1-2"
+  name: "catalog_V_1-0-0"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/catalog_V_0-1-2_FORMAT.md"
+
+# This template's parent:
+parent:
+  name: "FORMAT_V_0-1-2"
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-2_FORMAT.md"
 ```

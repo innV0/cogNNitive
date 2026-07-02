@@ -278,26 +278,26 @@ mode: "FILE"
 
 ### Full Parent Chain Resolution
 
-From a model `Ghostbusters_V_0-1-0_business_FORMAT.md`:
+From the sample model `specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_FORMAT.md`:
 
 ```yaml
-# Ghostbusters (level 3)
+# Ghostbusters (level 3) — `samples/business/Ghostbusters_V_0-1-2_business_FORMAT.md`
 parent:
-  name: "business_V_0-1-0"
-  url: "https://raw.githubusercontent.com/innV0/FORMAT/v0.1.0/docs/.../business_V_0-1-0_FORMAT.md"
+  name: "business_V_0-1-1"
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 
-# business_V_0-1-0 (level 2)
+# business_V_0-1-1 (level 2) — `specs/business_V_0-1-1_FORMAT.md`
 parent:
   name: "FORMAT_V_0-1-1"
-  url: "https://raw.githubusercontent.com/innV0/FORMAT/v0.1.1/FORMAT_V_0-1-1_FORMAT.md"
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-1_FORMAT.md"
 
-# FORMAT_V_0-1-1 (level 1)
+# FORMAT_V_0-1-1 (level 1) — `specs/FORMAT_V_0-1-1_FORMAT.md`
 parent:
   name: "defiNNe_V_0-1-0"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.0/specs/defiNNe_V_0-1-0_FORMAT.md"
 
 
-# defiNNe_V_0-1-0 (level 0)
+# defiNNe_V_0-1-0 (level 0) — this document
 # No parent — root of the chain
 ```
 

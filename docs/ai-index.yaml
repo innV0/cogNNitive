@@ -2,20 +2,20 @@
 site:
   name: "cogNNitive"
   url: "https://innv0.github.io/cogNNitive/"
-  description: "Central hub for the iNNv0 FORMAT ecosystem. Open, detect, and edit FORMAT models."
+  description: "Central hub for the iNNv0 FORMAT ecosystem. Open, edit, and validate FORMAT models with the unified format-editor."
   generator: "https://skills.innv0.com/innv0-web-design-guide"
   language: "en"
-  updated: "2026-07-01"
+  updated: "2026-07-02"
 pages:
   - path: "/"
     title: "cogNNitive — iNNv0 Ecosystem Hub"
-    description: "cogNNitive is the central hub for the iNNv0 FORMAT ecosystem. Open, detect, and edit FORMAT models with the Launcher."
-    last_modified: "2026-07-01"
+    description: "cogNNitive is the central hub for the iNNv0 FORMAT ecosystem. Open, edit, and validate FORMAT models with the unified format-editor."
+    last_modified: "2026-07-02"
     format: markdown
     url: "https://innv0.github.io/cogNNitive/index.md"
   - path: "/about"
     title: "About — cogNNitive"
-    description: "Learn about cogNNitive, the central hub for the iNNv0 FORMAT ecosystem."
-    last_modified: "2026-07-01"
+    description: "Learn about cogNNitive, the central hub for the iNNv0 FORMAT ecosystem — format-editor, format-core, and the spec chain."
+    last_modified: "2026-07-02"
     format: markdown
     url: "https://innv0.github.io/cogNNitive/about.md"
