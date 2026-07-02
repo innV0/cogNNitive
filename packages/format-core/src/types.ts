@@ -1,5 +1,4 @@
 export type ConceptType = 'text' | 'list' | 'category' | 'weight' | 'steps' | 'sequence';
-export type Mode = 'FILE' | 'FOLDER';
 export type SpecLevel = 0 | 1 | 2 | 3;
 
 export interface ParentRef {
@@ -9,7 +8,7 @@ export interface ParentRef {
 
 export interface ConceptField {
   name: string;
-  type: 'string' | 'select' | 'reference';
+  type: 'string' | 'select' | 'reference' | 'image' | 'file' | 'video' | 'audio';
   options?: string[];
   target_concepts?: string[];
 }
@@ -48,8 +47,7 @@ export interface RelationshipDecl {
 export interface RelationshipTypeDef {
   name: RelationshipType;
   description: string;
-  file_representation: string;
-  folder_representation: string;
+  representation: string;
 }
 
 export interface SpecFrontmatter {
@@ -61,7 +59,6 @@ export interface SpecFrontmatter {
   description?: string;
   author?: string;
   status?: string;
-  mode?: Mode | Mode[];
   concepts?: Concept[];
   markers?: Marker[];
   matrices?: MatrixDecl[];
@@ -69,6 +66,8 @@ export interface SpecFrontmatter {
   relationship_declarations?: Partial<Record<RelationshipType, RelationshipDecl>>;
   model_version?: string;
   last_updated?: string;
+  /** Asset storage mode: 'centralized' (default) or 'per-element'. */
+  asset_mode?: 'centralized' | 'per-element';
   [key: string]: unknown;
 }
 
@@ -78,6 +77,8 @@ export interface ElementNode {
   description: string;
   fields: Record<string, unknown>;
   markers: Record<string, number | string>;
+  /** Optional slug derived from YAML `slug` field or auto-derived from name. */
+  slug?: string;
 }
 
 export interface MatrixCell {
@@ -96,23 +97,6 @@ export interface MatrixData {
 export interface TaxonomyEdge {
   parent: string;
   child: string;
-}
-
-export interface GraphEdge {
-  target: string;
-  label: string;
-  weight?: number;
-  [key: string]: unknown;
-}
-
-export interface FolderElement {
-  path: string;
-  type: string;
-  fields: Record<string, unknown>;
-  markers: Record<string, number | string>;
-  graphEdges: GraphEdge[];
-  assets: string[];
-  children: FolderElement[];
 }
 
 /** Case-insensitive wrapper around Map<string, ElementNode[]> */
@@ -191,6 +175,10 @@ export interface ParsedModel {
   analysis?: AnalysisEntry[];
   /** Optional: raw body text per concept for round-trip fidelity */
   rawSections?: Record<string, string>;
+  /** Slug collisions detected during parsing (FR-002). */
+  slugCollisions?: Array<{ slug: string; elements: string[]; concept: string }>;
+  /** Non-fatal parse warnings (e.g. deprecated features). */
+  parseWarnings?: string[];
 }
 
 export interface SpecCache {
@@ -240,7 +228,6 @@ export interface ValidationSummary {
 }
 
 export interface ValidationReport {
-  mode: 'FILE' | 'FOLDER'
   checks: ValidationCheck[]
   summary: ValidationSummary
 }
@@ -254,10 +241,6 @@ export interface SyntaxCheck {
 
 export interface FileDriverOptions {
   encoding?: string;
-}
-
-export interface FolderDriverOptions {
-  ignorePatterns?: string[];
 }
 
 export interface ResolverOptions {
@@ -293,9 +276,6 @@ export interface ModelRelationship {
   value?: string | number
 }
 
-/** Storage representation a node round-trips through. */
-export type StorageMode = 'FILE' | 'FOLDER'
-
 /** A single concept declaration, as declared in a document's frontmatter `concepts:` list. */
 export interface MetamodelConcept {
   name: string
@@ -316,11 +296,10 @@ export interface MetamodelMarker {
 }
 
 /**
- * The metamodel declared locally by a FILE/FOLDER root node's own
- * frontmatter (`concepts`/`markers`). Nodes without their own file
- * (nested elements) declare no local metamodel (empty arrays); their
- * effective metamodel is resolved by walking up to their nearest
- * FILE/FOLDER ancestor and beyond (see `metamodel.ts`).
+ * The metamodel declared locally by a root node's own frontmatter
+ * (`concepts`/`markers`). Nodes without their own file (nested elements)
+ * declare no local metamodel (empty arrays); their effective metamodel is
+ * resolved by walking up to their nearest ancestor (see `metamodel.ts`).
  */
 export interface LocalMetamodel {
   concepts: MetamodelConcept[]
@@ -328,24 +307,21 @@ export interface LocalMetamodel {
 }
 
 /**
- * Normalized graph node. One shape for both FILE-mode and FOLDER-mode
- * representations — storageMode is a per-node projection property,
- * orthogonal to the logical graph.
+ * Normalized graph node.
  */
 export interface ModelNode {
   id: string // qualifiedId, e.g. "Process/Phase/Task"
   name: string // unique among siblings
   parentId: string | null
   childIds: string[]
-  storageMode: StorageMode
   type: string // resolved concept type
   fields: Record<string, FieldValue>
   markers: Record<string, number | string>
   relationships: ModelRelationship[]
   rawSections: Record<string, string> // round-trip fidelity
   /**
-   * Full original source text for FILE/FOLDER root nodes (the node whose
-   * own `_FORMAT.md`/file was parsed via `parseModel`). Undefined for
+   * Full original source text for root nodes (the node whose own
+   * `_FORMAT.md` file was parsed via `parseModel`). Undefined for
    * element nodes nested inside a document (they have no own file).
    * Used by the serializer for byte/structurally-equivalent no-edit
    * round-trip (R7) instead of re-deriving through `serializeModel`'s
@@ -354,17 +330,17 @@ export interface ModelNode {
   rawContent?: string
   /**
    * This node's own locally-declared metamodel (frontmatter `concepts`/
-   * `markers`), present only on FILE/FOLDER root nodes (undefined for
-   * nested element nodes, which declare nothing locally). Root-resolved
-   * effective metamodel = walk ancestor chain merging these declarations,
+   * `markers`), present only on root nodes (undefined for nested element
+   * nodes, which declare nothing locally). The effective metamodel is
+   * resolved by walking up the ancestor chain merging these declarations,
    * closest subtree override wins (R9) — see `metamodel.ts`.
    */
   localMetamodel?: LocalMetamodel
   /**
    * Optional node-kind discriminator.
-   * - 'root': the top-level FILE/FOLDER node of a workspace (parentId === null).
-   * - 'concept': a bare directory or `# _F` section representing a type/group.
-   * - 'element': a `type:`-bearing directory or index-block instance.
+   * - 'root': the top-level node of a workspace (parentId === null).
+   * - 'concept': a `# _F` section representing a type/group.
+   * - 'element': an index-block instance.
    * Undefined means the node was created before this discriminator existed
    * (backward-compatible with existing graphs).
    */
@@ -378,14 +354,18 @@ export interface ModelNode {
    * Undefined means the node is not a concept node or pre-dates this field.
    */
   conceptBinding?: { name: string; source: 'metamodel' | 'structural' }
+  /** Optional slug derived from element YAML `slug` or auto-derived from name. */
+  slug?: string
+  /** Asset storage mode for this node's subtree. */
+  assetMode?: 'centralized' | 'per-element'
   source: { path: string } // FS location for write-back
   /**
    * Indicates how this node was produced:
-   * - 'parsed': created from parsing a real _FORMAT.md / FILE document
-   * - 'structural': created as a structural placeholder (bare directory / concept group)
+   * - 'parsed': created from parsing a real _FORMAT.md document
+   * - 'structural': created as a structural placeholder (concept group)
    * Undefined means the node pre-dates this field (backward compatible).
    */
   sourceMode?: 'parsed' | 'structural'
-  /** Relative paths of physical assets in this node's directory (FOLDER mode only). */
+  /** Relative paths of physical assets for this node. */
   assets?: string[]
 }

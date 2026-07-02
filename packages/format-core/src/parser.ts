@@ -9,6 +9,29 @@ const WIKILINK_RE = /\[\[([^\]]+)\]\]/g;
 const INDEX_F_RE = /_F\s+index:\s*(.*)$/;
 const YAML_FENCE_RE = /```yaml\n([\s\S]*?)```/;
 
+/* ── Slug derivation (FR-002) ── */
+
+/**
+ * Derive a URL-safe slug from a name string:
+ * - strip accents/diacritics
+ * - lowercase
+ * - replace spaces with hyphens
+ * - remove non-alphanumeric characters except hyphens
+ * - collapse multiple hyphens
+ * - trim leading/trailing hyphens
+ */
+export function slugify(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')   // strip combining diacritical marks
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')              // spaces → hyphens
+    .replace(/[^a-z0-9-]/g, '')        // remove non-alphanumeric except hyphens
+    .replace(/-+/g, '-')               // collapse multiple hyphens
+    .replace(/^-+|-+$/g, '');          // trim leading/trailing hyphens
+}
+
 /** Normalize CRLF (and legacy CR) line endings to LF.
  *  Called once at every public parse entry point so downstream regexes and
  *  `split('\n')` calls never see a trailing `\r`, which breaks `$`-anchored
@@ -219,6 +242,11 @@ function parseConceptSection(conceptName: string, content: string): ElementNode[
         inYaml = false;
         if (current) {
           current.fields = parseYaml(yamlBuffer.join('\n')) as Record<string, unknown>;
+          // Extract slug from fields if present (FR-002)
+          if (typeof current.fields['slug'] === 'string') {
+            current.slug = current.fields['slug'] as string;
+            delete current.fields['slug'];
+          }
         }
         continue;
       }
@@ -237,6 +265,41 @@ function parseConceptSection(conceptName: string, content: string): ElementNode[
   }
 
   return nodes;
+}
+
+/**
+ * Derive slugs for all elements that don't have one, and detect collisions.
+ * Called after all sections are parsed, once all elements are known.
+ * Returns aggregated collisions keyed by slug.
+ */
+export function deriveElementSlugs(elements: ElementsMap): Array<{ slug: string; elements: string[]; concept: string }> {
+  const usedSlugs = new Map<string, { name: string; concept: string }>();
+  const colliding = new Map<string, { elements: Set<string>; concept: string }>();
+
+  for (const [conceptName, elementNodes] of elements.entries()) {
+    for (const el of elementNodes) {
+      if (el.slug === undefined) {
+        el.slug = slugify(el.name);
+      }
+      const existing = usedSlugs.get(el.slug!);
+      if (existing) {
+        if (!colliding.has(el.slug!)) {
+          const set = new Set<string>([existing.name, el.name]);
+          colliding.set(el.slug!, { elements: set, concept: conceptName });
+        } else {
+          colliding.get(el.slug!)!.elements.add(el.name);
+        }
+      } else {
+        usedSlugs.set(el.slug!, { name: el.name, concept: conceptName });
+      }
+    }
+  }
+
+  return Array.from(colliding.entries()).map(([slug, info]) => ({
+    slug,
+    elements: Array.from(info.elements),
+    concept: info.concept,
+  }));
 }
 
 function parseMatrixSection(content: string, matrixName: string): MatrixCell[] {
@@ -324,7 +387,25 @@ export function parseModel(content: string): ParsedModel {
     }
   }
 
-  return { frontmatter: frontmatter ?? {} as SpecFrontmatter, taxonomy, elements, matrices, nodeMarkers, rawContent: content };
+  // Derive slugs and detect collisions (FR-002)
+  const collisions = deriveElementSlugs(elements);
+  const slugCollisions = collisions.length > 0
+    ? collisions.map(c => ({ slug: c.slug, elements: c.elements, concept: c.concept }))
+    : undefined;
+
+  // FR-007: Warn about deprecated FOLDER mode
+  const parseWarnings: string[] = [];
+  if (frontmatter?.mode === 'FOLDER') {
+    parseWarnings.push('FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.');
+  }
+
+  return {
+    frontmatter: frontmatter ?? {} as SpecFrontmatter,
+    taxonomy, elements, matrices, nodeMarkers,
+    slugCollisions,
+    parseWarnings: parseWarnings.length > 0 ? parseWarnings : undefined,
+    rawContent: content,
+  };
 }
 
 export function serializeModel(model: ParsedModel): string {

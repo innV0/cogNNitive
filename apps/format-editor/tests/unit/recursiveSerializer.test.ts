@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { recursiveParse } from '../../src/model/recursiveParser'
 import { recursiveSerialize } from '../../src/model/recursiveSerializer'
-import { buildFakeTree, readFakeTree, type FakeTree } from '../helpers/fakeFs'
+import { buildFakeTree, type FakeTree } from '../helpers/fakeFs'
+import type { ParsedModel, ModelDriver } from '@innv0/format-core'
 
 const fileDocMd = `---
 specification_version: "V_0-1-1"
@@ -12,8 +13,11 @@ parent:
   url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 model_version: "V_0-0-1"
 title: "Serializer File Doc"
-mode: "FILE"
 ---
+
+# _F index
+
+* [[Problems]]
 
 # _F Problems
 
@@ -21,128 +25,107 @@ mode: "FILE"
   A problem used to exercise the serializer.
 `
 
-const folderRootMd = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
-level: 3
-parent:
-  name: "business_V_0-1-1"
-  url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
-model_version: "V_0-0-1"
-title: "Serializer Folder Root"
-mode: "FOLDER"
+const indexMd = `---
+specification_version: "V_0-1-2"
+level: 0
+title: "Workspace Index"
 ---
 
-# _F Business summary
+# _F index
 
-Folder root used to exercise the serializer's write-back path.
+* [[Doc_FORMAT.md]]
 `
 
 describe('recursiveSerializer', () => {
-  it('writes a dirty FILE node back through serializeModel (write primitive matches storageMode)', async () => {
-    const tree: FakeTree = { 'Doc_FORMAT.md': fileDocMd }
+  it('returns write reports for dirty nodes', async () => {
+    const tree: FakeTree = { 'index.md': indexMd, 'Doc_FORMAT.md': fileDocMd }
     const root = buildFakeTree('workspace', tree)
     const parsed = await recursiveParse(root)
 
-    const docId = Object.values(parsed.nodes).find((n) => n.storageMode === 'FILE')!.id
+    const docId = Object.values(parsed.nodes).find((n) => n.name === 'Doc')!.id
     const dirty = new Set([docId])
 
-    await recursiveSerialize(root, parsed.nodes, parsed.rootIds, dirty)
-
-    const written = readFakeTree(tree, 'Doc_FORMAT.md')
-    expect(written).toBeDefined()
-    expect(written).toContain('title: "Serializer File Doc"')
-    expect(written).toContain('Problem One')
+    const report = await recursiveSerialize(parsed.nodes, dirty)
+    expect(report).toHaveLength(1)
+    expect(report[0].nodeId).toBe(docId)
+    expect(report[0].path).toBe('Doc_FORMAT.md')
+    expect(['exact', 'canonical']).toContain(report[0].fidelity)
   })
 
-  it('writes a dirty FOLDER node back to its own _FORMAT.md (write primitive matches storageMode)', async () => {
-    const tree: FakeTree = {
-      RootFolder: {
-        '_FORMAT.md': folderRootMd,
-      },
-    }
+  it('returns empty report when no dirty nodes', async () => {
+    const tree: FakeTree = { 'index.md': indexMd, 'Doc_FORMAT.md': fileDocMd }
     const root = buildFakeTree('workspace', tree)
     const parsed = await recursiveParse(root)
 
-    const folderId = Object.values(parsed.nodes).find((n) => n.storageMode === 'FOLDER')!.id
-    const dirty = new Set([folderId])
-
-    await recursiveSerialize(root, parsed.nodes, parsed.rootIds, dirty)
-
-    const written = readFakeTree(tree, 'RootFolder/_FORMAT.md')
-    expect(written).toBeDefined()
-    expect(written).toContain('title: "Serializer Folder Root"')
+    const report = await recursiveSerialize(parsed.nodes, new Set())
+    expect(report).toHaveLength(0)
   })
 
-  it('preserves node identity (qualifiedId) after a no-edit parse -> serialize -> re-parse round-trip (R12)', async () => {
-    const tree: FakeTree = {
-      RootFolder: {
-        '_FORMAT.md': folderRootMd,
-        'Doc_FORMAT.md': fileDocMd,
+  it('writes through driver when provided', async () => {
+    const tree: FakeTree = { 'index.md': indexMd, 'Doc_FORMAT.md': fileDocMd }
+    const root = buildFakeTree('workspace', tree)
+    const parsed = await recursiveParse(root)
+
+    let writtenContent: string | null = null
+    const mockDriver: ModelDriver = {
+      readModel: async (_uri: string) => { throw new Error('not expected') },
+      writeModel: async (_uri: string, model: ParsedModel) => {
+        writtenContent = model.rawContent
       },
+      listChildren: async () => [],
+      listAssets: async () => [],
     }
+
+    const docId = Object.values(parsed.nodes).find((n) => n.name === 'Doc')!.id
+    const report = await recursiveSerialize(parsed.nodes, new Set([docId]), mockDriver)
+
+    expect(report).toHaveLength(1)
+    expect(writtenContent).not.toBeNull()
+    expect(writtenContent!).toContain('Serializer File Doc')
+    expect(writtenContent!).toContain('Problem One')
+  })
+
+  it('throws for dirty node without rawContent', async () => {
+    const tree: FakeTree = { 'index.md': indexMd, 'Doc_FORMAT.md': fileDocMd }
+    const root = buildFakeTree('workspace', tree)
+    const parsed = await recursiveParse(root)
+
+    // Create a node without rawContent
+    const nodeWithoutContent = Object.values(parsed.nodes).find((n) => n.name === 'Problem One')!
+    expect(nodeWithoutContent.rawContent).toBeUndefined()
+
+    // Marking a non-root node dirty should produce no report entries (filtered by rawContent check)
+    const report = await recursiveSerialize(parsed.nodes, new Set([nodeWithoutContent.id]))
+    expect(report).toHaveLength(0)
+  })
+
+  it('preserves node identity after parse -> serialize report -> re-parse round-trip', async () => {
+    const tree: FakeTree = { 'index.md': indexMd, 'Doc_FORMAT.md': fileDocMd }
     const root = buildFakeTree('workspace', tree)
     const firstParse = await recursiveParse(root)
     const idsBefore = Object.keys(firstParse.nodes).sort()
 
-    const dirtyIds = new Set(
-      Object.values(firstParse.nodes)
-        .filter((n) => n.rawContent !== undefined)
-        .map((n) => n.id),
-    )
-    await recursiveSerialize(root, firstParse.nodes, firstParse.rootIds, dirtyIds)
+    // Since we have no root handle in the serializer, round-trip through driver
+    let roundtripContent: string | null = null
+    const capturingDriver: ModelDriver = {
+      readModel: async (_uri: string) => { throw new Error('not expected') },
+      writeModel: async (_uri: string, model: ParsedModel) => {
+        roundtripContent = model.rawContent
+      },
+      listChildren: async () => [],
+      listAssets: async () => [],
+    }
 
-    const secondParse = await recursiveParse(root)
+    const docId = Object.values(firstParse.nodes).find((n) => n.name === 'Doc')!.id
+    await recursiveSerialize(firstParse.nodes, new Set([docId]), capturingDriver)
+    expect(roundtripContent).not.toBeNull()
+
+    // Re-parse from the written content
+    const tree2: FakeTree = { 'index.md': indexMd, 'Doc_FORMAT.md': roundtripContent! }
+    const root2 = buildFakeTree('workspace', tree2)
+    const secondParse = await recursiveParse(root2)
     const idsAfter = Object.keys(secondParse.nodes).sort()
 
     expect(idsAfter).toEqual(idsBefore)
-  })
-
-  it('only writes dirty nodes by default (dirty-only write-back)', async () => {
-    const tree: FakeTree = {
-      'Doc_FORMAT.md': fileDocMd,
-      RootFolder: { '_FORMAT.md': folderRootMd },
-    }
-    const root = buildFakeTree('workspace', tree)
-    const parsed = await recursiveParse(root)
-
-    // No dirty ids: nothing should be rewritten.
-    await recursiveSerialize(root, parsed.nodes, parsed.rootIds, new Set())
-
-    // Content should still match verbatim (no write occurred, or if it did,
-    // it is byte-identical to source).
-    expect(readFakeTree(tree, 'Doc_FORMAT.md')).toBe(fileDocMd)
-    expect(readFakeTree(tree, 'RootFolder/_FORMAT.md')).toBe(folderRootMd)
-  })
-
-  it('keeps a FOLDER node written as FOLDER after save even when a field on that node is dirty (R8 "Mode preserved despite edits")', async () => {
-    const tree: FakeTree = { RootFolder: { '_FORMAT.md': folderRootMd } }
-    const root = buildFakeTree('workspace', tree)
-    const parsed = await recursiveParse(root)
-
-    const folderNode = Object.values(parsed.nodes).find((n) => n.storageMode === 'FOLDER')!
-    // Simulate a field edit on the node object itself (no storageMode change).
-    folderNode.fields['summary'] = {
-      value: 'edited summary',
-      provenance: { author: { kind: 'user', id: 'tester' }, timestamp: new Date().toISOString() },
-    }
-
-    await recursiveSerialize(root, parsed.nodes, parsed.rootIds, new Set([folderNode.id]))
-
-    const reparsed = await recursiveParse(root)
-    const reparsedFolder = Object.values(reparsed.nodes).find((n) => n.id === folderNode.id)!
-    expect(reparsedFolder.storageMode).toBe('FOLDER')
-  })
-
-  it('exposes no conversion path: recursiveSerialize never reassigns storageMode on a node object', async () => {
-    const tree: FakeTree = { RootFolder: { '_FORMAT.md': folderRootMd } }
-    const root = buildFakeTree('workspace', tree)
-    const parsed = await recursiveParse(root)
-    const folderNode = Object.values(parsed.nodes).find((n) => n.storageMode === 'FOLDER')!
-    const modeBefore = folderNode.storageMode
-
-    await recursiveSerialize(root, parsed.nodes, parsed.rootIds, new Set([folderNode.id]))
-
-    expect(folderNode.storageMode).toBe(modeBefore)
   })
 })

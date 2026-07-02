@@ -1,6 +1,6 @@
 import {
   ParsedModel, SpecDocument, ValidationResult, ValidationError,
-  Concept, MatrixDecl, ElementNode, SpecFrontmatter, ElementsMap,
+  Concept, MatrixDecl, ElementNode, ElementsMap,
   ValidationCheck, ValidationReport, SyntaxCheck,
 } from './types';
 import { parseModel } from './parser';
@@ -29,6 +29,15 @@ export function validateModel(
   }
   if (!fm.model_version) {
     errors.push({ path: 'frontmatter.model_version', message: 'Missing model_version', severity: 'error' });
+  }
+
+  // FR-007: Reject FOLDER mode
+  if (fm.mode === 'FOLDER') {
+    errors.push({
+      path: 'frontmatter.mode',
+      message: 'FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.',
+      severity: 'error',
+    });
   }
 
   if (!template) {
@@ -103,17 +112,6 @@ export function validateModel(
     }
   }
 
-  if (formatSpec) {
-    const formatFm = formatSpec.frontmatter;
-    if (formatFm.modes && Array.isArray(formatFm.modes) && !formatFm.modes.includes(fm.mode as any)) {
-      errors.push({
-        path: 'frontmatter.mode',
-        message: `Mode "${fm.mode}" is not supported by FORMAT. Supported: ${formatFm.modes.join(', ')}`,
-        severity: 'error'
-      });
-    }
-  }
-
   return { valid: errors.length === 0, errors, warnings };
 }
 
@@ -123,16 +121,25 @@ export function validateModel(
  */
 export function validateFormatContent(
   content: string,
-  fileName: string,
-  declaredMode?: string
+  fileName: string
 ): ValidationReport {
   const checks: ValidationCheck[] = []
   const parsed = parseModel(content)
   const fm = parsed.frontmatter
 
-  const rawMode = declaredMode || (typeof fm.mode === 'string' ? fm.mode : 'FILE')
-  const mode: 'FILE' | 'FOLDER' = rawMode === 'BOTH' ? 'FILE' : rawMode as 'FILE' | 'FOLDER'
-  const isFileMode = mode === 'FILE' || rawMode === 'BOTH'
+  // ── FR-007: Reject FOLDER mode ────────────────────────────────
+
+  if (fm.mode === 'FOLDER') {
+    checks.push({
+      id: 'fm-no-folder-mode',
+      label: 'No FOLDER mode in V_0-1-3',
+      description: 'FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.',
+      category: 'frontmatter',
+      severity: 'error',
+      passed: false,
+      message: 'FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.',
+    })
+  }
 
   // ── Frontmatter ────────────────────────────────────────────────
 
@@ -192,23 +199,7 @@ export function validateFormatContent(
     })
   }
 
-  // 5. mode
-  const fmRawMode = fm.mode
-  const fmm = fmRawMode ? (Array.isArray(fmRawMode) ? fmRawMode : [fmRawMode]) : []
-  const validMode = fmm.length > 0 && fmm.every((m: unknown) => m === 'FILE' || m === 'FOLDER')
-  checks.push({
-    id: 'fm-mode',
-    label: 'Valid mode declaration (FILE / FOLDER)',
-    description: 'Model must declare mode as FILE, FOLDER, or both',
-    category: 'frontmatter',
-    severity: 'error',
-    passed: validMode,
-    message: validMode ? undefined
-      : !fmRawMode ? 'Missing mode field'
-      : `Invalid mode value: ${JSON.stringify(fmRawMode)}`,
-  })
-
-  // 6. title
+  // 5. title
   const titleOk = typeof fm.title === 'string' && fm.title.length > 0
   checks.push({
     id: 'fm-title',
@@ -220,7 +211,7 @@ export function validateFormatContent(
     message: titleOk ? undefined : 'Missing title',
   })
 
-  // 7. specification_version
+  // 6. specification_version
   const specVersionOk = typeof fm.specification_version === 'string' && fm.specification_version.length > 0
   checks.push({
     id: 'fm-spec-version',
@@ -237,7 +228,7 @@ export function validateFormatContent(
   const body = content.replace(/^---[\s\S]*?---\n?/, '').trim()
   const hasBody = body.length > 0
 
-  // 8. Document notice
+  // 7. Document notice
   if (hasBody) {
     const hasNote = /^> \[!NOTE\]/m.test(body)
     checks.push({
@@ -251,37 +242,25 @@ export function validateFormatContent(
     })
   }
 
-  // 9. Index section
+  // 8. Index section
   const hasIndex = parsed.taxonomy.length > 0
-  if (isFileMode) {
-    checks.push({
-      id: 'body-index',
-      label: 'Taxonomy index section',
-      description: 'FILE-mode models must have a # _F index section with [[wikilinks]]',
-      category: 'body',
-      severity: 'error',
-      passed: hasIndex,
-      message: hasIndex ? undefined : 'No _F index section found',
-    })
-  } else if (hasIndex) {
-    checks.push({
-      id: 'body-index',
-      label: 'Taxonomy index section',
-      description: 'FOLDER-mode root may declare an index for top-level concepts',
-      category: 'body',
-      severity: 'info',
-      passed: true,
-      message: hasIndex ? 'Index section present' : undefined,
-    })
-  }
+  checks.push({
+    id: 'body-index',
+    label: 'Taxonomy index section',
+    description: 'Models must have a # _F index section with [[wikilinks]]',
+    category: 'body',
+    severity: 'error',
+    passed: hasIndex,
+    message: hasIndex ? undefined : 'No _F index section found',
+  })
 
-  // 10. Concept section markers
+  // 9. Concept section markers
   const sectionMatches = [...content.matchAll(SECTION_FM_RE)]
   const conceptSectionCount = sectionMatches.filter(m => {
     const name = m[1] === 'matrices' ? m[2] : m[3]
     return m[1] !== 'matrices' && name != null && name.trim().toLowerCase() !== 'index'
   }).length
-  if (isFileMode && hasBody) {
+  if (hasBody) {
     const allValid = sectionMatches.every(m => m[1] === 'matrices' || (m[3] != null && m[3].trim().length > 0))
     checks.push({
       id: 'body-concept-sections',
@@ -296,7 +275,7 @@ export function validateFormatContent(
     })
   }
 
-  // 11. Element marker syntax
+  // 10. Element marker syntax
   const visMarkerRe = /^\s*[*\-]\s+_F\s+([\w\s-]+?):\s+(.+)$/gm
   const hidMarkerRe = /^\s*[*\-]\s+<!--\s+(?:_F\s+([\w\s-]+?):|block:\s*([\w\s-]+?))\s*-->\s*(.*)$/gm
   const visibleMarkers = [...body.matchAll(visMarkerRe)]
@@ -323,7 +302,7 @@ export function validateFormatContent(
     }
   }
 
-  if (isFileMode && hasBody) {
+  if (hasBody) {
     checks.push({
       id: 'body-element-markers',
       label: 'Valid element markers',
@@ -340,7 +319,7 @@ export function validateFormatContent(
 
   // ── Conventions ────────────────────────────────────────────────
 
-  // 12. File naming
+  // 11. File naming
   const namingOk = fileName.endsWith('_FORMAT.md')
   checks.push({
     id: 'conv-file-naming',
@@ -352,7 +331,7 @@ export function validateFormatContent(
     message: namingOk ? undefined : `"${fileName}" does not end with _FORMAT.md`,
   })
 
-  // 13. Wikilinks reference
+  // 12. Wikilinks reference
   if (hasIndex) {
     const allWikilinks = [...content.matchAll(WIKILINK_RE)].map(m => m[1].toLowerCase())
     const conceptNames = new Set<string>()
@@ -390,7 +369,6 @@ export function validateFormatContent(
   const activeChecks = checks.filter(c => c.severity !== 'info')
 
   return {
-    mode: mode as 'FILE' | 'FOLDER',
     checks,
     summary: {
       total: activeChecks.length,
@@ -402,12 +380,11 @@ export function validateFormatContent(
 }
 
 /**
- * Validates FORMAT document syntax for a given mode.
+ * Validates FORMAT document syntax.
  * Returns a list of syntax checks (simpler than the full content validator).
  */
 export function validateFormatSyntax(
-  content: string,
-  mode: 'FILE' | 'FOLDER'
+  content: string
 ): SyntaxCheck[] {
   const checks: SyntaxCheck[] = []
   const parsed = parseModel(content)
@@ -421,16 +398,6 @@ export function validateFormatSyntax(
     message: hasFrontmatter ? undefined : 'Frontmatter is missing or unparseable',
   })
 
-  // Check mode consistency
-  const fmMode = parsed.frontmatter.mode
-  const modeMatch = !fmMode || fmMode === mode || (Array.isArray(fmMode) && fmMode.includes(mode))
-  checks.push({
-    id: 'syntax-mode',
-    label: `Mode matches ${mode}`,
-    passed: modeMatch,
-    message: modeMatch ? undefined : `Declared mode "${JSON.stringify(fmMode)}" does not match expected "${mode}"`,
-  })
-
   // Check file suffix convention
   checks.push({
     id: 'syntax-filename',
@@ -438,36 +405,23 @@ export function validateFormatSyntax(
     passed: true, // caller provides this context
   })
 
-  // FILE-specific checks
-  if (mode === 'FILE') {
-    const body = content.replace(/^---[\s\S]*?---\n?/, '').trim()
-    const hasIndex = parsed.taxonomy.length > 0
-    checks.push({
-      id: 'syntax-index',
-      label: 'FILE mode has _F index section',
-      passed: hasIndex,
-      message: hasIndex ? undefined : 'No _F index with [[wikilinks]] found',
-    })
+  // Document structure checks
+  const body = content.replace(/^---[\s\S]*?---\n?/, '').trim()
+  const hasIndex = parsed.taxonomy.length > 0
+  checks.push({
+    id: 'syntax-index',
+    label: '_F index section present',
+    passed: hasIndex,
+    message: hasIndex ? undefined : 'No _F index with [[wikilinks]] found',
+  })
 
-    const hasConcepts = parsed.elements.size > 0
-    checks.push({
-      id: 'syntax-concepts',
-      label: 'FILE mode has element declarations',
-      passed: hasConcepts,
-      message: hasConcepts ? undefined : 'No concept elements found in document body',
-    })
-  }
-
-  // FOLDER-specific checks
-  if (mode === 'FOLDER') {
-    const hasTaxonomy = parsed.taxonomy.length > 0
-    checks.push({
-      id: 'syntax-taxonomy',
-      label: 'FOLDER root may declare taxonomy index',
-      passed: true, // optional in FOLDER mode
-      message: hasTaxonomy ? undefined : 'No taxonomy declared (optional in FOLDER mode)',
-    })
-  }
+  const hasConcepts = parsed.elements.size > 0
+  checks.push({
+    id: 'syntax-concepts',
+    label: 'Element declarations present',
+    passed: hasConcepts,
+    message: hasConcepts ? undefined : 'No concept elements found in document body',
+  })
 
   return checks
 }

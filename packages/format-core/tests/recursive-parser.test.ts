@@ -40,173 +40,195 @@ function md(frontmatter: Record<string, unknown>, body?: string): string {
   return `---\n${fm}\n---\n${body ?? ''}`;
 }
 
+const BASE_FM = {
+  specification_version: 'V_0-1-2',
+  level: 3,
+  model_version: 'V_0-0-1',
+  parent: { name: 'business_V_0-1-1', url: 'https://example.com/business' },
+};
+
+function makeModel(title: string, body?: string): string {
+  return md({ ...BASE_FM, title }, body);
+}
+
+function makeIndex(wikilinks: string[]): string {
+  const items = wikilinks.map(w => `* [[${w}]]`).join('\n');
+  return `---\nspecification_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _F index\n\n${items}\n`;
+}
+
 /* ── Tests ───────────────────────────────────────────────────── */
 
-describe('recursiveParse', () => {
-  describe('mixed tree with FILE and FOLDER roots', () => {
-    it('parses a FILE root node at the top level', async () => {
+describe('recursiveParse (index.md-driven)', () => {
+  describe('FR-001: Workspace with valid index.md', () => {
+    it('parses a single model listed in index.md', async () => {
       const root = fakeDir('workspace', [
-        ['gb_FORMAT.md', fakeFile('gb_FORMAT.md', md({
-          specification_version: 'V_0-1-2', level: 3, model_version: 'V_0-1-2',
-          title: 'Ghostbusters', mode: 'FILE',
-          parent: { name: 'business_V_0-1-1', url: 'https://example.com/business' },
-        }))],
+        ['index.md', fakeFile('index.md', makeIndex(['gb_FORMAT.md']))],
+        ['gb_FORMAT.md', fakeFile('gb_FORMAT.md', makeModel('Ghostbusters'))],
       ]);
 
       const result = await recursiveParse(root);
       expect(result.rootIds).toHaveLength(1);
       const rootNode = result.nodes[result.rootIds[0]];
       expect(rootNode).toBeDefined();
-      expect(rootNode.storageMode).toBe('FILE');
+      expect(rootNode.name).toBe('gb');
       expect(rootNode.kind).toBe('root');
       expect(result.issues).toHaveLength(0);
     });
 
-    it('parses a FOLDER root node at the top level', async () => {
+    it('parses multiple models listed in index.md', async () => {
       const root = fakeDir('workspace', [
-        ['someFolder', fakeDir('someFolder', [
-          ['_FORMAT.md', fakeFile('_FORMAT.md', md({
-            specification_version: 'V_0-1-2', level: 3, model_version: 'V_0-1-2',
-            title: 'FolderModel', mode: 'FOLDER',
-            parent: { name: 'kb_V_0-1-1', url: 'https://example.com/kb' },
-          }))],
-        ])],
-      ]);
-
-      const result = await recursiveParse(root);
-      expect(result.rootIds).toHaveLength(1);
-      const rootNode = result.nodes[result.rootIds[0]];
-      expect(rootNode).toBeDefined();
-      expect(rootNode.storageMode).toBe('FOLDER');
-      expect(rootNode.kind).toBe('root');
-      expect(result.issues).toHaveLength(0);
-    });
-
-    it('parses both FILE and FOLDER roots in the same workspace', async () => {
-      const root = fakeDir('workspace', [
-        ['fileModel_FORMAT.md', fakeFile('fileModel_FORMAT.md', md({
-          specification_version: 'V_0-1-2', level: 3, model_version: 'V_0-1-2',
-          title: 'FileModel', mode: 'FILE',
-          parent: { name: 'business_V_0-1-1', url: 'https://example.com/business' },
-        }))],
-        ['folderModel', fakeDir('folderModel', [
-          ['_FORMAT.md', fakeFile('_FORMAT.md', md({
-            specification_version: 'V_0-1-2', level: 3, model_version: 'V_0-1-2',
-            title: 'FolderModel', mode: 'FOLDER',
-            parent: { name: 'kb_V_0-1-1', url: 'https://example.com/kb' },
-          }))],
-        ])],
+        ['index.md', fakeFile('index.md', makeIndex(['modelA_FORMAT.md', 'modelB_FORMAT.md']))],
+        ['modelA_FORMAT.md', fakeFile('modelA_FORMAT.md', makeModel('Model A'))],
+        ['modelB_FORMAT.md', fakeFile('modelB_FORMAT.md', makeModel('Model B'))],
       ]);
 
       const result = await recursiveParse(root);
       expect(result.rootIds).toHaveLength(2);
-      const fileRoot = Object.values(result.nodes).find(n => n.storageMode === 'FILE');
-      const folderRoot = Object.values(result.nodes).find(n => n.storageMode === 'FOLDER');
-      expect(fileRoot).toBeDefined();
-      expect(folderRoot).toBeDefined();
+      const names = result.rootIds.map(id => result.nodes[id].name).sort();
+      expect(names).toEqual(['modelA', 'modelB']);
       expect(result.issues).toHaveLength(0);
     });
-  });
 
-  describe('FOLDER node with _FORMAT.md containing taxonomy', () => {
-    it('parses nested elements from a FOLDER node', async () => {
+    it('parses models with elements into a normalized graph', async () => {
+      const modelContent = makeModel('Test Model', `
+# _F index
+
+* [[Problems]]
+
+# _F Problems
+
+* _F Problems: Problem One
+  Description of problem one.
+* _F Problems: Problem Two
+  Description of problem two.
+`);
+
       const root = fakeDir('workspace', [
-        ['kb', fakeDir('kb', [
-          ['_FORMAT.md', fakeFile('_FORMAT.md', md({
-            specification_version: 'V_0-1-2', level: 3, model_version: 'V_0-1-2',
-            title: 'KnowledgeBase', mode: 'FOLDER',
-            concepts: [
-              { name: 'Persona', type: 'text' },
-              { name: 'Topic', type: 'text' },
-            ],
-            parent: { name: 'kb_V_0-1-1', url: 'https://example.com/kb' },
-          }))],
-          ['Alice', fakeDir('Alice', [
-            ['_FORMAT.md', fakeFile('_FORMAT.md', md({
-              specification_version: 'V_0-1-2', level: 3, mode: 'FOLDER',
-              type: 'Persona',
-              title: 'Alice',
-            }))],
-          ])],
-          ['Bob', fakeDir('Bob', [
-            ['_FORMAT.md', fakeFile('_FORMAT.md', md({
-              specification_version: 'V_0-1-2', level: 3, mode: 'FOLDER',
-              type: 'Persona',
-              title: 'Bob',
-            }))],
-          ])],
-        ])],
+        ['index.md', fakeFile('index.md', makeIndex(['test_FORMAT.md']))],
+        ['test_FORMAT.md', fakeFile('test_FORMAT.md', modelContent)],
       ]);
 
       const result = await recursiveParse(root);
+      expect(result.issues).toHaveLength(0);
+      expect(Object.keys(result.nodes).length).toBeGreaterThan(1);
+
+      // Elements should exist in the graph
+      const problemOne = Object.values(result.nodes).find(n => n.name === 'Problem One');
+      expect(problemOne).toBeDefined();
+      expect(problemOne!.kind).toBe('element');
+    });
+  });
+
+  describe('FR-001: Missing index.md', () => {
+    it('returns an error when index.md is missing', async () => {
+      const root = fakeDir('workspace', [
+        ['gb_FORMAT.md', fakeFile('gb_FORMAT.md', makeModel('Ghostbusters'))],
+      ]);
+
+      const result = await recursiveParse(root);
+      expect(result.rootIds).toHaveLength(0);
+      expect(result.issues.length).toBeGreaterThan(0);
+      expect(result.issues[0].message).toContain('Missing index.md');
+    });
+  });
+
+  describe('FR-001: Wikilink to non-existent model', () => {
+    it('emits a warning and skips missing file', async () => {
+      const root = fakeDir('workspace', [
+        ['index.md', fakeFile('index.md', makeIndex(['exists_FORMAT.md', 'missing_FORMAT.md']))],
+        ['exists_FORMAT.md', fakeFile('exists_FORMAT.md', makeModel('Exists'))],
+      ]);
+
+      const result = await recursiveParse(root);
+      // Only one model should be loaded
       expect(result.rootIds).toHaveLength(1);
-      expect(Object.keys(result.nodes).length).toBeGreaterThanOrEqual(3);
-      expect(result.issues).toHaveLength(0);
+      expect(result.nodes[result.rootIds[0]].name).toBe('exists');
+
+      // Warning for missing file
+      const missingIssues = result.issues.filter(i => i.message.includes('not found'));
+      expect(missingIssues.length).toBeGreaterThan(0);
+      expect(missingIssues[0].path).toBe('missing_FORMAT.md');
     });
   });
 
-  describe('bare concept directories → type: category', () => {
-    it('creates concept nodes for directories without _FORMAT.md', async () => {
+  describe('FR-005: Unique element names across workspace', () => {
+    it('reports collision when two models have same element name', async () => {
+      const modelA = makeModel('Model A', `
+# _F index
+
+* [[Database]]
+
+# _F Components
+
+* _F Components: Database
+  The database component.
+`);
+
+      const modelB = makeModel('Model B', `
+# _F index
+
+* [[Database]]
+
+# _F Components
+
+* _F Components: Database
+  Another database component.
+`);
+
       const root = fakeDir('workspace', [
-        ['kb', fakeDir('kb', [
-          ['_FORMAT.md', fakeFile('_FORMAT.md', md({
-            specification_version: 'V_0-1-2', level: 3, model_version: 'V_0-1-2',
-            title: 'KnowledgeBase', mode: 'FOLDER',
-            concepts: [{ name: 'Persona', type: 'text' }],
-            parent: { name: 'kb_V_0-1-1', url: 'https://example.com/kb' },
-          }))],
-          ['BareConcept', fakeDir('BareConcept', [])],
-        ])],
+        ['index.md', fakeFile('index.md', makeIndex(['modelA_FORMAT.md', 'modelB_FORMAT.md']))],
+        ['modelA_FORMAT.md', fakeFile('modelA_FORMAT.md', modelA)],
+        ['modelB_FORMAT.md', fakeFile('modelB_FORMAT.md', modelB)],
       ]);
 
       const result = await recursiveParse(root);
-      const conceptNode = Object.values(result.nodes).find(
-        n => n.name === 'BareConcept'
-      );
-      expect(conceptNode).toBeDefined();
-      expect(conceptNode.type).toBe('category');
-      expect(conceptNode.kind).toBe('concept');
-      expect(conceptNode.sourceMode).toBe('structural');
-      expect(conceptNode.childIds).toHaveLength(0);
+
+      // Both root nodes should exist
+      expect(result.rootIds).toHaveLength(2);
+
+      // Collision should be detected (both elements named "Database" across models)
+      const collisionIssues = result.issues.filter(i => i.message.includes('appears in both'));
+      expect(collisionIssues.length).toBeGreaterThan(0);
+      expect(collisionIssues[0].message).toContain('"Database"');
+      expect(collisionIssues[0].message).toContain('modelA');
+      expect(collisionIssues[0].message).toContain('modelB');
     });
-  });
 
-  describe('identity collision reporting', () => {
-    it('does not crash when two roots have similar names', async () => {
+    it('no collision when all element names are unique across models', async () => {
+      const modelA = makeModel('Model A', `
+# _F index
+
+* [[Users]]
+
+# _F Components
+
+* _F Components: Users
+  User management.
+`);
+
+      const modelB = makeModel('Model B', `
+# _F index
+
+* [[Orders]]
+
+# _F Components
+
+* _F Components: Orders
+  Order management.
+`);
+
       const root = fakeDir('workspace', [
-        ['CollisionMod_FORMAT.md', fakeFile('CollisionMod_FORMAT.md', md({
-          specification_version: 'V_0-1-2', level: 3, model_version: 'V_0-1-2',
-          title: 'CollisionModel', mode: 'FILE',
-          parent: { name: 'business_V_0-1-1', url: 'https://example.com/business' },
-        }))],
-        ['_FORMAT.md', fakeFile('_FORMAT.md', md({
-          specification_version: 'V_0-1-2', level: 3, model_version: 'V_0-1-2',
-          title: 'CollisionFolder', mode: 'FILE',
-          parent: { name: 'business_V_0-1-1', url: 'https://example.com/business' },
-        }))],
+        ['index.md', fakeFile('index.md', makeIndex(['modelA_FORMAT.md', 'modelB_FORMAT.md']))],
+        ['modelA_FORMAT.md', fakeFile('modelA_FORMAT.md', modelA)],
+        ['modelB_FORMAT.md', fakeFile('modelB_FORMAT.md', modelB)],
       ]);
 
       const result = await recursiveParse(root);
-      expect(result.issues).toBeDefined();
-    });
-  });
-
-  describe('parse issues for malformed files', () => {
-    it('creates concept nodes for unparseable _FORMAT.md', async () => {
-      const root = fakeDir('workspace', [
-        ['broken', fakeDir('broken', [
-          ['_FORMAT.md', fakeFile('_FORMAT.md', '{ invalid yaml: [ }')],
-        ])],
-      ]);
-
-      const result = await recursiveParse(root);
-      expect(result.issues).toBeDefined();
-      const brokenNode = Object.values(result.nodes).find(
-        n => n.name === 'broken'
-      );
-      expect(brokenNode).toBeDefined();
-      expect(brokenNode.kind).toBe('concept');
-      expect(brokenNode.sourceMode).toBe('structural');
+      expect(result.rootIds).toHaveLength(2);
+      const elementNames = Object.values(result.nodes)
+        .filter(n => n.kind === 'element')
+        .map(n => n.name);
+      expect(elementNames).toEqual(expect.arrayContaining(['Users', 'Orders']));
     });
   });
 });

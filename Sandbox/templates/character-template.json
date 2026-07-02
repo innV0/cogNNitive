@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Character Template",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "nombre": { "type": "string" },
+    "edad": { "type": "integer", "minimum": 0 },
+    "rol": { "type": "string", "enum": ["protagonista", "antagonista", "secundario", "mentor"] },
+    "personalidad": {
+      "type": "object",
+      "properties": {
+        "arquetipo": { "type": "string" },
+        "rasgos": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["arquetipo", "rasgos"]
+    }
+  },
+  "required": ["id", "nombre", "rol"]
+}

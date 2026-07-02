@@ -1,0 +1,12 @@
+{
+  "rules": [
+    { "id": "no-grandfather-paradox", "description": "No impedir tu propio nacimiento", "severity": "critical" },
+    { "id": "88mph-rule", "description": "Exactamente 88 mph para el viaje", "severity": "critical", "tolerance_mph": 0.5 },
+    { "id": "no-self-meeting", "description": "Evitar encontrarse con uno mismo", "severity": "critical" },
+    { "id": "return-window", "description": "Regresar antes de que la ventana se cierre", "severity": "critical", "default_window_minutes": 120 },
+    { "id": "document-anomalies", "description": "Reportar anomalías observadas", "severity": "info" }
+  ],
+  "exceptions": [
+    { "rule_id": "no-self-meeting", "reason": "Rescue mission — Dr. Brown stranded in 1885", "approved_by": "dr_brown" }
+  ]
+}

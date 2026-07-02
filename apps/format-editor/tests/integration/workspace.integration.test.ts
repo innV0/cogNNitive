@@ -7,7 +7,7 @@ import { useWorkspaceStore } from '../../src/stores/workspaceStore'
 import { routes } from '../../src/router/index'
 import { buildFakeTree, type FakeTree } from '../helpers/fakeFs'
 
-const folderRootMd = `---
+const singleFileMd = `---
 specification_version: "V_0-1-1"
 specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 level: 3
@@ -15,47 +15,39 @@ parent:
   name: "business_V_0-1-1"
   url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 model_version: "V_0-0-1"
-title: "Integration Folder Root"
-mode: "FOLDER"
-concepts:
-  - name: "Business summary"
-    type: "text"
+title: "Integration Model"
 ---
 
 # _F Business summary
 
-Folder root used in the workspace integration test.
-`
-
-const fileChildMd = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
-level: 3
-parent:
-  name: "business_V_0-1-1"
-  url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
-model_version: "V_0-0-1"
-title: "Integration File Child"
-mode: "FILE"
----
+Single-file model for workspace integration test.
 
 # _F Problems
 
 * _F Problems: Sample Problem
-  A problem used to give the FILE child node some field data.
+  A problem used to verify graph population.
 `
 
-describe('WorkspaceView integration (mixed FILE/FOLDER tree)', () => {
+const indexMd = `---
+specification_version: "V_0-1-2"
+level: 0
+title: "Workspace Index"
+---
+
+# _F index
+
+* [[model_FORMAT.md]]
+`
+
+describe('WorkspaceView integration (single-file workspace)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })
 
   it('mounts with Pinia + Router, renders layout chrome, and displays model tree with selectable nodes', async () => {
     const tree: FakeTree = {
-      IntegrationRoot: {
-        '_FORMAT.md': folderRootMd,
-        'Child_FORMAT.md': fileChildMd,
-      },
+      'index.md': indexMd,
+      'model_FORMAT.md': singleFileMd,
     }
     const handle = buildFakeTree('workspace', tree)
 
@@ -78,7 +70,7 @@ describe('WorkspaceView integration (mixed FILE/FOLDER tree)', () => {
     expect(wrapper.text()).toContain('FORMAT Modeler')
 
     // Model tree should render the root node
-    expect(wrapper.text()).toContain('IntegrationRoot')
+    expect(wrapper.text()).toContain('model')
 
     // View switcher buttons present
     expect(wrapper.text()).toContain('editor')

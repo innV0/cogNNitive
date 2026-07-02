@@ -50,7 +50,7 @@ Ghostbusters_V_0-3-0_business_FORMAT.md  (level 3)
 ```
 
 **Para la especificación completa** (frontmatter canónico, modos FILE/FOLDER, body sections, tipos de relación), consultar:
-- [`specs/FORMAT_V_0-1-2_FORMAT.md`](../specs/FORMAT_V_0-1-2_FORMAT.md) — especificación actual
+- [`specs/FORMAT_V_0-1-3_FORMAT.md`](../specs/FORMAT_V_0-1-3_FORMAT.md) — especificación actual
 - [`specs/CHANGELOG.md`](../specs/CHANGELOG.md) — cambios entre versiones
 
 ---
@@ -74,7 +74,7 @@ FORMAT define un sistema polimórfico de relaciones donde cada tipo tiene una re
 | graph_edge | Frontmatter `graph_edges` array | Frontmatter `graph_edges` |
 | sequence | Concept type steps/sequence | Concept type steps/sequence |
 
-Ver la spec en [`specs/FORMAT_V_0-1-2_FORMAT.md`](../specs/FORMAT_V_0-1-2_FORMAT.md) para definiciones completas.
+Ver la spec en [`specs/FORMAT_V_0-1-3_FORMAT.md`](../specs/FORMAT_V_0-1-3_FORMAT.md) para definiciones completas.
 
 ### 2.3. Decisiones adicionales
 
@@ -120,7 +120,7 @@ innV0/
 ├── innV0_skills/    ← REPO EXISTENTE: agent skills, apuntan a specs por URL
 ├── innV0.com/       ← REPO EXISTENTE: website sin specs embebidas (redirects)
 ├── VidGeNN/         ← REPO EXISTENTE: fase 2 — migrar a template FORMAT
-├── cogNNitive/      ← REPO ACTUAL: este documento, SDD changes, formato V_0-1-2
+├── cogNNitive/      ← REPO ACTUAL: este documento, SDD changes, formato V_0-1-3
 └── specs/           ← REPO OPCIONAL: mirror inmutable de todas las specs
 ```
 
@@ -135,7 +135,7 @@ El `public/defiNNe/` actual en innV0.com debe reemplazarse por un redirect al ra
 ### Fase 0: Consolidación de specs en cogNNitive (COMPLETADA)
 
 1. ✅ Finalizar documento `spec_consolidation.md` con decisiones.
-2. ✅ Publicar `FORMAT_V_0-1-2_FORMAT.md` actualizada con modos FILE/FOLDER, sistema de relaciones.
+2. ✅ Publicar `FORMAT_V_0-1-3_FORMAT.md` actualizada con workspace index, esquema unificado.
 3. ✅ Template `kb_V_0-1-1_FORMAT.md` como ejemplo de modo FOLDER.
 4. 🔄 SDD consolidate-format-drivers: PR 1 (Core Abstraction), PR 2 (App Wiring), PR 3 (Data Completeness).
 
@@ -223,4 +223,4 @@ No se fusionan las UIs. En su lugar se crea una **librería TypeScript pura** qu
 
 ---
 
-*Este documento es un artefacto de trabajo vivo. Para la especificación completa, ver [`specs/FORMAT_V_0-1-2_FORMAT.md`](../specs/FORMAT_V_0-1-2_FORMAT.md).*
+*Este documento es un artefacto de trabajo vivo. Para la especificación completa, ver [`specs/FORMAT_V_0-1-3_FORMAT.md`](../specs/FORMAT_V_0-1-3_FORMAT.md).*

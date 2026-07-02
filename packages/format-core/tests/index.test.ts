@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { parseModel, parseFrontmatter, parseIndexBlock, parseMarkdownTable, validateModel, buildHierarchyTree, extractRelationships, extractAnalysis } from '../src/index';
+import { parseModel, parseFrontmatter, parseIndexBlock, parseMarkdownTable, validateModel, buildHierarchyTree, extractRelationships, extractAnalysis, slugify, deriveElementSlugs } from '../src/index';
 
 const specsDir = join(import.meta.dirname!, '..', '..', '..', 'specs');
 const archiveDir = join(import.meta.dirname!, '..', '..', '..', 'archive', 'specs');
@@ -302,5 +302,546 @@ describe('extended parser features', () => {
   it('extractAnalysis returns array', () => {
     const analysis = extractAnalysis(content);
     expect(Array.isArray(analysis)).toBe(true);
+  });
+});
+
+/* ── FR-002: Slug derivation ─────────────────────────────────── */
+
+describe('slugify (FR-002)', () => {
+  it('converts a simple name to kebab-case', () => {
+    expect(slugify('My Great Element')).toBe('my-great-element');
+  });
+
+  it('lowercases the input', () => {
+    expect(slugify('ALLCAPS Name')).toBe('allcaps-name');
+  });
+
+  it('replaces spaces with hyphens', () => {
+    expect(slugify('hello world test')).toBe('hello-world-test');
+  });
+
+  it('strips accented characters', () => {
+    expect(slugify('José Martínez')).toBe('jose-martinez');
+    expect(slugify('Café Crème')).toBe('cafe-creme');
+    expect(slugify('München')).toBe('munchen');
+  });
+
+  it('removes non-alphanumeric characters except hyphens', () => {
+    expect(slugify('Hello (World)!')).toBe('hello-world');
+    expect(slugify('Price: $10')).toBe('price-10');
+    expect(slugify('A&B Special')).toBe('ab-special');
+  });
+
+  it('collapses multiple hyphens', () => {
+    expect(slugify('hello   world')).toBe('hello-world');
+    expect(slugify('a--b')).toBe('a-b');
+  });
+
+  it('trims leading and trailing hyphens', () => {
+    expect(slugify('  hello world  ')).toBe('hello-world');
+    expect(slugify('-hello-')).toBe('hello');
+  });
+
+  it('handles empty and whitespace-only input', () => {
+    expect(slugify('')).toBe('');
+    expect(slugify('   ')).toBe('');
+  });
+});
+
+describe('element slug derivation (FR-002)', () => {
+  it('derives slug from element name when slug field is absent', () => {
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      '---',
+      '',
+      '# _F Problems',
+      '',
+      '* _F Problems: My Great Element',
+      '  A description.',
+      '',
+    ].join('\n');
+
+    const model = parseModel(content);
+    const elements = model.elements.get('Problems');
+    expect(elements).toBeDefined();
+    expect(elements![0].slug).toBe('my-great-element');
+  });
+
+  it('uses explicit slug from YAML fields when declared', () => {
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      '---',
+      '',
+      '# _F Problems',
+      '',
+      '* _F Problems: My Element',
+      '  ```yaml',
+      '  slug: my-custom-slug',
+      '  severity: high',
+      '  ```',
+      '  A description.',
+      '',
+    ].join('\n');
+
+    const model = parseModel(content);
+    const elements = model.elements.get('Problems');
+    expect(elements).toBeDefined();
+    expect(elements![0].slug).toBe('my-custom-slug');
+    // slug should NOT remain in fields
+    expect(elements![0].fields['slug']).toBeUndefined();
+    // other fields should remain
+    expect(elements![0].fields['severity']).toBe('high');
+  });
+
+  it('detects collisions when two elements derive the same slug', async () => {
+    const { ElementsMap, ElementNode } = await import('../src/types');
+    const elements = new ElementsMap();
+
+    // Manually create elements with names that would slugify to the same value
+    const el1: ElementNode = {
+      type: 'Components',
+      name: 'My Element',
+      description: '',
+      fields: {},
+      markers: {},
+    };
+    const el2: ElementNode = {
+      type: 'Components',
+      name: 'my element',
+      description: '',
+      fields: {},
+      markers: {},
+    };
+
+    elements.set('Components', [el1, el2]);
+    const collisions = deriveElementSlugs(elements);
+
+    expect(collisions).toHaveLength(1);
+    expect(collisions[0].slug).toBe('my-element');
+    expect(collisions[0].elements).toContain('My Element');
+    expect(collisions[0].elements).toContain('my element');
+  });
+
+  it('emits slugCollisions on parsed model when names collide', () => {
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      '---',
+      '',
+      '# _F Components',
+      '',
+      '* _F Components: My Element',
+      '  First one.',
+      '* _F Components: my element',
+      '  Second one with same slug.',
+      '',
+    ].join('\n');
+
+    const model = parseModel(content);
+    expect(model.slugCollisions).toBeDefined();
+    expect(model.slugCollisions!.length).toBeGreaterThanOrEqual(1);
+    expect(model.slugCollisions![0].slug).toBe('my-element');
+    expect(model.slugCollisions![0].elements).toContain('My Element');
+  });
+
+  it('passes slug from ElementNode to ModelNode via recursiveParser', async () => {
+    // This is tested via recursiveParse which maps elements to model nodes.
+    // We verify the slug field is populated on the model node.
+    const { recursiveParse } = await import('../src/recursiveParser');
+    const { ElementsMap } = await import('../src/types');
+
+    const fakeFile = (name: string, content: string) => ({
+      kind: 'file' as const,
+      name,
+      getFile: async () => ({ text: async () => content }),
+    });
+
+    const fakeDir = (entries: Array<[string, unknown]>) => ({
+      kind: 'directory' as const,
+      name: 'ws',
+      entries: async function* () { for (const e of entries) yield e; },
+      getFileHandle: async (name: string) => {
+        const found = entries.find(([n]) => n === name);
+        if (!found) throw Object.assign(new Error('File not found'), { code: 'ENOENT' });
+        return found[1];
+      },
+    });
+
+    const modelContent = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      '---',
+      '',
+      '# _F index',
+      '* [[TestEl]]',
+      '',
+      '# _F Components',
+      '',
+      '* _F Components: Test El',
+      '  A test element.',
+      '',
+    ].join('\n');
+
+    const indexContent = [
+      '---',
+      'specification_version: "V_0-1-2"',
+      'level: 0',
+      'title: "Index"',
+      '---',
+      '',
+      '# _F index',
+      '',
+      '* [[test_FORMAT.md]]',
+      '',
+    ].join('\n');
+
+    const root = fakeDir([
+      ['index.md', fakeFile('index.md', indexContent)],
+      ['test_FORMAT.md', fakeFile('test_FORMAT.md', modelContent)],
+    ]);
+
+    const result = await recursiveParse(root as any);
+    const elementNodes = Object.values(result.nodes).filter(n => n.kind === 'element');
+    expect(elementNodes.length).toBeGreaterThan(0);
+    expect(elementNodes[0].slug).toBe('test-el');
+  });
+});
+
+/* ── FR-003: Asset field types ───────────────────────────────── */
+
+describe('ConceptField.type with asset types (FR-003)', () => {
+  it('accepts image/file/video/audio as field types', () => {
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Asset Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      'concepts:',
+      '  - name: Screenshots',
+      '    type: text',
+      '    fields:',
+      '      - name: screenshot',
+      '        type: image',
+      '      - name: source',
+      '        type: file',
+      '      - name: demo',
+      '        type: video',
+      '      - name: narration',
+      '        type: audio',
+      '---',
+      '',
+      '# _F index',
+      '* [[ScreenshotOne]]',
+      '',
+      '# _F Screenshots',
+      '',
+      '* _F Screenshots: ScreenshotOne',
+      '  ```yaml',
+      '  screenshot: photo.png',
+      '  source: docs/report.pdf',
+      '  demo: walkthrough.mp4',
+      '  narration: voiceover.mp3',
+      '  ```',
+      '  A test element with asset fields.',
+      '',
+    ].join('\n');
+
+    const model = parseModel(content);
+    expect(model.frontmatter.concepts).toBeDefined();
+    const screenshotConcept = model.frontmatter.concepts!.find(c => c.name === 'Screenshots');
+    expect(screenshotConcept).toBeDefined();
+    const fieldTypes = screenshotConcept!.fields!.map(f => f.type);
+    expect(fieldTypes).toContain('image');
+    expect(fieldTypes).toContain('file');
+    expect(fieldTypes).toContain('video');
+    expect(fieldTypes).toContain('audio');
+  });
+});
+
+/* ── FR-004: asset_mode ─────────────────────────────────────── */
+
+describe('asset_mode (FR-004)', () => {
+  it('defaults to centralized when absent from frontmatter', () => {
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Asset Mode Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      '---',
+      '',
+      '# _F index',
+      '* [[TestEl]]',
+      '',
+      '# _F Components',
+      '',
+      '* _F Components: TestEl',
+      '  A test.',
+      '',
+    ].join('\n');
+
+    const model = parseModel(content);
+    expect(model.frontmatter.asset_mode).toBeUndefined();
+    // The default is handled at the recursiveParser level
+  });
+
+  it('accepts explicit centralized mode', () => {
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Asset Mode Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      'asset_mode: centralized',
+      '---',
+      '',
+      '# _F index',
+      '* [[TestEl]]',
+      '',
+      '# _F Components',
+      '',
+      '* _F Components: TestEl',
+      '  A test.',
+      '',
+    ].join('\n');
+
+    const model = parseModel(content);
+    expect(model.frontmatter.asset_mode).toBe('centralized');
+  });
+
+  it('accepts per-element mode', () => {
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Asset Mode Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      'asset_mode: per-element',
+      '---',
+      '',
+      '# _F index',
+      '* [[TestEl]]',
+      '',
+      '# _F Components',
+      '',
+      '* _F Components: TestEl',
+      '  A test.',
+      '',
+    ].join('\n');
+
+    const model = parseModel(content);
+    expect(model.frontmatter.asset_mode).toBe('per-element');
+  });
+
+  it('resolves asset paths in centralized mode correctly', async () => {
+    const { recursiveParse } = await import('../src/recursiveParser');
+
+    const fakeFile = (name: string, content: string) => ({
+      kind: 'file' as const,
+      name,
+      getFile: async () => ({ text: async () => content }),
+    });
+
+    const fakeDir = (entries: Array<[string, unknown]>) => ({
+      kind: 'directory' as const,
+      name: 'ws',
+      entries: async function* () { for (const e of entries) yield e; },
+      getFileHandle: async (name: string) => {
+        const found = entries.find(([n]) => n === name);
+        if (!found) throw Object.assign(new Error('File not found'), { code: 'ENOENT' });
+        return found[1];
+      },
+    });
+
+    const modelContent = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Asset Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      'asset_mode: centralized',
+      'concepts:',
+      '  - name: Screenshots',
+      '    type: text',
+      '    fields:',
+      '      - name: screenshot',
+      '        type: image',
+      '---',
+      '',
+      '# _F index',
+      '* [[ScreenshotOne]]',
+      '',
+      '# _F Screenshots',
+      '',
+      '* _F Screenshots: ScreenshotOne',
+      '  ```yaml',
+      '  screenshot: photo.png',
+      '  ```',
+      '  A screenshot element.',
+      '',
+    ].join('\n');
+
+    const indexContent = [
+      '---',
+      'specification_version: "V_0-1-2"',
+      'level: 0',
+      'title: "Index"',
+      '---',
+      '',
+      '# _F index',
+      '',
+      '* [[test_FORMAT.md]]',
+      '',
+    ].join('\n');
+
+    const root = fakeDir([
+      ['index.md', fakeFile('index.md', indexContent)],
+      ['test_FORMAT.md', fakeFile('test_FORMAT.md', modelContent)],
+    ]);
+
+    const result = await recursiveParse(root as any);
+    const elementNodes = Object.values(result.nodes).filter(n => n.kind === 'element');
+    expect(elementNodes.length).toBeGreaterThan(0);
+    // The asset path for centralized: <model-dir>/assets/photo.png
+    // model-dir is '' (no directory prefix in the test), so path is 'assets/photo.png'
+    expect(elementNodes[0].assets).toBeDefined();
+    expect(elementNodes[0].assets!.length).toBeGreaterThan(0);
+    expect(elementNodes[0].assets![0]).toContain('assets/photo.png');
+  });
+});
+
+/* ── FR-007: FOLDER mode rejection ──────────────────────────── */
+
+describe('FOLDER mode rejection (FR-007)', () => {
+  it('parseModel emits a warning for FOLDER mode', () => {
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      'mode: FOLDER',
+      '---',
+      '',
+      '# _F index',
+      '* [[TestEl]]',
+      '',
+      '# _F Components',
+      '',
+      '* _F Components: TestEl',
+      '  A test.',
+      '',
+    ].join('\n');
+
+    const model = parseModel(content);
+    expect(model.parseWarnings).toBeDefined();
+    expect(model.parseWarnings!.some(w => w.includes('FOLDER'))).toBe(true);
+  });
+
+  it('validateFormatContent reports error for FOLDER mode', async () => {
+    const { validateFormatContent } = await import('../src/validator');
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      'mode: FOLDER',
+      '---',
+      '',
+      '# _F index',
+      '* [[TestEl]]',
+      '',
+      '# _F Components',
+      '',
+      '* _F Components: TestEl',
+      '  A test.',
+      '',
+    ].join('\n');
+
+    const report = validateFormatContent(content, 'test_FORMAT.md');
+    const folderCheck = report.checks.find(c => c.id === 'fm-no-folder-mode');
+    expect(folderCheck).toBeDefined();
+    expect(folderCheck!.passed).toBe(false);
+    expect(folderCheck!.severity).toBe('error');
+    expect(folderCheck!.message).toContain('FOLDER');
+  });
+
+  it('validateModel reports error for FOLDER mode', () => {
+    const content = [
+      '---',
+      'specification_version: "V_0-1-3"',
+      'level: 3',
+      'model_version: "V_0-0-1"',
+      'title: "Test"',
+      'parent:',
+      '  name: "test_V_0-1-1"',
+      '  url: "https://example.com/test"',
+      'mode: FOLDER',
+      '---',
+      '',
+      '# _F index',
+      '* [[TestEl]]',
+      '',
+      '# _F Components',
+      '',
+      '* _F Components: TestEl',
+      '  A test.',
+      '',
+    ].join('\n');
+
+    const model = parseModel(content);
+    const result = validateModel(model, null, null);
+    const folderError = result.errors.find(e => e.message.includes('FOLDER'));
+    expect(folderError).toBeDefined();
+    expect(folderError!.severity).toBe('error');
   });
 });

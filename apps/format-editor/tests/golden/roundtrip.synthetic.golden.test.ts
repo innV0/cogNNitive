@@ -1,43 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { recursiveParse } from '../../src/model/recursiveParser'
 import { recursiveSerialize } from '../../src/model/recursiveSerializer'
-import { buildFakeTree, readFakeTree, type FakeTree } from '../helpers/fakeFs'
+import { buildFakeTree } from '../helpers/fakeFs'
+import type { ParsedModel, ModelDriver } from '@innv0/format-core'
 import type { ModelNode } from '../../src/model/types'
-
-const rootFormatMd = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
-level: 3
-parent:
-  name: "business_V_0-1-1"
-  url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
-model_version: "V_0-0-1"
-title: "Synthetic Folder Root"
-mode: "FOLDER"
----
-
-# _F Business summary
-
-Synthetic FOLDER-mode fixture root used to exercise recursive folder round-trip.
-`
-
-const childFormatMd = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
-level: 3
-parent:
-  name: "business_V_0-1-1"
-  url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
-model_version: "V_0-0-1"
-title: "Synthetic Folder Child"
-mode: "FOLDER"
----
-
-# _F Problems
-
-* _F Problems: Nested Problem
-  A problem defined inside a nested FOLDER child.
-`
 
 const fileDocMd = `---
 specification_version: "V_0-1-1"
@@ -47,14 +13,28 @@ parent:
   name: "business_V_0-1-1"
   url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 model_version: "V_0-0-1"
-title: "Mixed Tree File Child"
-mode: "FILE"
+title: "Single File Model"
 ---
+
+# _F index
+
+* [[Problems]]
 
 # _F Problems
 
-* _F Problems: File Mode Problem
-  A problem defined inside a FILE-mode document nested under a FOLDER node.
+* _F Problems: Problem One
+  A synthetic problem used to exercise round-trip.
+`
+
+const indexMd = `---
+specification_version: "V_0-1-2"
+level: 0
+title: "Workspace Index"
+---
+
+# _F index
+
+* [[Doc_FORMAT.md]]
 `
 
 function structureOf(nodes: Record<string, ModelNode>, rootIds: string[]) {
@@ -64,26 +44,38 @@ function structureOf(nodes: Record<string, ModelNode>, rootIds: string[]) {
       id: n.id,
       name: n.name,
       parentId: n.parentId,
-      storageMode: n.storageMode,
       fieldKeys: Object.keys(n.fields).sort(),
       childCount: n.childIds.length,
     }))
   return { rootIds: [...rootIds].sort(), nodeCount: Object.keys(nodes).length, nodes: nodeSummaries }
 }
 
-async function assertRoundTripStable(tree: FakeTree): Promise<void> {
+async function assertRoundTripStable(index: string, modelFile: string, modelContent: string): Promise<void> {
+  const tree = { 'index.md': index, [modelFile]: modelContent }
   const root = buildFakeTree('workspace', tree)
   const firstParse = await recursiveParse(root)
   expect(firstParse.issues).toHaveLength(0)
 
-  const dirtyIds = new Set(
-    Object.values(firstParse.nodes)
-      .filter((n) => n.rawContent !== undefined)
-      .map((n) => n.id),
-  )
-  await recursiveSerialize(root, firstParse.nodes, firstParse.rootIds, dirtyIds)
+  let capturedContent: string | null = null
+  const capturingDriver: ModelDriver = {
+    readModel: async () => { throw new Error('not expected') },
+    writeModel: async (_uri: string, model: ParsedModel) => {
+      capturedContent = model.rawContent
+    },
+    listChildren: async () => [],
+    listAssets: async () => [],
+  }
 
-  const secondParse = await recursiveParse(root)
+  const rootIds = Object.values(firstParse.nodes)
+    .filter((n) => n.rawContent !== undefined)
+    .map((n) => n.id)
+
+  await recursiveSerialize(firstParse.nodes, new Set(rootIds), capturingDriver)
+  expect(capturedContent).not.toBeNull()
+
+  const rewrittenTree = { 'index.md': index, [modelFile]: capturedContent! }
+  const rewrittenRoot = buildFakeTree('workspace', rewrittenTree)
+  const secondParse = await recursiveParse(rewrittenRoot)
   expect(secondParse.issues).toHaveLength(0)
 
   expect(structureOf(secondParse.nodes, secondParse.rootIds)).toEqual(
@@ -91,24 +83,8 @@ async function assertRoundTripStable(tree: FakeTree): Promise<void> {
   )
 }
 
-describe('recursiveSerializer golden round-trip: synthetic FOLDER fixture (task 3.6)', () => {
-  it('parse -> serialize -> re-parse is structurally stable for nested FOLDER dirs', async () => {
-    await assertRoundTripStable({
-      RootFolder: {
-        '_FORMAT.md': rootFormatMd,
-        ChildFolder: { '_FORMAT.md': childFormatMd },
-      },
-    })
-  })
-})
-
-describe('recursiveSerializer golden round-trip: mixed FILE+FOLDER tree fixture (task 3.6)', () => {
-  it('parse -> serialize -> re-parse is structurally stable for a mixed tree', async () => {
-    await assertRoundTripStable({
-      MixedRoot: {
-        '_FORMAT.md': rootFormatMd,
-        'Nested_FORMAT.md': fileDocMd,
-      },
-    })
+describe('recursiveSerializer golden round-trip: synthetic single-file fixture', () => {
+  it('parse -> serialize -> re-parse is structurally stable for single-file model', async () => {
+    await assertRoundTripStable(indexMd, 'Doc_FORMAT.md', fileDocMd)
   })
 })

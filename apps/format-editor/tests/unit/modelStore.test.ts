@@ -9,7 +9,6 @@ function makeNode(id: string, overrides: Partial<ModelNode> = {}): ModelNode {
     name: id,
     parentId: null,
     childIds: [],
-    storageMode: 'FILE',
     type: 'text',
     fields: {},
     markers: {},

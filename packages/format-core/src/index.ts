@@ -11,19 +11,9 @@ export {
   buildHierarchyTree,
   extractRelationships,
   extractAnalysis,
+  slugify,
+  deriveElementSlugs,
 } from './parser';
-
-export {
-  readFileModel,
-  writeFileModel,
-  readFileModelSync,
-  writeFileModelSync,
-} from './driver-file';
-
-export {
-  discoverFolder,
-  buildElementMap,
-} from './driver-folder';
 
 export {
   resolveParentChain,
@@ -43,6 +33,6 @@ export * from './identity';
 export * from './metamodel';
 export * from './recursiveParser';
 export * from './driver';
-export type { ModelDriver, ModelEntry, DriverType } from './driver';
+export type { ModelDriver, ModelEntry } from './driver';
 export { createDriver } from './driver';
 export * from './fs-types';

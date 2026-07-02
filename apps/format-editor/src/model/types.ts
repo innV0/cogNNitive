@@ -7,7 +7,6 @@ export type {
   Provenance,
   FieldValue,
   ModelRelationship,
-  StorageMode,
   MetamodelConcept,
   MetamodelMarker,
   LocalMetamodel,

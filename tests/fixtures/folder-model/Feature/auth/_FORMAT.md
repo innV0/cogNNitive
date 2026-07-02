@@ -1,11 +1,10 @@
 ---
-type: "Feature"
+type: "Topic"
 fields:
-  status: "in-progress"
-  priority: "P0"
-  story_points: 13
-  owner: "equipo-auth"
+  category: "feature"
+  status: "published"
 markers:
-  weight: 10
-  rating: "+++"
+  weight: 9
 ---
+
+OAuth2 authentication module with SSO support.

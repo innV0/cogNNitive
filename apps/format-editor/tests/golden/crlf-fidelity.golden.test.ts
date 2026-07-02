@@ -3,8 +3,9 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { recursiveParse } from '../../src/model/recursiveParser'
 import { recursiveSerialize } from '../../src/model/recursiveSerializer'
-import { buildFakeTree, readFakeTree } from '../helpers/fakeFs'
+import { buildFakeTree } from '../helpers/fakeFs'
 import type { FakeTree } from '../helpers/fakeFs'
+import type { ParsedModel, ModelDriver } from '@innv0/format-core'
 import type { ModelNode } from '../../src/model/types'
 
 // The frozen fixtures under tests/fixtures/models/ are LF-only (git
@@ -16,6 +17,11 @@ import type { ModelNode } from '../../src/model/types'
 const modelsDir = join(import.meta.dirname!, '..', 'fixtures', 'models')
 const fixtureFile = 'mini-file_V_0-0-1_business_FORMAT.md'
 
+function makeIndex(wikilinks: string[]): string {
+  const items = wikilinks.map(w => `* [[${w}]]`).join('\n')
+  return `---\nspecification_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _F index\n\n${items}\n`
+}
+
 /** Structural summary used to compare two parses without noise from
  *  volatile fields (provenance timestamps, etc). */
 function structureOf(nodes: Record<string, ModelNode>, rootIds: string[]) {
@@ -25,7 +31,6 @@ function structureOf(nodes: Record<string, ModelNode>, rootIds: string[]) {
       id: n.id,
       name: n.name,
       parentId: n.parentId,
-      storageMode: n.storageMode,
       type: n.type,
       fieldKeys: Object.keys(n.fields).sort(),
       fieldValues: Object.fromEntries(
@@ -46,8 +51,10 @@ describe('recursiveParser/Serializer CRLF fidelity', () => {
     const crlfContent = lfContent.replace(/\n/g, '\r\n')
     expect(crlfContent.includes('\r\n')).toBe(true)
 
-    const lfRoot = buildFakeTree('models', { [fixtureFile]: lfContent })
-    const crlfRoot = buildFakeTree('models', { [fixtureFile]: crlfContent })
+    const indexMd = makeIndex([fixtureFile])
+
+    const lfRoot = buildFakeTree('models', { 'index.md': indexMd, [fixtureFile]: lfContent })
+    const crlfRoot = buildFakeTree('models', { 'index.md': indexMd, [fixtureFile]: crlfContent })
 
     const lfParse = await recursiveParse(lfRoot)
     const crlfParse = await recursiveParse(crlfRoot)
@@ -60,26 +67,33 @@ describe('recursiveParser/Serializer CRLF fidelity', () => {
   it('round-trips a CRLF source cleanly through parse -> serialize -> re-parse', async () => {
     const lfContent = readFileSync(join(modelsDir, fixtureFile), 'utf-8')
     const crlfContent = lfContent.replace(/\n/g, '\r\n')
+    const indexMd = makeIndex([fixtureFile])
 
-    const tree: FakeTree = { [fixtureFile]: crlfContent }
+    const tree: FakeTree = { 'index.md': indexMd, [fixtureFile]: crlfContent }
     const root = buildFakeTree('models', tree)
 
     const firstParse = await recursiveParse(root)
     expect(firstParse.issues).toHaveLength(0)
 
-    // Mark every FILE/FOLDER root node dirty to force a full write-back
-    // even though there were no user edits (R7 "no edits" scenario).
+    let capturedContent: string | null = null
+    const capturingDriver: ModelDriver = {
+      readModel: async () => { throw new Error('not expected') },
+      writeModel: async (_uri: string, model: ParsedModel) => {
+        capturedContent = model.rawContent
+      },
+      listChildren: async () => [],
+      listAssets: async () => [],
+    }
+
     const dirtyIds = new Set(
       Object.values(firstParse.nodes)
         .filter((n) => n.rawContent !== undefined)
         .map((n) => n.id),
     )
-    await recursiveSerialize(root, firstParse.nodes, firstParse.rootIds, dirtyIds)
+    await recursiveSerialize(firstParse.nodes, dirtyIds, capturingDriver)
+    expect(capturedContent).toBeDefined()
 
-    const rewrittenContent = readFakeTree(tree, fixtureFile)
-    expect(rewrittenContent).toBeDefined()
-
-    const rewrittenTree: FakeTree = { [fixtureFile]: rewrittenContent! }
+    const rewrittenTree: FakeTree = { 'index.md': indexMd, [fixtureFile]: capturedContent! }
     const rewrittenRoot = buildFakeTree('models', rewrittenTree)
     const secondParse = await recursiveParse(rewrittenRoot)
     expect(secondParse.issues).toHaveLength(0)

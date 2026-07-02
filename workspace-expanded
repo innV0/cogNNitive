@@ -1,0 +1,94 @@
+- generic [ref=e57]:
+  - banner [ref=e58]:
+    - generic [ref=e59]:
+      - generic [ref=e60]:
+        - generic [ref=e61]: _F
+        - heading "FORMAT Modeler" [level=1] [ref=e62]
+      - generic [ref=e63]:
+        - generic [ref=e64]:
+          - generic [ref=e65]: "Format:"
+          - generic [ref=e66]: V_0-1-0
+        - generic [ref=e67]:
+          - generic [ref=e68]: "Template:"
+          - generic [ref=e69]: business
+          - generic [ref=e70]: V_1-0-0
+        - generic [ref=e71]:
+          - generic [ref=e72]: "Model:"
+          - generic [ref=e73]: —
+        - generic [ref=e74]: Saved
+        - generic [ref=e75]:
+          - generic [ref=e76]: file-model_FORMAT.md
+          - button "Copy path" [ref=e77] [cursor=pointer]:
+            - img [ref=e78]
+    - generic [ref=e81]:
+      - generic [ref=e83]:
+        - button "Save" [ref=e84] [cursor=pointer]:
+          - img [ref=e85]
+          - text: Save
+        - button [ref=e89] [cursor=pointer]:
+          - img [ref=e90]
+      - button "View Model Status" [ref=e92] [cursor=pointer]:
+        - img [ref=e93]
+      - generic [ref=e95]:
+        - link "Open web" [ref=e96] [cursor=pointer]:
+          - /url: https://format.innv0.com
+        - link "Open docs" [ref=e97] [cursor=pointer]:
+          - /url: https://format.innv0.com/documentation/
+  - generic [ref=e98]:
+    - complementary [ref=e99]:
+      - generic "Drag to resize" [ref=e100]
+      - generic [ref=e101]:
+        - button "Graph View" [ref=e102] [cursor=pointer]:
+          - img [ref=e103]
+          - generic [ref=e108]: Graph View
+        - generic [ref=e109]:
+          - heading "Model" [level=2] [ref=e110]
+          - generic [ref=e111]:
+            - button "Expand All" [ref=e112] [cursor=pointer]:
+              - img [ref=e113]
+            - button "Collapse All" [ref=e116] [cursor=pointer]:
+              - img [ref=e117]
+        - generic [ref=e120]:
+          - generic [ref=e122] [cursor=pointer]:
+            - button "Expand" [ref=e123]:
+              - img [ref=e124]
+            - img [ref=e126]
+            - generic [ref=e129]: file-model
+            - generic [ref=e130]: FILE
+            - button "Move down" [ref=e131]:
+              - img [ref=e132]
+          - generic [ref=e135] [cursor=pointer]:
+            - button "Expand" [ref=e136]:
+              - img [ref=e137]
+            - img [ref=e139]
+            - generic [ref=e142]: folder-model
+            - generic [ref=e143]: FOLDER
+            - button "Move down" [ref=e144]:
+              - img [ref=e145]
+    - main [ref=e147]:
+      - generic [ref=e148]:
+        - button "← Home" [ref=e149] [cursor=pointer]
+        - generic [ref=e150]:
+          - button "editor" [ref=e151] [cursor=pointer]
+          - button "graph" [ref=e152] [cursor=pointer]
+          - button "matrices" [ref=e153] [cursor=pointer]
+          - button "info" [ref=e154] [cursor=pointer]
+        - button "Validate" [disabled] [ref=e155]
+        - generic [ref=e156]: No node selected
+      - paragraph [ref=e157]: Select a node to edit or validate.
+    - generic [ref=e158]:
+      - generic "Drag to resize" [ref=e159]
+      - complementary [ref=e160]:
+        - button "Hide Guidance Panel" [ref=e161] [cursor=pointer]:
+          - img [ref=e162]
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - img [ref=e167]
+              - heading "No concept Guidance" [level=2] [ref=e170]
+            - paragraph [ref=e171]: Methodology and instructions to fill this section.
+          - generic [ref=e172]: Phase 2 guidance placeholder. Full metamodel-driven guidance will be wired in Phase 6.
+          - generic [ref=e173]:
+            - heading "Methodology Description" [level=3] [ref=e174]
+            - generic [ref=e175]: Select a concept node in the model tree to see its guidance content here. The guidance panel reads from the resolved metamodel documentation.
+        - generic [ref=e176]: Select a node to view guidance.

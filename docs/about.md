@@ -40,4 +40,13 @@ npm workspaces monorepo with apps/, packages/, specs/, models/, and docs/.
 - **Level 2: Templates** — business, procedures, kb
 - **Level 3: Models** — Concrete data instances
 
+## Open Knowledge Format compatibility
+
+FORMAT is **100% compatible** with [OKF v0.1](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md) (Open Knowledge Format) by Google Cloud Platform. Every FORMAT document is a valid OKF knowledge bundle:
+
+- **Shared substrate**: Both use Markdown + YAML frontmatter. No proprietary tooling.
+- **Conformance**: OKF's three conformance rules (parseable frontmatter, non-empty `type`, reserved filenames) are fully met by FORMAT's structure.
+- **Tolerant extensions**: OKF explicitly tolerates unknown frontmatter keys and unknown `type` values — FORMAT's richer metadata (`specification_version`, `level`, `parent`, `concepts`, `markers`, `matrices`) is fully compatible.
+- **FOLDER mode = Bundle**: FORMAT FOLDER mode produces exactly the directory tree OKF defines as a knowledge bundle. Each `_FORMAT.md` is an OKF concept document.
+
 [Home](https://innv0.github.io/cogNNitive/)

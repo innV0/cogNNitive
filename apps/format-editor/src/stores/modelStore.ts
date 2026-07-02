@@ -103,7 +103,6 @@ export const useModelStore = defineStore('model', {
         name,
         parentId,
         childIds: [],
-        storageMode: parent.storageMode ?? 'FOLDER',
         type,
         kind: kind ?? 'element',
         fields: {},

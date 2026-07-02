@@ -1,8 +1,5 @@
 import type { ParsedModel } from './types'
-import { FileDriver } from './driver-file'
-import { FolderDriver } from './driver-folder'
-
-export type DriverType = 'FILE' | 'FOLDER'
+import { UnifiedDriver } from './driver-unified'
 
 export interface ModelEntry {
   name: string
@@ -17,11 +14,6 @@ export interface ModelDriver {
   listAssets(uri: string): Promise<string[]>
 }
 
-export function createDriver(type: DriverType, baseUri: string): ModelDriver {
-  switch (type) {
-    case 'FILE':
-      return new FileDriver(baseUri)
-    case 'FOLDER':
-      return new FolderDriver(baseUri)
-  }
+export function createDriver(baseUri: string): UnifiedDriver {
+  return new UnifiedDriver(baseUri)
 }

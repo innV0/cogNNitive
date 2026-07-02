@@ -1,11 +1,11 @@
 ---
-type: "Risk"
+type: "Topic"
 fields:
-  severity: "medium"
-  probability: 0.4
-  impact: "Retraso estimado de 2 semanas en el release"
-  owner: "equipo-producto"
+  category: "risk"
+  status: "review"
 markers:
-  weight: 5
-  rating: "+"
+  weight: 6
+  certainty: 3
 ---
+
+Timeline risks due to overlapping dependencies.

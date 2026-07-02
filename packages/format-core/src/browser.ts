@@ -29,4 +29,4 @@ export {
 // Browser-safe driver stub (Node.js driver implementations are excluded
 // as they depend on node:fs/promises — resolver is excluded for the same reason)
 export { createDriver } from './driver-browser';
-export type { ModelDriver, ModelEntry, DriverType } from './driver-browser';
+export type { ModelDriver, ModelEntry } from './driver-browser';

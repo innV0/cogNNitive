@@ -8,14 +8,12 @@
  * but any actual read/write call throws a descriptive error — the
  * app's handle-based fallback must be used instead.
  *
- * The real Node.js implementations live in driver-file.ts and
- * driver-folder.ts, which import node:fs/promises and are excluded
- * from the browser entry point.
+ * The real Node.js implementation lives in driver-unified.ts,
+ * which imports node:fs/promises and is excluded from the browser
+ * entry point.
  */
 
 import type { ParsedModel } from './types'
-
-export type DriverType = 'FILE' | 'FOLDER'
 
 export interface ModelEntry {
   name: string
@@ -39,7 +37,7 @@ export interface ModelDriver {
  * the File System Access API (showDirectoryPicker, createWritable, etc.)
  * for environments where the handle-based fallback is insufficient.
  */
-export function createDriver(_type: DriverType, _baseUri: string): ModelDriver {
+export function createDriver(_baseUri: string): ModelDriver {
   const notAvailable = (method: string) => {
     throw new Error(
       `ModelDriver.${method}() is not available in the browser. ` +

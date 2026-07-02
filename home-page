@@ -1,0 +1,47 @@
+- generic [ref=e3]:
+  - heading "format-editor" [level=1] [ref=e4]
+  - paragraph [ref=e5]: Open a workspace folder to begin.
+  - generic [ref=e6]:
+    - img [ref=e8]
+    - paragraph [ref=e10]: Drop a folder here, or click to browse
+    - button "Open folder…" [ref=e12] [cursor=pointer]
+  - generic [ref=e13]:
+    - heading "Example models" [level=3] [ref=e14]
+    - paragraph [ref=e15]: Open a FORMAT folder to explore, or try one of these samples from the repository.
+    - generic [ref=e16]:
+      - 'button "Ghostbusters FILE · 1 items FILE FILE-mode business model for a fictional ghost-catching franchise: SWOT, risks, market segments, finance, legal, and operations in a single _FORMAT.md. Open folder →" [ref=e17] [cursor=pointer]':
+        - generic [ref=e18]:
+          - img [ref=e19]
+          - generic [ref=e21]:
+            - generic [ref=e22]: Ghostbusters
+            - generic [ref=e23]: FILE · 1 items
+          - generic [ref=e24]: FILE
+        - paragraph [ref=e25]: "FILE-mode business model for a fictional ghost-catching franchise: SWOT, risks, market segments, finance, legal, and operations in a single _FORMAT.md."
+        - generic [ref=e26]: Open folder →
+      - button "Music History FOLDER · 15 items FOLDER FOLDER-mode catalog with 4 genres, 6 artists, and 5 albums — each node is a folder with its own _FORMAT.md, demonstrating the full nested tree. Open folder →" [ref=e27] [cursor=pointer]:
+        - generic [ref=e28]:
+          - img [ref=e29]
+          - generic [ref=e31]:
+            - generic [ref=e32]: Music History
+            - generic [ref=e33]: FOLDER · 15 items
+          - generic [ref=e34]: FOLDER
+        - paragraph [ref=e35]: FOLDER-mode catalog with 4 genres, 6 artists, and 5 albums — each node is a folder with its own _FORMAT.md, demonstrating the full nested tree.
+        - generic [ref=e36]: Open folder →
+      - 'button "Code Review Process FILE · 1 items FILE FILE-mode procedure for PR-based code reviews: roles (Author, Reviewer, Maintainer), step-by-step workflow, tool bindings, and hotfix path. Open folder →" [ref=e37] [cursor=pointer]':
+        - generic [ref=e38]:
+          - img [ref=e39]
+          - generic [ref=e41]:
+            - generic [ref=e42]: Code Review Process
+            - generic [ref=e43]: FILE · 1 items
+          - generic [ref=e44]: FILE
+        - paragraph [ref=e45]: "FILE-mode procedure for PR-based code reviews: roles (Author, Reviewer, Maintainer), step-by-step workflow, tool bindings, and hotfix path."
+        - generic [ref=e46]: Open folder →
+      - button "Team Knowledge Base FOLDER · 1 items FOLDER FOLDER-mode KB root node ready for Persona, Topic, and Reference concept folders — the starting point for a team documentation base. Open folder →" [ref=e47] [cursor=pointer]:
+        - generic [ref=e48]:
+          - img [ref=e49]
+          - generic [ref=e51]:
+            - generic [ref=e52]: Team Knowledge Base
+            - generic [ref=e53]: FOLDER · 1 items
+          - generic [ref=e54]: FOLDER
+        - paragraph [ref=e55]: FOLDER-mode KB root node ready for Persona, Topic, and Reference concept folders — the starting point for a team documentation base.
+        - generic [ref=e56]: Open folder →

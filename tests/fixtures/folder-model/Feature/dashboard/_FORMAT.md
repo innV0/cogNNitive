@@ -1,11 +1,10 @@
 ---
-type: "Feature"
+type: "Topic"
 fields:
-  status: "planned"
-  priority: "P1"
-  story_points: 8
-  owner: "equipo-frontend"
+  category: "feature"
+  status: "draft"
 markers:
-  weight: 6
-  rating: "+"
+  weight: 7
 ---
+
+Real-time analytics dashboard.

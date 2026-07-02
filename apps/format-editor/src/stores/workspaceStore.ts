@@ -4,7 +4,7 @@ import { recursiveSerialize } from '../model/recursiveSerializer'
 import { parseFormatFilename, buildFormatFilename, bumpVersion, formatVersionString } from '../utils/version'
 import type { DirectoryHandleLike } from '../model/fs-types'
 import type { BumpLevel } from '../utils/version'
-import type { ModelDriver, DriverType } from '@innv0/format-core'
+import type { ModelDriver } from '@innv0/format-core'
 
 export type { DirectoryHandleLike }
 
@@ -53,7 +53,6 @@ async function loadStoredHandle(): Promise<DirectoryHandleLike | null> {
 export interface WorkspaceState {
   handle: DirectoryHandleLike | null
   driver: ModelDriver | null
-  driverType: DriverType | null
   hasHandle: boolean
   isParsing: boolean
   hasParsed: boolean
@@ -72,7 +71,6 @@ export const useWorkspaceStore = defineStore('workspace', {
   state: (): WorkspaceState => ({
     handle: null,
     driver: null,
-    driverType: null,
     hasHandle: false,
     isParsing: false,
     hasParsed: false,
@@ -91,10 +89,6 @@ export const useWorkspaceStore = defineStore('workspace', {
       this.hasHandle = true
       this.error = null
 
-      // Detect storage mode from the handle kind
-      const mode: DriverType = handle.kind === 'directory' ? 'FOLDER' : 'FILE'
-      this.driverType = mode
-
       if (this.hasParsed && !options.force) {
         return
       }
@@ -106,7 +100,7 @@ export const useWorkspaceStore = defineStore('workspace', {
       try {
         await storeHandle(handle)
         const modelStore = useModelStore()
-        await modelStore.parseFromHandle(handle, this.driver)
+        await modelStore.parseFromHandle(handle, this.driver ?? undefined)
         this.hasParsed = true
         this.parseCount += 1
       } catch (err) {
@@ -130,7 +124,6 @@ export const useWorkspaceStore = defineStore('workspace', {
     reset(): void {
       this.handle = null
       this.driver = null
-      this.driverType = null
       this.hasHandle = false
       this.isParsing = false
       this.hasParsed = false
@@ -148,7 +141,7 @@ export const useWorkspaceStore = defineStore('workspace', {
       this.saving = true
       try {
         const modelStore = useModelStore()
-        await recursiveSerialize(this.handle, modelStore.nodes, modelStore.rootIds, modelStore.dirtyIds, this.driver ?? undefined)
+        await recursiveSerialize(modelStore.nodes, modelStore.dirtyIds, this.driver ?? undefined)
         // Clear dirty flags after successful write
         for (const id of Array.from(modelStore.dirtyIds)) {
           modelStore.clearDirty(id)

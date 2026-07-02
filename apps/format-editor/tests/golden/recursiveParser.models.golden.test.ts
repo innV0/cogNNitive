@@ -5,16 +5,23 @@ import { recursiveParse } from '../../src/model/recursiveParser'
 import { buildFakeTree } from '../helpers/fakeFs'
 
 // Frozen snapshot of the top-level `models/*` FILE fixtures, sourced from
-// committed HEAD. Kept separate from the mutable `models/` dir so in-flight
-// edits there never break this suite (see openspec/changes/deep-integration).
+// committed HEAD. Each fixture is wrapped with an index.md for the new parser.
 const modelsDir = join(import.meta.dirname!, '..', 'fixtures', 'models')
 const fixtureFiles = readdirSync(modelsDir).filter((f) => f.endsWith('.md'))
 
-describe('recursiveParser golden: frozen models/* FILE fixtures', () => {
+function makeIndex(wikilinks: string[]): string {
+  const items = wikilinks.map(w => `* [[${w}]]`).join('\n')
+  return `---\nspecification_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _F index\n\n${items}\n`
+}
+
+describe('recursiveParser golden: frozen models/* fixtures', () => {
   for (const fileName of fixtureFiles) {
     it(`parses ${fileName} into a normalized graph snapshot`, async () => {
       const content = readFileSync(join(modelsDir, fileName), 'utf-8')
-      const root = buildFakeTree('models', { [fileName]: content })
+      const root = buildFakeTree('models', {
+        'index.md': makeIndex([fileName]),
+        [fileName]: content,
+      })
 
       const result = await recursiveParse(root)
 
@@ -31,7 +38,6 @@ function summarize(result: Awaited<ReturnType<typeof recursiveParse>>) {
       id: n.id,
       name: n.name,
       parentId: n.parentId,
-      storageMode: n.storageMode,
       type: n.type,
       fieldKeys: Object.keys(n.fields).sort(),
       markerKeys: Object.keys(n.markers).sort(),

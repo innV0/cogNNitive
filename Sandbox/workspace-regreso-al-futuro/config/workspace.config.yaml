@@ -1,0 +1,18 @@
+name: "regreso-al-futuro"
+version: "1.0.0"
+description: "Sandbox workspace for Back to the Future testing"
+settings:
+  default_timeline: "1985-original"
+  max_travelers_per_mission: 3
+  enable_paradox_detection: true
+  auto_correct_minor_anomalies: false
+directories:
+  timelines: "linea-temporal"
+  characters: "personajes"
+  vehicles: "vehiculos"
+  missions: "misiones"
+fuel_types:
+  - plutonium
+  - lightning
+  - mr_fusion
+  - train_power

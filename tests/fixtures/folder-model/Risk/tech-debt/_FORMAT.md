@@ -1,11 +1,11 @@
 ---
-type: "Risk"
+type: "Topic"
 fields:
-  severity: "high"
-  probability: 0.7
-  impact: "Bloquea el roadmap del Q3"
-  owner: "equipo-platform"
+  category: "risk"
+  status: "active"
 markers:
-  weight: 9
-  rating: "++"
+  weight: 8
+  certainty: 4
 ---
+
+Technical debt accumulated from legacy codebase.

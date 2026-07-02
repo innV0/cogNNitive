@@ -47,5 +47,8 @@ The four-level specification chain:
 ### [Specifications](specifications)
 Complete listing of all specs and models at every level, with links to source files.
 
+### [Open Knowledge Format (OKF)](ecosystem?id=open-knowledge-format-compatibility)
+FORMAT is **100% compatible** with OKF v0.1 by Google Cloud Platform. Every FORMAT document is a valid OKF knowledge bundle.
+
 ### [Usage](usage)
 How to create FORMAT models, templates, and work with the ecosystem.

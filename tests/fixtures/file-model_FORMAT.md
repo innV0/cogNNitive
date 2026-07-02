@@ -1,13 +1,13 @@
 ---
-specification_version: "V_0-1-2"
-specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-2_FORMAT.md"
+specification_version: "V_0-1-3"
+specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.2/specs/FORMAT_V_0-1-3_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
-model_version: "V_0-0-1"
+model_version: "V_0-0-2"
 title: "Prueba FILE"
-mode: "FILE"
+asset_mode: "centralized"
 ---
 
 > [!NOTE]

@@ -4,4 +4,5 @@
 - [Launcher](launcher) *(legacy)*
 - [Ecosystem](ecosystem)
 - [Specifications](specifications)
+- [OKF Compatibility](ecosystem?id=open-knowledge-format-compatibility)
 - [Usage](usage)

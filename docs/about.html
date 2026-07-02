@@ -104,6 +104,28 @@
             <p>Concrete instances like Ghostbusters or TeamKB. Lightweight — just data and parent pointer.</p>
           </div>
         </div>
+
+        <h2 style="font-size:22px;margin-bottom:var(--space-md);">Open Knowledge Format compatibility</h2>
+        <p style="margin-bottom:var(--space-lg);">The FORMAT specification is <strong>100% compatible</strong> with <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md" target="_blank" rel="noopener noreferrer">OKF v0.1</a> (Open Knowledge Format) by Google Cloud Platform. Every FORMAT document is a valid OKF knowledge bundle.</p>
+
+        <div class="grid-2" style="margin-bottom:var(--space-xl);">
+          <div class="card">
+            <h3 style="margin-top:var(--space-sm);font-size:18px;">Shared substrate</h3>
+            <p>Both formats use Markdown files with YAML frontmatter as their core representation. No proprietary tooling, no centralized schema registry — just text files in version control. OKF's "if you can <code>cat</code> a file, you can read OKF" applies equally to FORMAT.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:var(--space-sm);font-size:18px;">Conformance met</h3>
+            <p>OKF v0.1 conformance (§9) requires: (1) parseable YAML frontmatter on every non-reserved <code>.md</code> file, (2) a non-empty <code>type</code> field, (3) reserved filenames follow OKF conventions. FORMAT satisfies all three: every <code>_FORMAT.md</code> has frontmatter, the <code>level</code>+template system provides type semantics, and <code>index.md</code> follows the same progressive-disclosure pattern.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:var(--space-sm);font-size:18px;">Extensions tolerated</h3>
+            <p>OKF explicitly states consumers MUST NOT reject bundles because of unknown additional frontmatter keys, unknown <code>type</code> values, or missing optional fields. FORMAT's richer frontmatter — <code>specification_version</code>, <code>level</code>, <code>parent</code>, <code>concepts</code>, <code>markers</code>, <code>matrices</code> — is fully tolerated by OKF consumers.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:var(--space-sm);font-size:18px;">FOLDER mode = OKF Bundle</h3>
+            <p>FORMAT FOLDER mode produces exactly the directory-of-Markdown-files structure that OKF defines as a <em>knowledge bundle</em> (§3). Each <code>_FORMAT.md</code> maps to an OKF <em>concept document</em> (§4) with <code>index.md</code> as the directory listing (§6). Wikilinks and standard Markdown links coexist for cross-linking.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>

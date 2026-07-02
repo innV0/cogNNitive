@@ -7,11 +7,13 @@ import FieldBoolean from './FieldBoolean.vue'
 import FieldNumber from './FieldNumber.vue'
 import FieldSelect from './FieldSelect.vue'
 import FieldReference from './FieldReference.vue'
+import FieldAsset from './FieldAsset.vue'
 
 /**
  * All supported widget type identifiers.
  * Merges concept-type keys (text, weight, category) with field-type keys
- * (string, boolean, number, select, reference).
+ * (string, boolean, number, select, reference) and asset types
+ * (image, file, video, audio).
  */
 export type WidgetType =
   | 'text'
@@ -22,6 +24,10 @@ export type WidgetType =
   | 'number'
   | 'select'
   | 'reference'
+  | 'image'
+  | 'file'
+  | 'video'
+  | 'audio'
 
 /**
  * UNIFIED_WIDGET_REGISTRY merges concept-type widgets (from format-editor's
@@ -45,4 +51,9 @@ export const UNIFIED_WIDGET_REGISTRY: Record<string, Component> = {
   number: FieldNumber,
   select: FieldSelect,
   reference: FieldReference,
+  // asset field-type widgets (FR-003)
+  image: FieldAsset,
+  file: FieldAsset,
+  video: FieldAsset,
+  audio: FieldAsset,
 }

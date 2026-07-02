@@ -46,15 +46,6 @@
         {{ node?.name ?? '(unknown)' }}
       </span>
 
-      <!-- Storage mode badge -->
-      <span
-        v-if="node?.storageMode"
-        class="text-2xs font-bold uppercase tracking-wider px-1 py-0.5 rounded shrink-0"
-        :class="modeBadgeClasses"
-      >
-        {{ node.storageMode }}
-      </span>
-
       <!-- Kind badge (only non-standard kinds) -->
       <span
         v-if="node?.kind && node.kind !== 'root' && node.kind !== 'element'"
@@ -317,10 +308,4 @@ const nameStyle = computed(() => {
   return { color: nodeColorHex.value }
 })
 
-const modeBadgeClasses = computed(() => {
-  if (node.value?.storageMode === 'FOLDER') {
-    return 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
-  }
-  return 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
-})
 </script>

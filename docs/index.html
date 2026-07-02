@@ -139,6 +139,36 @@
     </div>
   </section>
 
+  <section class="section section-inert">
+    <div class="container">
+      <div class="section-header">
+        <h2>100% compatible with <span class="serif-accent">Open Knowledge Format</span></h2>
+        <p>Every FORMAT document is a valid OKF knowledge bundle. The FORMAT specification is a strict superset of OKF v0.1.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-top:0;">Shared substrate</h3>
+          <p>OKF and FORMAT share the same base format: Markdown files with YAML frontmatter. No proprietary tooling, no centralized schema registry. If you can read Markdown, you can read both formats — <code>cat</code> a file to read it, <code>git clone</code> a repo to ship it.</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">OKF conformance met</h3>
+          <p>OKF v0.1 requires: (1) parseable YAML frontmatter on every non-reserved <code>.md</code> file, (2) a non-empty <code>type</code> field, (3) reserved filenames following OKF conventions. FORMAT meets all three: every <code>_FORMAT.md</code> has frontmatter, the level+template system provides type semantics, and <code>index.md</code> follows the same progressive-disclosure convention.</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">Extensions tolerated</h3>
+          <p>OKF explicitly states: <em>"consumers MUST NOT reject a bundle because of unknown additional frontmatter keys, unknown <code>type</code> values, or missing optional fields."</em> FORMAT adds <code>specification_version</code>, <code>level</code>, <code>parent</code>, <code>concepts</code>, <code>markers</code>, <code>matrices</code> — all tolerated by OKF consumers.</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">FOLDER mode = OKF Bundle</h3>
+          <p>FORMAT's FOLDER mode produces exactly the directory-of-Markdown-files structure that OKF defines as a <em>knowledge bundle</em>. Each <code>_FORMAT.md</code> maps to an OKF <em>concept document</em>. Wikilinks <code>[[target]]</code> and standard Markdown links coexist for cross-linking between concepts.</p>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:var(--space-lg);">
+        <p style="font-size:14px;color:var(--ink-muted);"><a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md" target="_blank" rel="noopener noreferrer">Open Knowledge Format Specification</a> &middot; <a href="/documentation#/specifications">Compatibility table &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container">
       <div class="section-header">

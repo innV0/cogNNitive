@@ -140,10 +140,9 @@ async function runValidation(): Promise<void> {
       return
     }
 
-    const mode = node.storageMode === 'FOLDER' ? 'FOLDER' : 'FILE'
     const fileName = node.source.path.split('/').pop() || node.source.path
 
-    const report = validateFormatContent(rawContent, fileName, mode)
+    const report = validateFormatContent(rawContent, fileName)
     validationReport.value = report
 
     const { errors, warnings, total, passed } = report.summary
