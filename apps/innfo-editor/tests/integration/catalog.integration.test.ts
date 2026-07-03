@@ -18,22 +18,22 @@ model_version: "V_1-0-0"
 title: "AI Industry Catalog"
 ---
 
-# _F index
+# _NN index
 
 * [[AILab]]
   * [[Anthropic]]
   * [[OpenAI]]
 
-# _F AILab
+# _NN AILab
 
-* _F AILab: Anthropic
+* _NN AILab: Anthropic
   \`\`\`yaml
   founded: 2021
   headquarters: "San Francisco, CA"
   product: "Claude"
   \`\`\`
   Leading AI safety research. Creator of Claude assistant model.
-* _F AILab: OpenAI
+* _NN AILab: OpenAI
   \`\`\`yaml
   founded: 2015
   headquarters: "San Francisco, CA"
@@ -48,14 +48,14 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[catalog_F.md]]
+* [[catalog_NN.md]]
 `
 
 const catalogTree: FakeTree = {
   'index.md': indexMd,
-  'catalog_F.md': catalogModelMd,
+  'catalog_NN.md': catalogModelMd,
 }
 
 describe('catalog integration: single-file catalog with taxonomy hierarchy', () => {

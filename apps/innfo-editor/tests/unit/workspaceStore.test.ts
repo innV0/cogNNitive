@@ -10,9 +10,9 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[Doc_F.md]]
+* [[Doc_NN.md]]
 `
 
 const validFormatMd = `---
@@ -26,7 +26,7 @@ model_version: "V_0-0-1"
 title: "Workspace Store Fixture"
 ---
 
-# _F Business summary
+# _NN Business summary
 
 Fixture used to exercise workspaceStore.open() single-parse-pass behavior.
 `
@@ -39,7 +39,7 @@ describe('workspaceStore.open()', () => {
   it('triggers exactly one parse pass into modelStore on the first open()', async () => {
     const workspaceStore = useWorkspaceStore()
     const modelStore = useModelStore()
-    const handle = buildFakeTree('workspace', { 'index.md': indexMd, 'Doc_F.md': validFormatMd })
+    const handle = buildFakeTree('workspace', { 'index.md': indexMd, 'Doc_NN.md': validFormatMd })
 
     await workspaceStore.open(handle)
 
@@ -50,7 +50,7 @@ describe('workspaceStore.open()', () => {
 
   it('does not trigger a second parse pass when open() is invoked twice', async () => {
     const workspaceStore = useWorkspaceStore()
-    const handle = buildFakeTree('workspace', { 'index.md': indexMd, 'Doc_F.md': validFormatMd })
+    const handle = buildFakeTree('workspace', { 'index.md': indexMd, 'Doc_NN.md': validFormatMd })
 
     await workspaceStore.open(handle)
     await workspaceStore.open(handle)
@@ -60,7 +60,7 @@ describe('workspaceStore.open()', () => {
 
   it('does not trigger a second parse pass on repeated route-navigation-like open() calls with the same handle', async () => {
     const workspaceStore = useWorkspaceStore()
-    const handle = buildFakeTree('workspace', { 'index.md': indexMd, 'Doc_F.md': validFormatMd })
+    const handle = buildFakeTree('workspace', { 'index.md': indexMd, 'Doc_NN.md': validFormatMd })
 
     await workspaceStore.open(handle)
     // Simulate navigating between routes/nodes: nothing should re-invoke parsing.

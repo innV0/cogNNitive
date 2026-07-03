@@ -14,7 +14,7 @@ model_version: "V_1-0-0"
 title: "Session Test"
 ---
 
-# _F Session Test Model
+# _NN Session Test Model
 
 A model used to test session persistence.
 `
@@ -26,11 +26,11 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[Session-Test_V_1-0-0_Template_F.md]]
+* [[Session-Test_V_1-0-0_Template_NN.md]]
 `,
-  'Session-Test_V_1-0-0_Template_F.md': testModelContent,
+  'Session-Test_V_1-0-0_Template_NN.md': testModelContent,
 }
 
 describe('workspaceStore — Session persistence (R-SP-06)', () => {
@@ -64,7 +64,7 @@ describe('workspaceStore — Session persistence (R-SP-06)', () => {
     await workspaceStore.open(handle)
 
     // Manually set session state as if it was persisted from a previous session
-    await setSessionState('selectedNodeId', 'Session-Test_V_1-0-0_Template_F.md/Root')
+    await setSessionState('selectedNodeId', 'Session-Test_V_1-0-0_Template_NN.md/Root')
     await setSessionState('activeView', 'graph')
 
     // Reset the pinia stores to simulate page reload
@@ -78,7 +78,7 @@ describe('workspaceStore — Session persistence (R-SP-06)', () => {
     expect(recovered?.name).toBe('workspace')
 
     // Verify uiStore was restored from session
-    expect(freshUiStore.selectedNodeId).toBe('Session-Test_V_1-0-0_Template_F.md/Root')
+    expect(freshUiStore.selectedNodeId).toBe('Session-Test_V_1-0-0_Template_NN.md/Root')
     expect(freshUiStore.activeView).toBe('graph')
   })
 

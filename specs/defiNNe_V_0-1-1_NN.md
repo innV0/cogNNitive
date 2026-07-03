@@ -1,6 +1,6 @@
 ---
 specification_version: "V_0-1-1"
-specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/defiNNe_V_0-1-1_F.md"
+specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/defiNNe_V_0-1-1_NN.md"
 level: 0
 title: "defiNNe — The Definition of Definitions"
 description: "Meta-specification for the iNNv0 ecosystem. Defines the structure, versioning, normative language, and dependency resolution for all derived specifications."
@@ -9,7 +9,7 @@ status: "Draft"
 ---
 
 > [!NOTE]
-> This is a **FORMAT document** — a plain-text Markdown file that carries its own schema in the YAML frontmatter.
+> This is an **iNNfo document** — a plain-text Markdown file that carries its own schema in the YAML frontmatter.
 
 # defiNNe — The Definition of Definitions
 
@@ -39,7 +39,7 @@ defiNNe is built on four foundational values:
 | Level | Role | Example |
 |---|---|---|
 | **0** | Meta-specification | `defiNNe` |
-| **1** | Concrete specification | `FORMAT` |
+| **1** | Concrete specification | `iNNfo` |
 | **2** | Template | `business`, `procedures`, `kb` |
 | **3** | Model | `Ghostbusters`, `Onboarding` |
 
@@ -62,20 +62,20 @@ parent_spec:
   url: "<immutable-URL-to-the-parent-document>"
 ```
 
-- `name`: the canonical filename of the parent (without `_FORMAT.md` or `_F.md` suffix). Example: `"FORMAT_V_0-1-0"`.
+- `name`: the canonical filename of the parent (without `_FORMAT.md` or `_NN.md` suffix). Example: `"iNNfo_V_0-2-0"`.
 - `url`: an immutable URL (RECOMMENDED: git tag-based) pointing to the raw parent document.
 
 A level 0 specification MUST NOT include `parent_spec`.
 
 ### 3. Spec Resolver Protocol
 
-> **Note for application implementors**: This section describes the RECOMMENDED behavior for applications that consume FORMAT models. It is not a requirement for spec authors.
+> **Note for application implementors**: This section describes the RECOMMENDED behavior for applications that consume iNNfo models. It is not a requirement for spec authors.
 
 When an application loads a level 3 model, it SHOULD resolve the full parent chain:
 
 1. Read the model's `parent_spec.url`.
 2. If the parent file is NOT already cached in a `specs/` subdirectory next to the model, download it from the URL.
-3. Save it to `specs/<parent.name>_F.md`.
+3. Save it to `specs/<parent.name>_NN.md`.
 4. Read the downloaded spec's `parent_spec.url` and repeat until reaching level 0 (no parent_spec).
 5. On subsequent loads, check `specs/` first. Only download missing files.
 6. If the model's `parent_spec` changes (version bump), the application detects the mismatch and downloads the new parent.
@@ -84,11 +84,11 @@ The cached directory structure:
 
 ```
 📁 <Model>_V_x-y-z_<Template>/
-  📄 <Model>_V_x-y-z_<Template>_F.md
+  📄 <Model>_V_x-y-z_<Template>_NN.md
   📁 specs/
-    📄 <parent.name>_F.md        ← level 2 (template)
-    📄 <grandparent.name>_F.md   ← level 1 (FORMAT or iNNfo)
-    📄 <great-grandparent.name>_F.md  ← level 0 (defiNNe)
+    📄 <parent.name>_NN.md        ← level 2 (template)
+    📄 <grandparent.name>_NN.md   ← level 1 (iNNfo)
+    📄 <great-grandparent.name>_NN.md  ← level 0 (defiNNe)
 ```
 
 ### 4. Normative Language (RFC 2119)
@@ -134,7 +134,7 @@ specification_url: "<immutable-URL>"
 level: 1
 parent_spec:
   name: "defiNNe_V_0-1-1"
-  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/defiNNe_V_0-1-1_F.md"
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/defiNNe_V_0-1-1_NN.md"
 
 title: "..."
 description: "..."
@@ -149,8 +149,8 @@ specification_version: "V_x-y-z"
 specification_url: "<immutable-URL>"
 level: 2
 parent_spec:
-  name: "FORMAT_V_0-1-1"
-  url: "https://raw.githubusercontent.com/innV0/FORMAT/v0.1.1/FORMAT_V_0-1-1_FORMAT.md"
+  name: "iNNfo_V_0-2-0"
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.2.0/specs/iNNfo_V_0-2-0_NN.md"
 title: "..."
 mode: "FILE | FOLDER"
 concepts: [...]
@@ -185,14 +185,14 @@ Specifications MAY include additional fields in the frontmatter beyond those req
 
 | Level | Pattern | Example |
 |---|---|---|
-| 0 | `<Name>_V_x-y-z_F.md` | `defiNNe_V_0-1-1_F.md` |
-| 1 | `<Name>_V_x-y-z_F.md` | `FORMAT_V_0-1-5_F.md` |
+| 0 | `<Name>_V_x-y-z_NN.md` | `defiNNe_V_0-1-1_NN.md` |
+| 1 | `<Name>_V_x-y-z_NN.md` | `iNNfo_V_0-2-0_NN.md` |
 | 2 | `<Template>_V_x-y-z_FORMAT.md` | `business_V_0-1-1_FORMAT.md` |
-| 3 | `<Model>_V_x-y-z_<Template>_F.md` | `Ghostbusters_V_0-1-2_business_F.md` |
+| 3 | `<Model>_V_x-y-z_<Template>_NN.md` | `Ghostbusters_V_0-1-2_business_NN.md` |
 
 The filename does NOT encode higher levels. Those are declared in the `parent_spec` field and resolved through the parent chain.
 
-Older specifications (V_0-1-0 and earlier) use the `_FORMAT.md` suffix. New specifications use the compact `_F.md` suffix. Both are valid.
+Older specifications (V_0-1-0 and earlier) use the `_FORMAT.md` suffix. The V_0-1-1 era used the compact `_F.md` suffix. Current specifications (V_0-2-0+) use the `_NN.md` suffix.
 
 ### 7. Versioning
 
@@ -230,7 +230,7 @@ parent_spec:
 2. The `name` and `url` sub-fields remain unchanged.
 3. No other changes are required — the structure and semantics are identical.
 
-**Backward compatibility note**: Archived specifications (V_0-1-0 and earlier) remain frozen with the original `parent:` field. Applications SHOULD accept both `parent` and `parent_spec` during a transition period by normalizing the legacy field name after parsing (see the parser normalization in format-core).
+**Backward compatibility note**: Archived specifications (V_0-1-0 and earlier) remain frozen with the original `parent:` field. Applications SHOULD accept both `parent` and `parent_spec` during a transition period by normalizing the legacy field name after parsing (see the parser normalization in innfo-core).
 
 ### 7.2. Superseded Specifications
 
@@ -238,7 +238,7 @@ The following specification versions are superseded by newer releases:
 
 | Version | File | Superseded By | Notes |
 |---|---|---|---|
-| V_0-1-0 | `defiNNe_V_0-1-0_FORMAT.md` | `defiNNe_V_0-1-1_F.md` | Uses legacy `parent:` field. Frozen and immutable. |
+| V_0-1-0 | `defiNNe_V_0-1-0_FORMAT.md` | `defiNNe_V_0-1-1_NN.md` | Uses legacy `parent:` field. Frozen and immutable. |
 
 Archived specifications remain frozen and immutable. They are published for historical reference and backward compatibility. New models SHOULD target the latest version.
 
@@ -307,12 +307,12 @@ mode: "FILE"
 ---
 
 > [!NOTE]
-> This is a **FORMAT document**...
+> This is an **iNNfo document**...
 
-# _F concepts: index
+# _NN concepts: index
 ...
 
-# _F concepts: ConceptName
+# _NN concepts: ConceptName
 ...
 ```
 

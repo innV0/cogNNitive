@@ -40,15 +40,15 @@ model_version: "V_0-0-1"
 title: "Mi Primer Modelo"
 ---
 
-# _F Business summary
+# _NN Business summary
 
 Un modelo mínimo para pruebas progresivas.
 
-# _F Problems
+# _NN Problems
 
-* _F Problems: Problema Uno
+* _NN Problems: Problema Uno
   La primera descripción del problema.
-* _F Problems: Problema Dos
+* _NN Problems: Problema Dos
   La segunda descripción del problema.
 `
 
@@ -58,9 +58,9 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[MiModelo_F.md]]
+* [[MiModelo_NN.md]]
 `
 
 // ────────────────────────────────────────────────────────────────
@@ -116,7 +116,7 @@ describe('Paso 2 — Cargar modelo', () => {
   it('2a: parsea un workspace con index.md y produce exactamente 1 root', async () => {
     const tree: FakeTree = {
       'index.md': INDEX_MD,
-      'MiModelo_F.md': SINGLE_FILE_MODEL,
+      'MiModelo_NN.md': SINGLE_FILE_MODEL,
     }
     const handle = buildFakeTree('workspace', tree)
     const result = await recursiveParse(handle)
@@ -128,7 +128,7 @@ describe('Paso 2 — Cargar modelo', () => {
   it('2b: el modelo tiene el nombre correcto', async () => {
     const tree: FakeTree = {
       'index.md': INDEX_MD,
-      'MiModelo_F.md': SINGLE_FILE_MODEL,
+      'MiModelo_NN.md': SINGLE_FILE_MODEL,
     }
     const handle = buildFakeTree('workspace', tree)
     const result = await recursiveParse(handle)
@@ -141,7 +141,7 @@ describe('Paso 2 — Cargar modelo', () => {
   it('2c: el modelo contiene el root y los elementos inline declarados', async () => {
     const tree: FakeTree = {
       'index.md': INDEX_MD,
-      'MiModelo_F.md': SINGLE_FILE_MODEL,
+      'MiModelo_NN.md': SINGLE_FILE_MODEL,
     }
     const handle = buildFakeTree('workspace', tree)
     const result = await recursiveParse(handle)
@@ -170,14 +170,14 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[Ghostbusters_F.md]]
+* [[Ghostbusters_NN.md]]
 `
 
     const tree: FakeTree = {
       'index.md': ghostbustersIndex,
-      'Ghostbusters_F.md': ghostbustersContent,
+      'Ghostbusters_NN.md': ghostbustersContent,
     }
     const handle = buildFakeTree('workspace', tree)
     const result = await recursiveParse(handle)
@@ -204,7 +204,7 @@ describe('Paso 3 — workspaceStore abre un modelo', () => {
     const modelStore = useModelStore()
     const tree: FakeTree = {
       'index.md': INDEX_MD,
-      'MiModelo_F.md': SINGLE_FILE_MODEL,
+      'MiModelo_NN.md': SINGLE_FILE_MODEL,
     }
     const handle = buildFakeTree('workspace', tree)
 
@@ -220,7 +220,7 @@ describe('Paso 3 — workspaceStore abre un modelo', () => {
     const workspaceStore = useWorkspaceStore()
     const tree: FakeTree = {
       'index.md': INDEX_MD,
-      'MiModelo_F.md': SINGLE_FILE_MODEL,
+      'MiModelo_NN.md': SINGLE_FILE_MODEL,
     }
     const handle = buildFakeTree('workspace', tree)
 
@@ -250,12 +250,12 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[file-model_F.md]]
+* [[file-model_NN.md]]
 `
 
-    const tree: FakeTree = { 'index.md': indexMd, 'file-model_F.md': content }
+    const tree: FakeTree = { 'index.md': indexMd, 'file-model_NN.md': content }
     const handle = buildFakeTree('workspace', tree)
     const result = await recursiveParse(handle)
 

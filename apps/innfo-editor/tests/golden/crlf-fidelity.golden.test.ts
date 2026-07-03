@@ -16,6 +16,7 @@ import type { ModelNode } from '../../src/model/types'
 // with the same fidelity as its LF twin.
 const modelsDir = join(import.meta.dirname!, '..', 'fixtures', 'models')
 const fixtureFile = 'mini-file_V_0-0-1_business_F.md'
+const nnFixtureName = fixtureFile.replace(/_F\.md$/i, '_NN.md')
 
 function makeIndex(wikilinks: string[]): string {
   const items = wikilinks.map(w => `* [[${w}]]`).join('\n')
@@ -51,10 +52,10 @@ describe('recursiveParser/Serializer CRLF fidelity', () => {
     const crlfContent = lfContent.replace(/\n/g, '\r\n')
     expect(crlfContent.includes('\r\n')).toBe(true)
 
-    const indexMd = makeIndex([fixtureFile])
+    const indexMd = makeIndex([nnFixtureName])
 
-    const lfRoot = buildFakeTree('models', { 'index.md': indexMd, [fixtureFile]: lfContent })
-    const crlfRoot = buildFakeTree('models', { 'index.md': indexMd, [fixtureFile]: crlfContent })
+    const lfRoot = buildFakeTree('models', { 'index.md': indexMd, [nnFixtureName]: lfContent })
+    const crlfRoot = buildFakeTree('models', { 'index.md': indexMd, [nnFixtureName]: crlfContent })
 
     const lfParse = await recursiveParse(lfRoot)
     const crlfParse = await recursiveParse(crlfRoot)
@@ -67,9 +68,9 @@ describe('recursiveParser/Serializer CRLF fidelity', () => {
   it('round-trips a CRLF source cleanly through parse -> serialize -> re-parse', async () => {
     const lfContent = readFileSync(join(modelsDir, fixtureFile), 'utf-8')
     const crlfContent = lfContent.replace(/\n/g, '\r\n')
-    const indexMd = makeIndex([fixtureFile])
+    const indexMd = makeIndex([nnFixtureName])
 
-    const tree: FakeTree = { 'index.md': indexMd, [fixtureFile]: crlfContent }
+    const tree: FakeTree = { 'index.md': indexMd, [nnFixtureName]: crlfContent }
     const root = buildFakeTree('models', tree)
 
     const firstParse = await recursiveParse(root)
@@ -93,7 +94,7 @@ describe('recursiveParser/Serializer CRLF fidelity', () => {
     await recursiveSerialize(firstParse.nodes, dirtyIds, capturingDriver)
     expect(capturedContent).toBeDefined()
 
-    const rewrittenTree: FakeTree = { 'index.md': indexMd, [fixtureFile]: capturedContent! }
+    const rewrittenTree: FakeTree = { 'index.md': indexMd, [nnFixtureName]: capturedContent! }
     const rewrittenRoot = buildFakeTree('models', rewrittenTree)
     const secondParse = await recursiveParse(rewrittenRoot)
     expect(secondParse.issues).toHaveLength(0)

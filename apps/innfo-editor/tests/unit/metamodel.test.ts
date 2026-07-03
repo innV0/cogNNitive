@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest'
-// NOTE: deep-imported directly from format-core's source (bypassing the
+// NOTE: deep-imported directly from innfo-core's source (bypassing the
 // package's `browser` export condition this app's vite.config forces) —
 // getSpecForLevel/resolveParentChain are fs+network based and are
-// intentionally NOT part of format-core's browser build (see
+// intentionally NOT part of innfo-core's browser build (see
 // recursiveParser.ts and metamodel.ts notes on the same constraint).
 // This import exists only in this test, for the task 5.5 cross-check
-// against format-core's own resolver algorithm; app runtime code never
+// against innfo-core's own resolver algorithm; app runtime code never
 // imports this path.
-import { getSpecForLevel } from '../../../../packages/format-core/src/resolver'
-import type { SpecCache, SpecDocument, SpecFrontmatter } from '../../../../packages/format-core/src/types'
+import { getSpecForLevel } from '../../../../packages/innfo-core/src/resolver'
+import type { SpecCache, SpecDocument, SpecFrontmatter } from '../../../../packages/innfo-core/src/types'
 import { resolveEffectiveMetamodel } from '../../src/model/metamodel'
 import type { ModelNode, LocalMetamodel } from '../../src/model/types'
 
@@ -112,8 +112,8 @@ describe('metamodel: recursive resolution (R9)', () => {
     expect(resolved.markers).toEqual([])
   })
 
-  it('closest-declaration-wins matches format-core getSpecForLevel\'s resolution at node-nesting boundaries (task 5.5 cross-check)', () => {
-    // format-core's resolveParentChain/getSpecForLevel resolve a *spec-level*
+  it('closest-declaration-wins matches innfo-core getSpecForLevel\'s resolution at node-nesting boundaries (task 5.5 cross-check)', () => {
+    // innfo-core's resolveParentChain/getSpecForLevel resolve a *spec-level*
     // chain (defiNNe -> FORMAT -> template -> instance) by walking from a
     // child spec up to its declared parent and picking, per level, the doc
     // found first while walking child-first (i.e. the closest one to the

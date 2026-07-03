@@ -26,7 +26,7 @@ model_version: "V_0-0-1"
 title: "Test Model"
 ---
 
-# _F Business summary
+# _NN Business summary
 
 This is a test model.
 `
@@ -174,18 +174,18 @@ describe('useUrlDocLoader.fetch()', () => {
     } as Response)
 
     const loader = useUrlDocLoader()
-    const result = await loader.fetch('https://example.com/TestModel_V_1-0-0_business_F.md')
+    const result = await loader.fetch('https://example.com/TestModel_V_1-0-0_business_NN.md')
 
     expect(result.error).toBeNull()
-    expect(result.sourceUrl).toBe('https://example.com/TestModel_V_1-0-0_business_F.md')
+    expect(result.sourceUrl).toBe('https://example.com/TestModel_V_1-0-0_business_NN.md')
     expect(result.rootIds).toHaveLength(1)
 
     const rootId = result.rootIds[0]
-    expect(rootId).toBe('TestModel_V_1-0-0_business_F')
+    expect(rootId).toBe('TestModel_V_1-0-0_business_NN')
     expect(result.nodes[rootId]).toBeDefined()
     expect(result.nodes[rootId].kind).toBe('root')
     expect(result.nodes[rootId].name).toBe('Test Model')
-    expect(result.nodes[rootId].source.path).toBe('https://example.com/TestModel_V_1-0-0_business_F.md')
+    expect(result.nodes[rootId].source.path).toBe('https://example.com/TestModel_V_1-0-0_business_NN.md')
   })
 
   it('loadIntoStore populates modelStore', async () => {
@@ -196,7 +196,7 @@ describe('useUrlDocLoader.fetch()', () => {
     } as Response)
 
     const loader = useUrlDocLoader()
-    const result = await loader.loadIntoStore('https://example.com/TestModel_V_1-0-0_business_F.md')
+    const result = await loader.loadIntoStore('https://example.com/TestModel_V_1-0-0_business_NN.md')
 
     expect(result.error).toBeNull()
 
@@ -240,12 +240,12 @@ describe('workspaceStore.loadFromUrl()', () => {
     } as Response)
 
     const store = useWorkspaceStore()
-    await store.loadFromUrl('https://example.com/TestModel_V_1-0-0_business_F.md')
+    await store.loadFromUrl('https://example.com/TestModel_V_1-0-0_business_NN.md')
 
     expect(store.hasParsed).toBe(true)
     expect(store.handle).toBeNull()
     expect(store.hasHandle).toBe(false)
-    expect(store.sourceUrl).toBe('https://example.com/TestModel_V_1-0-0_business_F.md')
+    expect(store.sourceUrl).toBe('https://example.com/TestModel_V_1-0-0_business_NN.md')
     expect(store.parseCount).toBe(1)
   })
 
@@ -286,7 +286,7 @@ describe('workspaceStore backup', () => {
 
   it('backup is created on save when backupEnabled', async () => {
     const handle = buildFakeTree('workspace', {
-      'Doc_V_1-0-0_business_F.md': validFormatMd,
+      'Doc_V_1-0-0_business_NN.md': validFormatMd,
     })
 
     const store = useWorkspaceStore()
@@ -306,7 +306,7 @@ describe('workspaceStore backup', () => {
 
   it('backup is NOT created when backupEnabled is false', async () => {
     const handle = buildFakeTree('workspace', {
-      'Doc_V_1-0-0_business_F.md': validFormatMd,
+      'Doc_V_1-0-0_business_NN.md': validFormatMd,
     })
 
     const store = useWorkspaceStore()

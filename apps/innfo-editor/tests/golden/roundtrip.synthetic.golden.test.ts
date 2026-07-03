@@ -16,13 +16,13 @@ model_version: "V_0-0-1"
 title: "Single File Model"
 ---
 
-# _F index
+# _NN index
 
 * [[Problems]]
 
-# _F Problems
+# _NN Problems
 
-* _F Problems: Problem One
+* _NN Problems: Problem One
   A synthetic problem used to exercise round-trip.
 `
 
@@ -32,9 +32,9 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[Doc_F.md]]
+* [[Doc_NN.md]]
 `
 
 function structureOf(nodes: Record<string, ModelNode>, rootIds: string[]) {
@@ -85,6 +85,6 @@ async function assertRoundTripStable(index: string, modelFile: string, modelCont
 
 describe('recursiveSerializer golden round-trip: synthetic single-file fixture', () => {
   it('parse -> serialize -> re-parse is structurally stable for single-file model', async () => {
-    await assertRoundTripStable(indexMd, 'Doc_F.md', fileDocMd)
+    await assertRoundTripStable(indexMd, 'Doc_NN.md', fileDocMd)
   })
 })

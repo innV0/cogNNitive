@@ -18,13 +18,13 @@ model_version: "V_0-0-1"
 title: "Integration Model"
 ---
 
-# _F Business summary
+# _NN Business summary
 
 Single-file model for workspace integration test.
 
-# _F Problems
+# _NN Problems
 
-* _F Problems: Sample Problem
+* _NN Problems: Sample Problem
   A problem used to verify graph population.
 `
 
@@ -34,9 +34,9 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[model_F.md]]
+* [[model_NN.md]]
 `
 
 describe('WorkspaceView integration (single-file workspace)', () => {
@@ -47,7 +47,7 @@ describe('WorkspaceView integration (single-file workspace)', () => {
   it('mounts with Pinia + Router, renders layout chrome, and displays model tree with selectable nodes', async () => {
     const tree: FakeTree = {
       'index.md': indexMd,
-      'model_F.md': singleFileMd,
+      'model_NN.md': singleFileMd,
     }
     const handle = buildFakeTree('workspace', tree)
 
@@ -64,10 +64,10 @@ describe('WorkspaceView integration (single-file workspace)', () => {
     await wrapper.vm.$nextTick()
 
     // Layout chrome should be present: Header with title
-    expect(wrapper.text()).toContain('FORMAT Modeler')
+    expect(wrapper.text()).toContain('iNNfo Modeler')
 
     // Layout chrome renders header and sidebar
-    expect(wrapper.text()).toContain('FORMAT Modeler')
+    expect(wrapper.text()).toContain('iNNfo Modeler')
 
     // Model tree should render the root node
     expect(wrapper.text()).toContain('model')

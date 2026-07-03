@@ -6,6 +6,8 @@ import { buildFakeTree } from '../helpers/fakeFs'
 
 // Frozen snapshot of the top-level `models/*` FILE fixtures, sourced from
 // committed HEAD. Each fixture is wrapped with an index.md for the new parser.
+// Legacy _F.md filenames are mapped to _NN.md in the virtual tree so the
+// V_0-2-0 suffix check recognizes them. The disk files remain untouched.
 const modelsDir = join(import.meta.dirname!, '..', 'fixtures', 'models')
 const fixtureFiles = readdirSync(modelsDir).filter((f) => f.endsWith('.md'))
 
@@ -18,9 +20,11 @@ describe('recursiveParser golden: frozen models/* fixtures', () => {
   for (const fileName of fixtureFiles) {
     it(`parses ${fileName} into a normalized graph snapshot`, async () => {
       const content = readFileSync(join(modelsDir, fileName), 'utf-8')
+      // Map legacy _F.md suffix to _NN.md for the virtual tree
+      const nnName = fileName.replace(/_F\.md$/i, '_NN.md')
       const root = buildFakeTree('models', {
-        'index.md': makeIndex([fileName]),
-        [fileName]: content,
+        'index.md': makeIndex([nnName]),
+        [nnName]: content,
       })
 
       const result = await recursiveParse(root)

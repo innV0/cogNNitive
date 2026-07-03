@@ -42,7 +42,9 @@ describe('recursiveSerializer golden round-trip: frozen models/* fixtures', () =
   for (const fileName of fixtureFiles) {
     it(`parse -> serialize -> re-parse is structurally equivalent for ${fileName}`, async () => {
       const content = readFileSync(join(modelsDir, fileName), 'utf-8')
-      const tree = { 'index.md': makeIndex([fileName]), [fileName]: content }
+      // Map legacy _F.md suffix to _NN.md for the virtual tree
+      const nnName = fileName.replace(/_F\.md$/i, '_NN.md')
+      const tree = { 'index.md': makeIndex([nnName]), [nnName]: content }
       const root = buildFakeTree('models', tree)
 
       const firstParse = await recursiveParse(root)
@@ -71,7 +73,7 @@ describe('recursiveSerializer golden round-trip: frozen models/* fixtures', () =
       expect(capturedContent).not.toBeNull()
 
       // Re-parse the captured content
-      const rewrittenTree = { 'index.md': makeIndex([fileName]), [fileName]: capturedContent! }
+      const rewrittenTree = { 'index.md': makeIndex([nnName]), [nnName]: capturedContent! }
       const rewrittenRoot = buildFakeTree('models', rewrittenTree)
       const secondParse = await recursiveParse(rewrittenRoot)
       const secondCollisionIssues = secondParse.issues.filter((i) => i.message.includes('Duplicate sibling name'))

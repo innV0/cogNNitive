@@ -13,7 +13,7 @@ model_version: "V_0-0-1"
 title: "Valid Model"
 ---
 
-# _F Business summary
+# _NN Business summary
 
 A valid single-file model.
 `
@@ -24,16 +24,16 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[modelA_F.md]]
+* [[modelA_NN.md]]
 `
 
 describe('recursiveParser: index.md-driven parser', () => {
   it('parses a workspace with index.md and model file into the graph', async () => {
     const tree: FakeTree = {
       'index.md': validIndexMd,
-      'modelA_F.md': validModelMd,
+      'modelA_NN.md': validModelMd,
     }
 
     const root = buildFakeTree('workspace', tree)
@@ -46,7 +46,7 @@ describe('recursiveParser: index.md-driven parser', () => {
 
   it('reports an issue when index.md is missing', async () => {
     const tree: FakeTree = {
-      'modelA_F.md': validModelMd,
+      'modelA_NN.md': validModelMd,
     }
 
     const root = buildFakeTree('workspace', tree)
@@ -64,15 +64,15 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[exists_F.md]]
-* [[missing_F.md]]
+* [[exists_NN.md]]
+* [[missing_NN.md]]
 `
 
     const tree: FakeTree = {
       'index.md': indexMd,
-      'exists_F.md': validModelMd,
+      'exists_NN.md': validModelMd,
     }
 
     const root = buildFakeTree('workspace', tree)
@@ -97,13 +97,13 @@ model_version: "V_0-0-1"
 title: "${title}"
 ---
 
-# _F index
+# _NN index
 
 * [[${elementName}]]
 
-# _F Components
+# _NN Components
 
-* _F Components: ${elementName}
+* _NN Components: ${elementName}
   Description of ${elementName}.
 `
 
@@ -113,16 +113,16 @@ level: 0
 title: "Workspace Index"
 ---
 
-# _F index
+# _NN index
 
-* [[modelA_F.md]]
-* [[modelB_F.md]]
+* [[modelA_NN.md]]
+* [[modelB_NN.md]]
 `
 
     const tree: FakeTree = {
       'index.md': indexMd,
-      'modelA_F.md': modelWithElement('Model A', 'Database'),
-      'modelB_F.md': modelWithElement('Model B', 'Database'),
+      'modelA_NN.md': modelWithElement('Model A', 'Database'),
+      'modelB_NN.md': modelWithElement('Model B', 'Database'),
     }
 
     const root = buildFakeTree('workspace', tree)
@@ -144,27 +144,27 @@ model_version: "V_0-0-1"
 title: "Full Model"
 ---
 
-# _F index
+# _NN index
 
 * [[Problems]]
 * [[Value propositions]]
 
-# _F Problems
+# _NN Problems
 
-* _F Problems: Alpha
+* _NN Problems: Alpha
   Description of Alpha.
-* _F Problems: Beta
+* _NN Problems: Beta
   Description of Beta.
 
-# _F Value propositions
+# _NN Value propositions
 
-* _F Value propositions: Gamma
+* _NN Value propositions: Gamma
   Description of Gamma.
 `
 
     const tree: FakeTree = {
       'index.md': validIndexMd,
-      'modelA_F.md': modelWithElements,
+      'modelA_NN.md': modelWithElements,
     }
 
     const root = buildFakeTree('workspace', tree)
