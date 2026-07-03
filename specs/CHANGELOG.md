@@ -1,6 +1,15 @@
-# FORMAT Specification Changelog
+# iNNfo Specification Changelog
 
-## V_0-1-5 (Current)
+## V_0-2-0 (Current) — BREAKING
+- **Ecosystem rename**: `FORMAT` → `iNNfo` across the entire specification and codebase
+- **Structural marker**: `_F` → `_NN` (section headers, element markers, index entries, matrices)
+- **File suffix**: `_F.md` → `_NN.md` for all current-version files
+- **Version bump**: V_0-1-5 → V_0-2-0 (MAJOR — breaking change, no backward compat)
+- **Packages renamed**: `@innv0/format-core` → `@innv0/innfo-core`, `@innv0/format-mcp` → `@innv0/innfo-mcp`, `@innv0/format-editor` → `@innv0/innfo-editor`
+- **Environment variable**: `FORMAT_MODELS_DIR` → `INNFO_MODELS_DIR`
+- Legacy `_F.md` files and `_F` markers are NOT recognized by the V_0-2-0 parser
+
+## V_0-1-5
 - **Compact file suffix**: Renamed `_FORMAT.md` → `_F.md` across all FORMAT files. Reduces typing overhead by ~9 chars per file reference. (§8.1)
 - **Short frontmatter fields**: Renamed `specification_version` → `spec_version`, `specification_url` → `spec_url`. Shorter YAML keys with identical semantics.
 - **Patch bump**: V_0-1-4 → V_0-1-5. Updated source constants, JSDoc examples, and CHANGELOG to reflect the new version.

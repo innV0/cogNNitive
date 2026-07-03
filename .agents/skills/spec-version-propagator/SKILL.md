@@ -1,7 +1,7 @@
 ---
 description: >
   Detect and propagate specification version bumps across the entire repo.
-  When the FORMAT spec (or any spec) changes version, this skill identifies
+  When the iNNfo spec (or any spec) changes version, this skill identifies
   every file that needs updating — frontmatter, file names, URLs, constants,
   documentation, and test fixtures.
 trigger: >
@@ -16,7 +16,7 @@ version: "1.0.0"
 
 ## Purpose
 
-The FORMAT ecosystem has a strict parent-chain dependency graph. When a specification version changes (`V_0-1-N` → `V_0-1-M`), the change **ripples** through every file that references that version — directly or transitively.
+The iNNfo ecosystem has a strict parent-chain dependency graph. When a specification version changes (`V_0-2-N` → `V_0-2-M`), the change **ripples** through every file that references that version — directly or transitively.
 
 This skill maps the **complete propagation graph** and provides a companion script to detect every stale file.
 
@@ -26,7 +26,7 @@ This skill maps the **complete propagation graph** and provides a companion scri
 Level 0: defiNNe (meta-spec, rarely bumped)
   │  parent of
   ▼
-Level 1: FORMAT (the concrete spec)
+Level 1: iNNfo (the concrete spec)
   │  parent of
   ▼
 Level 2: Templates (business, procedures, kb, catalog)
@@ -44,7 +44,7 @@ Level 3: Models, fixtures, samples
 | **Level 3 Models & Samples** | `spec_version`; `spec_url` (if it references the spec); `parent.url` (if it references a template) | `Ghostbusters_V_0-1-2_business_FORMAT.md` |
 | **Test fixtures** | Same as Level 3 models | `tests/fixtures/*_F.md` |
 | **Test inline frontmatter** | Hardcoded version strings in `.test.ts` files | `.test.ts` with `spec_version: "V_0-1-2"` |
-| **Source code constants** | `DEFAULT_FORMAT_VERSION` in `constants.ts` | |
+| **Source code constants** | `DEFAULT_INNFO_VERSION` in `constants.ts` | |
 | **Documentation** | Version strings, file paths, URLs in `.md` docs | `docs/spec_consolidation.md` |
 | **CHANGELOGs** | New entry + version strings | `specs/CHANGELOG.md`, `CHANGELOG.md` |
 | **Workspace index** | `spec_version` if it references the spec | `tests/fixtures/workspace-index.md` |
@@ -98,7 +98,7 @@ cp specs/FORMAT_V_0-1-2_FORMAT.md specs/FORMAT_V_0-1-3_FORMAT.md
 Edit `apps/format-editor/src/utils/constants.ts`:
 
 ```typescript
-export const DEFAULT_FORMAT_VERSION = 'V_0-1-3';
+export const DEFAULT_INNFO_VERSION = 'V_0-2-0';
 ```
 
 ### Step 3 — Run the checker
@@ -111,7 +111,7 @@ This lists every file still referencing the OLD version.
 
 ### Step 4 — Propagate to templates (Level 2)
 
-For each template spec (`business_V_0-1-1_FORMAT.md`, `procedures_V_0-1-1_FORMAT.md`, `kb_V_0-1-1_FORMAT.md`, `catalog_V_0-1-2_FORMAT.md`):
+For each template spec (`business_V_0-1-1_NN.md`, `procedures_V_0-1-1_NN.md`, `kb_V_0-1-1_NN.md`, `catalog_V_0-1-2_NN.md`):
 
 - Update `parent.name` to point to the new FORMAT version
 - Update `parent.url` to point to the new FORMAT file URL
@@ -165,7 +165,7 @@ The script scans these glob patterns:
 | `apps/**/tests/fixtures/models/*_F.md` | App Fixtures | `spec_version`, `spec_url`, `parent.url` |
 | `apps/**/tests/**/*.test.ts` | Test code | Inline frontmatter strings |
 | `packages/**/tests/**/*.test.ts` | Package tests | Inline frontmatter strings |
-| `apps/**/src/**/*.ts` | Source code | `DEFAULT_FORMAT_VERSION` |
+| `apps/**/src/**/*.ts` | Source code | `DEFAULT_INNFO_VERSION` |
 | `packages/**/src/**/*.ts` | Source code | Version strings, comments |
 | `docs/**/*.md` | Documentation | Version string references |
 | `CHANGELOG.md` | Changelog | Version entries |
