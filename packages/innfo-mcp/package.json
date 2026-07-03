@@ -1,12 +1,12 @@
 {
-  "name": "@innv0/format-mcp",
+  "name": "@innv0/innfo-mcp",
   "version": "0.1.0",
-  "description": "MCP server wrapping @innv0/format-core — semantic FORMAT tools over stdio",
+  "description": "MCP server wrapping @innv0/innfo-core — semantic iNNfo tools over stdio",
   "type": "module",
   "main": "./dist/server.js",
   "types": "./dist/server.d.ts",
   "bin": {
-    "format-mcp": "./dist/server.js"
+    "innfo-mcp": "./dist/server.js"
   },
   "exports": {
     ".": {
@@ -24,7 +24,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@innv0/format-core": "^0.1.0",
+    "@innv0/innfo-core": "^0.1.0",
     "@modelcontextprotocol/sdk": "^1.19.0"
   },
   "devDependencies": {
