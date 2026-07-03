@@ -50,13 +50,13 @@ Files: `BlockPill.vue`, `ConceptTreeNode.vue`, `VirtualGroupNode.vue`, `LeftSide
 
 ## Phase B: Sheet Content
 
-- [ ] B.1 Add `marked` + DOMPurify deps to `package.json`; create `utils/markdown.ts` exporting `renderMarkdown(md): string` with sanitize
-- [ ] B.2 Create `BlockRelationships.vue` — labeled chips with clickable targets, `relationships` + `onNavigate` props, empty state
-- [ ] B.3 Create `BlockMatrixSummary.vue` — matrix participation chips, accent color per concept, `count` of non-dash cells
-- [ ] B.4 Create `NodeMedia.vue` — image gallery grid (2–3 cols) with lightbox overlay, non-image file download list with type icons
-- [ ] B.5 Create `FieldViewer.vue` — dispatches fields to widget registry via `WidgetField`, read/edit modes, `commitFieldValue` integration
-- [ ] B.6 Create `ComplianceTab.vue` — scoped `ValidationReport` results for the node's concept type
-- [ ] B.7 Update `GraphViewer.vue` — add `inline` prop (no layout selector, 320px height via `height` prop, `localNodeId` scope)
+- [x] B.1 Add `marked` + DOMPurify deps to `package.json`; create `utils/markdown.ts` exporting `renderMarkdown(md): string` with sanitize
+- [x] B.2 Create `BlockRelationships.vue` — labeled chips with clickable targets, `relationships` + `onNavigate` props, empty state
+- [x] B.3 Create `BlockMatrixSummary.vue` — matrix participation chips, accent color per concept, `count` of non-dash cells
+- [x] B.4 Create `NodeMedia.vue` — image gallery grid (2–3 cols) with lightbox overlay, non-image file download list with type icons
+- [x] B.5 Create `FieldViewer.vue` — dispatches fields to widget registry via `WidgetField`, read/edit modes, `commitFieldValue` integration
+- [x] B.6 Create `ComplianceTab.vue` — scoped `ValidationReport` results for the node's concept type
+- [x] B.7 Update `GraphViewer.vue` — add `inline` prop (no layout selector, 320px height via `height` prop, `localNodeId` scope)
 - [ ] B.8 Update `BlockSheet.vue` — 4-tab layout (View/Visual/History/Compliance), lazy v-if rendering, markdown via `renderMarkdown`, FieldViewer, rels, matrix summary, media, attachments
 - [ ] B.9 Update `BlockFeed.vue` — wire `navigate-to-node` event, pass through `conceptFields` and `hasMarkers` to BlockSheet
 - [ ] B.10 Write tests for BlockRelationships, BlockMatrixSummary, FieldViewer — chip rendering, mode switching, empty states
@@ -76,15 +76,15 @@ Files: `package.json`, `utils/markdown.ts`, `BlockRelationships.vue`, `BlockMatr
 - [x] C.5 Create `TagsWidget.vue` — chips in both modes, Enter/comma to add, × to remove, trim + dedup; `'tags'`
 - [x] C.6 Create `RatingWidget.vue` — filled/empty star icons (1–5) + `n/5` text in both modes; `'rating'`
 - [x] C.7 Create `ScaleWidget.vue` — clickable step indicators + badge, range from `fieldDefinition.options` (default 1–10); `'scale'`
-- [ ] C.8 Create `ToggleGroupWidget.vue` — segmented button group for enum selection, active segment highlighted; `'togglegroup'`
-- [ ] C.9 Create `CycleWidget.vue` — clickable pill cycles through `options`, wraps around; `'cycle'`
-- [ ] C.10 Create `CodeWidget.vue` — `<pre><code>` + language badge in read, monospace textarea with gutter in edit; `'code'`
-- [ ] C.11 Create `MermaidWidget.vue` — rendered diagram via `mermaid.run()` in read, textarea in edit, Ctrl+Enter re-render; `'mermaid'`
-- [ ] C.12 Create `DiagramWidget.vue` — inline SVG from `A > B > C` DSL in read, textarea in edit; `'diagram'`
-- [ ] C.13 Create `TimestampWidget.vue` — locale-formatted datetime in read, `<input type="datetime-local">` in edit; `'timestamp'`
-- [ ] C.14 Create `MarkdownWidget.vue` — rendered markdown via `marked` in read, textarea + toolbar in edit; `'markdown'`
-- [ ] C.15 Update `registry.ts` + `index.ts` — add 14 entries to `UNIFIED_WIDGET_REGISTRY`, update `WidgetType` union, re-export
-- [ ] C.16 Write widget tests — each widget: read mode, edit mode, `update:modelValue` emission, `fieldDefinition` context; registry resolution for all 14 + fallback
+- [x] C.8 Create `ToggleGroupWidget.vue` — segmented button group for enum selection, active segment highlighted; `'togglegroup'`
+- [x] C.9 Create `CycleWidget.vue` — clickable pill cycles through `options`, wraps around; `'cycle'`
+- [x] C.10 Create `CodeWidget.vue` — `<pre><code>` + language badge in read, monospace textarea with gutter in edit; `'code'`
+- [x] C.11 Create `MermaidWidget.vue` — rendered diagram via `mermaid.run()` in read, textarea in edit, Ctrl+Enter re-render; `'mermaid'`
+- [x] C.12 Create `DiagramWidget.vue` — inline SVG from `A > B > C` DSL in read, textarea in edit; `'diagram'`
+- [x] C.13 Create `TimestampWidget.vue` — locale-formatted datetime in read, `<input type="datetime-local">` in edit; `'timestamp'`
+- [x] C.14 Create `MarkdownWidget.vue` — rendered markdown via `marked` in read, textarea + toolbar in edit; `'markdown'`
+- [x] C.15 Update `registry.ts` + `index.ts` — add 14 entries to `UNIFIED_WIDGET_REGISTRY`, update `WidgetType` union, re-export
+- [x] C.16 Write widget tests — each widget: read mode, edit mode, `update:modelValue` emission, `fieldDefinition` context; registry resolution for all 14 + fallback
 
 Files: `shared/widgets/{Date,Url,Color,MultiSelect,Tags,Rating,Scale,ToggleGroup,Cycle,Code,Mermaid,Diagram,Timestamp,Markdown}Widget.vue` (14 new), `shared/widgets/registry.ts` (modified), `shared/widgets/index.ts` (modified), test file
 

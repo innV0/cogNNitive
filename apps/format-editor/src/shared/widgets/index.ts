@@ -5,10 +5,45 @@ import CategoryWidget from './CategoryWidget.vue'
 import FieldString from './FieldString.vue'
 import FieldNumber from './FieldNumber.vue'
 import FieldAsset from './FieldAsset.vue'
+import DateWidget from './DateWidget.vue'
+import UrlWidget from './UrlWidget.vue'
+import ColorWidget from './ColorWidget.vue'
+import MultiSelectWidget from './MultiSelectWidget.vue'
+import TagsWidget from './TagsWidget.vue'
+import RatingWidget from './RatingWidget.vue'
+import ScaleWidget from './ScaleWidget.vue'
+import ToggleGroupWidget from './ToggleGroupWidget.vue'
+import CycleWidget from './CycleWidget.vue'
+import CodeWidget from './CodeWidget.vue'
+import MermaidWidget from './MermaidWidget.vue'
+import DiagramWidget from './DiagramWidget.vue'
+import TimestampWidget from './TimestampWidget.vue'
+import MarkdownWidget from './MarkdownWidget.vue'
 import { UNIFIED_WIDGET_REGISTRY } from './registry'
 
 export { default as FallbackWidget } from './FallbackWidget.vue'
-export { TextWidget, WeightWidget, CategoryWidget, FieldString, FieldNumber, FieldAsset }
+export {
+  TextWidget,
+  WeightWidget,
+  CategoryWidget,
+  FieldString,
+  FieldNumber,
+  FieldAsset,
+  DateWidget,
+  UrlWidget,
+  ColorWidget,
+  MultiSelectWidget,
+  TagsWidget,
+  RatingWidget,
+  ScaleWidget,
+  ToggleGroupWidget,
+  CycleWidget,
+  CodeWidget,
+  MermaidWidget,
+  DiagramWidget,
+  TimestampWidget,
+  MarkdownWidget,
+}
 export { UNIFIED_WIDGET_REGISTRY }
 export type { WidgetType } from './registry'
 

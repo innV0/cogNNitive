@@ -8,12 +8,28 @@ import FieldNumber from './FieldNumber.vue'
 import FieldSelect from './FieldSelect.vue'
 import FieldReference from './FieldReference.vue'
 import FieldAsset from './FieldAsset.vue'
+import DateWidget from './DateWidget.vue'
+import UrlWidget from './UrlWidget.vue'
+import ColorWidget from './ColorWidget.vue'
+import MultiSelectWidget from './MultiSelectWidget.vue'
+import TagsWidget from './TagsWidget.vue'
+import RatingWidget from './RatingWidget.vue'
+import ScaleWidget from './ScaleWidget.vue'
+import ToggleGroupWidget from './ToggleGroupWidget.vue'
+import CycleWidget from './CycleWidget.vue'
+import CodeWidget from './CodeWidget.vue'
+import MermaidWidget from './MermaidWidget.vue'
+import DiagramWidget from './DiagramWidget.vue'
+import TimestampWidget from './TimestampWidget.vue'
+import MarkdownWidget from './MarkdownWidget.vue'
 
 /**
  * All supported widget type identifiers.
  * Merges concept-type keys (text, weight, category) with field-type keys
  * (string, boolean, number, select, reference) and asset types
- * (image, file, video, audio).
+ * (image, file, video, audio) and legacy-port widgets
+ * (date, url, color, multiselect, tags, rating, scale, togglegroup,
+ *  cycle, code, mermaid, diagram, timestamp, markdown).
  */
 export type WidgetType =
   | 'text'
@@ -28,6 +44,20 @@ export type WidgetType =
   | 'file'
   | 'video'
   | 'audio'
+  | 'date'
+  | 'url'
+  | 'color'
+  | 'multiselect'
+  | 'tags'
+  | 'rating'
+  | 'scale'
+  | 'togglegroup'
+  | 'cycle'
+  | 'code'
+  | 'mermaid'
+  | 'diagram'
+  | 'timestamp'
+  | 'markdown'
 
 /**
  * UNIFIED_WIDGET_REGISTRY merges concept-type widgets (from format-editor's
@@ -56,4 +86,19 @@ export const UNIFIED_WIDGET_REGISTRY: Record<string, Component> = {
   file: FieldAsset,
   video: FieldAsset,
   audio: FieldAsset,
+  // legacy-port widgets (Phase C — widgets 1-14)
+  date: DateWidget,
+  url: UrlWidget,
+  color: ColorWidget,
+  multiselect: MultiSelectWidget,
+  tags: TagsWidget,
+  rating: RatingWidget,
+  scale: ScaleWidget,
+  togglegroup: ToggleGroupWidget,
+  cycle: CycleWidget,
+  code: CodeWidget,
+  mermaid: MermaidWidget,
+  diagram: DiagramWidget,
+  timestamp: TimestampWidget,
+  markdown: MarkdownWidget,
 }
