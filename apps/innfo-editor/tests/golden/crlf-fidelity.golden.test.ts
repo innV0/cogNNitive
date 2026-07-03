@@ -18,6 +18,14 @@ const modelsDir = join(import.meta.dirname!, '..', 'fixtures', 'models')
 const fixtureFile = 'mini-file_V_0-0-1_business_F.md'
 const nnFixtureName = fixtureFile.replace(/_F\.md$/i, '_NN.md')
 
+/** Migrate legacy _F content to _NN on the fly for V_0-2-0+ parser. */
+function toNnContent(content: string): string {
+  return content
+    .replace(/(\s*_F\s+)/g, (m) => m.replace('_F', '_NN'))
+    .replace(/(\* _F\s)/g, '* _NN ')
+    .replace(/(\/\/ _F)/g, '// _NN')
+}
+
 function makeIndex(wikilinks: string[]): string {
   const items = wikilinks.map(w => `* [[${w}]]`).join('\n')
   return `---\nspec_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _NN index\n\n${items}\n`
@@ -47,10 +55,9 @@ function structureOf(nodes: Record<string, ModelNode>, rootIds: string[]) {
 
 describe('recursiveParser/Serializer CRLF fidelity', () => {
   it('parses a CRLF twin of an LF fixture into the same structure as the LF original', async () => {
-    const lfContent = readFileSync(join(modelsDir, fixtureFile), 'utf-8')
-    expect(lfContent.includes('\r\n')).toBe(false)
+    const lfRaw = readFileSync(join(modelsDir, fixtureFile), 'utf-8')
+    const lfContent = toNnContent(lfRaw).replace(/\r\n/g, '\n')
     const crlfContent = lfContent.replace(/\n/g, '\r\n')
-    expect(crlfContent.includes('\r\n')).toBe(true)
 
     const indexMd = makeIndex([nnFixtureName])
 
@@ -66,7 +73,8 @@ describe('recursiveParser/Serializer CRLF fidelity', () => {
   })
 
   it('round-trips a CRLF source cleanly through parse -> serialize -> re-parse', async () => {
-    const lfContent = readFileSync(join(modelsDir, fixtureFile), 'utf-8')
+    const lfRaw = readFileSync(join(modelsDir, fixtureFile), 'utf-8')
+    const lfContent = toNnContent(lfRaw).replace(/\r\n/g, '\n')
     const crlfContent = lfContent.replace(/\n/g, '\r\n')
     const indexMd = makeIndex([nnFixtureName])
 
