@@ -4,6 +4,7 @@ import { useUiStore } from './uiStore'
 import { recursiveSerialize } from '../model/recursiveSerializer'
 import { parseFormatFilename, buildFormatFilename, bumpVersion, formatVersionString } from '../utils/version'
 import { setSessionState, getSessionState, setTreeState, getTreeState } from '../utils/db'
+import { useUrlDocLoader } from '../composables/useUrlDocLoader'
 import type { DirectoryHandleLike } from '../model/fs-types'
 import type { BumpLevel } from '../utils/version'
 import type { ModelDriver } from '@innv0/format-core'
@@ -72,6 +73,10 @@ export interface WorkspaceState {
   parseCount: number
   saving: boolean
   error: string | null
+  /** URL from which the current document was loaded (null when loaded via handle). */
+  sourceUrl: string | null
+  /** Whether auto-backup is enabled before saveActiveFile writes. Default true. */
+  backupEnabled: boolean
 }
 
 /**
@@ -90,6 +95,8 @@ export const useWorkspaceStore = defineStore('workspace', {
     parseCount: 0,
     saving: false,
     error: null,
+    sourceUrl: null,
+    backupEnabled: true,
   }),
   actions: {
     /**
@@ -132,6 +139,54 @@ export const useWorkspaceStore = defineStore('workspace', {
       } finally {
         this.isParsing = false
       }
+    },
+
+    /**
+     * Loads a FORMAT model document from a URL into modelStore as a virtual
+     * workspace (no File System handle — save is disabled).
+     *
+     * Sets `handle` to null and `hasHandle` to false; the router guard will
+     * block navigation to /workspace unless the caller sets hasHandle or
+     * bypasses the guard.
+     */
+    async loadFromUrl(url: string): Promise<void> {
+      this.error = null
+      this.sourceUrl = url
+
+      // Reset handle so router guards know this is a virtual workspace
+      this.handle = null
+      this.hasHandle = false
+
+      if (this.isParsing) return
+      this.isParsing = true
+
+      try {
+        const { loadIntoStore } = useUrlDocLoader()
+        const result = await loadIntoStore(url)
+
+        if (result.error) {
+          this.error = result.error
+          throw new Error(result.error)
+        }
+
+        this.hasParsed = true
+        this.parseCount += 1
+      } catch (err) {
+        this.error = err instanceof Error ? err.message : String(err)
+        throw err
+      } finally {
+        this.isParsing = false
+      }
+    },
+
+    /** Enables or disables the auto-backup behaviour on save. */
+    enableBackup(val: boolean): void {
+      this.backupEnabled = val
+    },
+
+    /** Shorthand for `enableBackup(false)`. */
+    disableBackup(): void {
+      this.backupEnabled = false
     },
 
     /** Attempts to recover a previously granted handle from IndexedDB on boot. */
@@ -182,16 +237,80 @@ export const useWorkspaceStore = defineStore('workspace', {
       this.parseCount = 0
       this.saving = false
       this.error = null
+      this.sourceUrl = null
+      this.backupEnabled = true
+    },
+
+    /**
+     * Creates a backup of the root node's content before saving.
+     * Writes to `backups/{YYYY-MM-DD_HHmmss}_{original-basename}.md`.
+     * Non-blocking: failure is logged but does NOT prevent the save.
+     *
+     * Marked with `_` prefix (not `#`) because esbuild/vitest does not
+     * transpile JavaScript private fields in Pinia option-store targets.
+     */
+    async _createBackup(): Promise<void> {
+      if (!this.handle) return
+
+      const modelStore = useModelStore()
+      const rootId = modelStore.rootIds[0]
+      if (!rootId) return
+
+      const rootNode = modelStore.getNode(rootId)
+      if (!rootNode?.rawContent) return
+
+      // Only backup when dirty
+      if (!modelStore.dirtyIds.has(rootId)) return
+
+      try {
+        const now = new Date()
+        const ts =
+          `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_` +
+          `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`
+
+        const basename = rootNode.source.path.split('/').pop() ?? 'document'
+        const backupName = `${ts}_${basename}`
+
+        // Ensure backups/ subdirectory exists
+        let backupsDir: DirectoryHandleLike
+        try {
+          backupsDir = await this.handle.getDirectoryHandle('backups', { create: true })
+        } catch {
+          console.warn('[backup] Could not create backups/ directory')
+          return
+        }
+
+        const fileHandle = await backupsDir.getFileHandle(backupName, { create: true })
+        if (!fileHandle.createWritable) {
+          console.warn('[backup] File handle does not support writing')
+          return
+        }
+
+        const writable = await fileHandle.createWritable()
+        await writable.write(rootNode.rawContent)
+        await writable.close()
+      } catch (err) {
+        // Non-blocking: backup failure must not prevent the save
+        console.warn('[backup] Failed to create backup:', err)
+      }
     },
 
     /**
      * Serializes all dirty nodes and writes them back to disk via
      * recursiveSerialize. Clears dirty flags on success.
+     *
+     * When `backupEnabled` is true (default), creates a timestamped backup
+     * of the root node before writing.
      */
     async saveActiveFile(): Promise<void> {
       if (!this.handle) throw new Error('No workspace handle')
       this.saving = true
       try {
+        // Non-blocking backup before write
+        if (this.backupEnabled) {
+          await this._createBackup()
+        }
+
         const modelStore = useModelStore()
         await recursiveSerialize(modelStore.nodes, modelStore.dirtyIds, this.driver ?? undefined)
         // Clear dirty flags after successful write
