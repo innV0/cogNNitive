@@ -23,9 +23,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
+    command: 'npx vite --port 5173',
     port: 5173,
-    cwd: 'D:\\Users\\lucas\\Documents\\GitHub\\innV0\\cogNNitive\\apps\\format-editor',
+    cwd: 'D:\\Users\\lucas\\Documents\\GitHub\\innV0\\cogNNitive\\apps\\innfo-editor',
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },

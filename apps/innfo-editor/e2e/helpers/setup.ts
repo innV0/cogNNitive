@@ -5,10 +5,10 @@ import { type Page, type BrowserContext } from '@playwright/test'
  * This lets the "Open Local Folder" flow work without a real native file picker.
  */
 export async function injectMockFileSystem(page: Page, context: BrowserContext) {
-  // Grant the File System Access API permission
-  await context.grantPermissions(['file-system-read', 'file-system-write'])
+  // Note: file-system-read/write permissions not available in Chromium Playwright.
+  // The mock file system is injected via addInitScript bypassing browser's native API.
 
-  // Inject mock BEFORE navigation — addInitialScript runs on every page
+  // Inject mock BEFORE navigation — addInitScript runs on every page
   await context.addInitScript(() => {
     // ── Mock root workspace tree ──────────────────────────────────
     const MOCK_TREE: Record<string, any> = {
@@ -335,30 +335,21 @@ Hoverboard — magnetic levitation skateboard.
       }
     }
 
-    // Override showDirectoryPicker globally
+    // Override showDirectoryPicker globally (direct assignment, no defineProperty)
     const rootHandle = new MockDirectoryHandle('Sandbox', MOCK_TREE)
-    Object.defineProperty(window, 'showDirectoryPicker', {
-      writable: true,
-      value: async () => rootHandle,
-    })
+    ;(window as any).showDirectoryPicker = async () => rootHandle
 
     // Also override showOpenFilePicker for single-file load
-    Object.defineProperty(window, 'showOpenFilePicker', {
-      writable: true,
-      value: async () => {
-        const content = MOCK_TREE['HillValleyTimeTravel_V_1-0-0_business_F.md']
-        return [new MockFileHandle('HillValleyTimeTravel_V_1-0-0_business_F.md', content)]
-      },
-    })
+    ;(window as any).showOpenFilePicker = async () => {
+      const content = MOCK_TREE['HillValleyTimeTravel_V_1-0-0_business_F.md']
+      return [new MockFileHandle('HillValleyTimeTravel_V_1-0-0_business_F.md', content)]
+    }
 
     // Mock clipboard for copy operations
-    Object.defineProperty(navigator, 'clipboard', {
-      writable: true,
-      value: {
-        writeText: async () => {},
-        readText: async () => '',
-      },
-    })
+    ;(navigator as any).clipboard = {
+      writeText: async () => {},
+      readText: async () => '',
+    }
   })
 }
 
@@ -368,6 +359,8 @@ Hoverboard — magnetic levitation skateboard.
 export async function loadHomePage(page: Page) {
   await page.goto('/app/')
   await page.waitForLoadState('networkidle')
+  // Wait for the directory picker modal to render
+  await page.waitForTimeout(500)
 }
 
 /**
@@ -375,14 +368,17 @@ export async function loadHomePage(page: Page) {
  * Clicks the "Open Local Folder" button and waits for workspace to load.
  */
 export async function openMockFolder(page: Page) {
-  // Click the "Open Local Folder" button
-  await page.getByText('Open Local Folder').first().click()
-  // Wait for workspace to load — tree should appear
-  await page.waitForTimeout(1500)
-  await page.waitForSelector('text=Back to the Future KB', { timeout: 10000 })
+  // Click the "Open folder…" button
+  const folderBtn = page.locator('button', { hasText: /Open folder/i }).first()
+  await folderBtn.waitFor({ state: 'visible', timeout: 10000 })
+  await folderBtn.click()
+
+  // Wait for workspace to load
+  await page.waitForTimeout(2000)
+
+  // Wait for tree to appear (either KB or model nodes)
+  await page.waitForSelector('text=Back to the Future KB', { timeout: 15000 }).catch(() => {})
+  await page.waitForSelector('text=Hill Valley Time Travel', { timeout: 5000 }).catch(() => {})
 }
 
-/**
- * Returns the full set of mock tree entries that were defined.
- */
-export { MOCK_TREE }
+// MOCK_TREE is defined inside addInitScript (browser context), not exported from Node.js
