@@ -1,0 +1,36 @@
+{
+  "name": "@innv0/format-mcp",
+  "version": "0.1.0",
+  "description": "MCP server wrapping @innv0/format-core — semantic FORMAT tools over stdio",
+  "type": "module",
+  "main": "./dist/server.js",
+  "types": "./dist/server.d.ts",
+  "bin": {
+    "format-mcp": "./dist/server.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@innv0/format-core": "^0.1.0",
+    "@modelcontextprotocol/sdk": "^1.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

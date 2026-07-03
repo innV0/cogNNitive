@@ -36,3 +36,5 @@ export * from './driver';
 export type { ModelDriver, ModelEntry } from './driver';
 export { createDriver } from './driver';
 export * from './fs-types';
+export { listModels, resolveSpecVersionFromFilename } from './helpers';
+export type { ModelInfo } from './helpers';

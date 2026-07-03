@@ -1,8 +1,8 @@
 ---
-spec_version: "V_0-1-4"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.4/specs/FORMAT_V_0-1-4_FORMAT.md"
+spec_version: "V_0-1-5"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
 level: 3
-parent:
+parent_spec:
   name: "procedures_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/procedures_V_0-1-1_FORMAT.md"
 model_version: "V_1-0-0"

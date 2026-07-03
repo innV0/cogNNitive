@@ -284,11 +284,11 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
           </svg>
           <span class="recent__name">{{ entry.name }}</span>
           <span class="recent__time">{{ formatTimestamp(entry.timestamp) }}</span>
-          <button class="recent__remove" :disabled="reopenBusy === entry.handleKey" @click.stop="removeEntry(entry.handleKey)">
+          <span class="recent__remove" role="button" tabindex="0" @click.stop="removeEntry(entry.handleKey)" @keydown.enter.prevent="removeEntry(entry.handleKey)" @keydown.space.prevent="removeEntry(entry.handleKey)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 6L6 18M6 6l12 12"/>
             </svg>
-          </button>
+          </span>
         </button>
       </div>
     </section>

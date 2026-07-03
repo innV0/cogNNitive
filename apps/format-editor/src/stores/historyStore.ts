@@ -2,7 +2,7 @@ import type { FolderHistoryEntry } from '../shared/validation-types'
 import type { DirectoryHandleLike } from '../model/fs-types'
 
 const DB_NAME = 'format-editor'
-const DB_VERSION = 1
+const DB_VERSION = 2
 const STORE_NAME = 'handles'
 const HISTORY_KEY = 'folderHistory'
 const MAX_ENTRIES = 10
@@ -14,6 +14,16 @@ function openHandleDb(): Promise<IDBDatabase> {
       const db = req.result
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME)
+      }
+      // v2 stores (added by workspaceStore/db.ts — ensure they exist on upgrade)
+      if (!db.objectStoreNames.contains('session')) {
+        db.createObjectStore('session', { keyPath: 'key' })
+      }
+      if (!db.objectStoreNames.contains('treeState')) {
+        db.createObjectStore('treeState', { keyPath: 'nodeId' })
+      }
+      if (!db.objectStoreNames.contains('sidebarWidths')) {
+        db.createObjectStore('sidebarWidths', { keyPath: 'panelId' })
       }
     }
     req.onsuccess = () => resolveDb(req.result)

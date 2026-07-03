@@ -20,6 +20,7 @@ export interface DirectoryHandleLike {
   name: string
   entries(): AsyncIterableIterator<[string, FileHandleLike | DirectoryHandleLike]>
   getFileHandle(name: string, options?: { create?: boolean }): Promise<FileHandleLike>
+  getDirectoryHandle(name: string, options?: { create?: boolean }): Promise<DirectoryHandleLike>
 }
 
 export function isDirectoryHandle(h: FileHandleLike | DirectoryHandleLike): h is DirectoryHandleLike {

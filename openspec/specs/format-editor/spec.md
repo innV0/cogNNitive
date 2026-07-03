@@ -132,3 +132,126 @@ This slice MUST NOT introduce index-block generation on save, FILE↔FOLDER conv
 - GIVEN `packages/format-core`'s existing test suite and public API
 - WHEN this slice's changes are applied
 - THEN the suite passes unchanged and no existing signature or behavior is altered
+
+---
+
+## Port-Legacy-Gaps Delta Requirements
+
+The following requirements were introduced by the `port-legacy-gaps` change, which ported legacy features from predecessor SPAs (file-format, folder-format) into the format-editor.
+
+### Requirement: BlockSheet — Extended Content Sections
+
+The existing `BlockSheet.vue` (which currently renders a header, markers, edit fields, inline markdown description, field list, and a simple relationships section) MUST be extended with:
+
+- **Full Markdown rendering** using the `marked` library (instead of `renderInlineMarkdown`)
+- **Inline GraphViewer** mode in a `320px` container when the "Visual" tab is active
+- **BlockRelationships** component replacing the current inline relationships list
+- **BlockMatrixSummary** chips section showing matrix participation
+- **NodeMedia** component for asset display with lightbox
+- **FieldViewer** widget-based field rendering replacing the current simple field list
+- **Four detail tabs** (View, Visual, History, Compliance) replacing the current single-body layout
+- **File attachments** section at the bottom of the View tab
+
+The existing `isEditing` mode MUST remain functional and render the current field editor layout (WidgetField grid + description textarea). The read-mode body MUST now use the tab system.
+
+#### Scenario: BlockSheet render modes unchanged for edit
+
+- GIVEN a BlockSheet in edit mode
+- WHEN the user clicks the pencil icon
+- THEN the existing field grid and description textarea render (identical to current behavior)
+- AND the new tabs/content sections are hidden during edit
+
+### Requirement: BlockFeed — Pass-through Wiring
+
+`BlockFeed.vue` MUST pass through all new events and props to `BlockSheet`:
+
+- `navigate-to-node` event from inline GraphViewer and relationships
+- `show-add-child` button on the concept sheet (already wired)
+- The `conceptFields` and `hasMarkers` props pass through unchanged
+
+The `selectedItemName` behavior (expanding the matching instance sheet) MUST remain unchanged.
+
+### Requirement: LeftSidebar — Instance Counters and Grouping Refinements
+
+`LeftSidebar.vue` MUST remain compatible with the revised tree components:
+
+- The `groupByConcept` prop on `ConceptTreeNode` MUST continue to work
+- Instance counters in `VirtualGroupNode` MUST render via the existing `children.length` display
+- The "Relations" section with `MatrixPill` components MUST remain unchanged
+- Graph View button must continue routing to `uiStore.setActiveView('graph')`
+
+The existing resize handle at the right edge of the sidebar MUST continue to work. Sidebar width persistence is handled by the session-persistence spec.
+
+### Requirement: ConceptTreeNode — Colored Pills, Popups, Ghost States
+
+`ConceptTreeNode.vue` MUST be extended with:
+
+- Colored pills with YIQ-optimized text contrast
+- Info icon button (appears on hover) with teleported popup
+- Ghost state rendering for empty nodes
+- Instance counter for concept-like nodes
+
+The existing recursive child rendering, virtual grouping, expand/collapse, and move-up/move-down controls MUST remain unchanged.
+
+### Requirement: VirtualGroupNode — Enhanced Styling
+
+`VirtualGroupNode.vue` MUST use enhanced styling: colored left border (`borderLeft: '3px solid'` the concept color), light background tint, expand/collapse chevron, concept icon from `IconRenderer`, uppercase bold tracking-wider name in the concept color, and an instance counter badge. The existing recursive `ConceptTreeNode` rendering for children MUST remain unchanged.
+
+### Requirement: MatricesGrid — Virtual Scrolling (replaces flat table)
+
+`MatricesGrid.vue` MUST replace its current flat `<table>` rendering with virtual scrolling for both rows and columns. The matrix definition parsing (`__matrix_defs`), cell storage format (`MatrixName||Row||Col` keys), and Markdown export MUST remain unchanged.
+
+The existing matrix dropdown selector, value distribution bar, and copy-table button MUST remain functional and interact with the virtual scroller.
+
+### Requirement: GraphViewer — Inline Mode Slot
+
+`GraphViewer.vue` MUST support a new `inline` mode prop. When `inline: true`:
+
+- Height is constrained to `320px` (configurable via a `height` prop)
+- No layout selector header renders
+- The zoom controls remain (intrinsic to d3 zoom)
+- The `localNodeId` prop scopes the graph to the given node's relationships
+
+The existing full-page mode (no `inline` prop) MUST remain unchanged.
+
+### Requirement: modelStore — Enhanced Node Support
+
+`modelStore` MUST support the new fields that the ported components rely on:
+
+- `assets?: string[]` on `ModelNode` — already exists in the type definition but may not be populated by the current parser. The parser MUST NOT be modified in this slice; store actions must handle `assets` if present.
+- `assetMode?: 'centralized' | 'per-element'` — already exists in `ModelNode` type.
+
+No new store actions are needed. The existing `upsertNode`, `markDirty`, `getNode`, `getChildren`, `getRoots` continue to work.
+
+### Requirement: metamodelStore — Taxonomy and Perspectives
+
+`metamodelStore` MUST be extended with:
+
+- `taxonomyEdges` computed property — taxonomy edges parsed from root node frontmatter `taxonomy` field
+- `conceptTree` computed property — hierarchical tree from edges
+- `getNeighborhood(conceptName)` function — returns parents, children, and perspective
+
+The existing `concepts`, `markers`, `getConceptByName`, `getConceptFields`, documentation, and guidance accessors MUST remain unchanged.
+
+### Requirement: workspaceStore — Auto-Backup, URL Loading, Version Save
+
+`workspaceStore` MUST integrate:
+
+- Auto-backup before save (`backupEnabled` flag, `enableBackup`/`disableBackup` actions)
+- `loadFromUrl(url)` action
+- The existing `saveActiveFileWithVersionBump` action MUST be verified to work with the new version panel
+
+#### Scenario: Auto-backup runs before save
+
+- GIVEN `workspaceStore.backupEnabled` is `true` and a node is dirty
+- WHEN `saveActiveFile()` runs
+- THEN a backup is written to `backups/` before the main save
+- AND the backup filename includes the current timestamp
+
+### Requirement: utils/db.ts — Session, Tree State, Sidebar Persistence
+
+A new `utils/db.ts` module MUST provide IndexedDB persistence: generic wrapper with versioned schema (v2, database name `'format-editor'`), stores for `session`, `treeState`, and `sidebarWidths`. The existing `openHandleDb`/`storeHandle`/`loadStoredHandle` in `workspaceStore` MUST continue to work alongside the new module (they use the same database but different object stores).
+
+### Requirement: ModelInfoPanel — Version Management Section
+
+`ModelInfoPanel.vue` MUST add a version management section with current version display, three bump buttons (major/minor/patch) with hover preview, description text, and save button. The version panel MUST be disabled when no handle, currently saving, or no root node. The existing model metadata display, workspace info, and plain text view MUST remain unchanged.

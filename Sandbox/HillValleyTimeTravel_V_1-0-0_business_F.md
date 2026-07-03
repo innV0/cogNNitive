@@ -1,8 +1,8 @@
 ---
-spec_version: "V_0-1-4"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.4/specs/FORMAT_V_0-1-4_FORMAT.md"
+spec_version: "V_0-1-5"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
 level: 3
-parent:
+parent_spec:
   name: "business_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 model_version: "V_1-0-0"
@@ -276,3 +276,24 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
 | Combustible para el viaje | Neutral | Low | Very High |
 | Precisión cronométrica | Very High | High | Low |
 | Detección de anomalías | Slightly High | High | Neutral |
+
+# _F matrices: stakeholder-service impact matrix
+
+| Stakeholder \ Service | Baile Under the Sea | Safari Oeste 1885 | Tour Futurista 2015 | Sr. Fusión Hogar | Viaje a la Luna | Clase de Guitarra | Cena Medieval | Tour Submarino | Safari Jurásico | Polo Norte 2150 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Dr. Emmett Brown | Accountable | Accountable | Accountable | Accountable | Accountable | Informed | Accountable | Accountable | Accountable | Accountable |
+| Marty McFly | Responsible | Responsible | Responsible | Informed | — | Responsible | — | — | — | — |
+| Jennifer Parker | Consulted | Informed | Consulted | — | — | Informed | Consulted | — | — | — |
+| Biff Tannen | Min | Min | Min | Min | Min | Min | Min | Min | Min | Min |
+| Clara Clayton | — | Consulted | — | — | — | — | Accountable | — | — | — |
+| Einstein (el perro) | — | — | — | — | — | — | — | — | — | — |
+| George McFly | Informed | — | — | — | — | — | — | — | — | — |
+| Lorraine McFly | Consulted | — | — | — | — | — | — | — | — | — |
+| Buford Tannen | — | Accountable | — | — | — | — | — | — | — | — |
+| Griff Tannen | — | — | Accountable | — | — | — | — | — | — | — |
+| Needles | — | — | — | — | — | — | — | — | — | — |
+| Strickland | Informed | — | Informed | — | — | — | — | — | — | — |
+| Goldie Wilson | — | — | Consulted | — | — | — | — | — | — | — |
+| Marvin Berry | — | — | — | — | — | Consulted | — | — | — | — |
+| Red the Bum | — | — | — | — | — | — | — | — | — | — |
+| 3-D | — | — | — | — | — | — | — | — | — | — |

@@ -124,6 +124,14 @@ export class ElementsMap {
   }
   get size() { return this._map.size; }
   [Symbol.iterator]() { return this.entries()[Symbol.iterator](); }
+  /** JSON serialization support — serializes as a plain record */
+  toJSON(): Record<string, ElementNode[]> {
+    const obj: Record<string, ElementNode[]> = {};
+    for (const [key, nodes] of this.entries()) {
+      obj[key] = nodes;
+    }
+    return obj;
+  }
 }
 
 /** Hierarchical tree node built from taxonomy + hierarchy matrices */
