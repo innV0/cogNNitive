@@ -8,8 +8,8 @@ import { routes } from '../../src/router/index'
 import { buildFakeTree, type FakeTree } from '../helpers/fakeFs'
 
 const singleFileMd = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-1-1"
+spec_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"
@@ -29,7 +29,7 @@ Single-file model for workspace integration test.
 `
 
 const indexMd = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---

@@ -8,8 +8,8 @@ import { buildFakeTree, type FakeTree } from '../helpers/fakeFs'
  * - Elements carry fields and markers inline
  */
 const catalogModelMd = `---
-specification_version: "V_0-1-2"
-specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/catalog_V_0-1-2_FORMAT.md"
+spec_version: "V_0-1-2"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/catalog_V_0-1-2_FORMAT.md"
 level: 3
 parent:
   name: "catalog_V_0-1-2"
@@ -43,7 +43,7 @@ title: "AI Industry Catalog"
 `
 
 const indexMd = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---

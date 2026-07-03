@@ -6,7 +6,7 @@ A FORMAT model is a Markdown file with YAML frontmatter following the spec chain
 
 ```markdown
 ---
-specification_version: "V_0-2-0"
+spec_version: "V_0-2-0"
 level: 3
 parent: "business_V_1-0-0"
 model_version: "V_0-1-0"
@@ -32,7 +32,7 @@ _F Metrics
 ## FILE vs FOLDER Mode
 
 - **FILE mode**: everything in one `.md` file. Best for text-heavy models with matrix relationships.
-- **FOLDER mode**: each element is a directory with `_FORMAT.md`. Best for models with physical assets (images, PDFs).
+- **FOLDER mode**: each element is a directory with `_F.md`. Best for models with physical assets (images, PDFs).
 
 ## Running the Launcher
 

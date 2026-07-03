@@ -11,7 +11,7 @@ const fixtureFiles = readdirSync(modelsDir).filter((f) => f.endsWith('.md'))
 
 function makeIndex(wikilinks: string[]): string {
   const items = wikilinks.map(w => `* [[${w}]]`).join('\n')
-  return `---\nspecification_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _F index\n\n${items}\n`
+  return `---\nspec_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _F index\n\n${items}\n`
 }
 
 describe('recursiveParser golden: frozen models/* fixtures', () => {

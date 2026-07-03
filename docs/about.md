@@ -46,7 +46,7 @@ FORMAT is **100% compatible** with [OKF v0.1](https://github.com/GoogleCloudPlat
 
 - **Shared substrate**: Both use Markdown + YAML frontmatter. No proprietary tooling.
 - **Conformance**: OKF's three conformance rules (parseable frontmatter, non-empty `type`, reserved filenames) are fully met by FORMAT's structure.
-- **Tolerant extensions**: OKF explicitly tolerates unknown frontmatter keys and unknown `type` values — FORMAT's richer metadata (`specification_version`, `level`, `parent`, `concepts`, `markers`, `matrices`) is fully compatible.
-- **FOLDER mode = Bundle**: FORMAT FOLDER mode produces exactly the directory tree OKF defines as a knowledge bundle. Each `_FORMAT.md` is an OKF concept document.
+- **Tolerant extensions**: OKF explicitly tolerates unknown frontmatter keys and unknown `type` values — FORMAT's richer metadata (`spec_version`, `level`, `parent`, `concepts`, `markers`, `matrices`) is fully compatible.
+- **FOLDER mode = Bundle**: FORMAT FOLDER mode produces exactly the directory tree OKF defines as a knowledge bundle. Each `_F.md` is an OKF concept document.
 
 [Home](https://innv0.github.io/cogNNitive/)

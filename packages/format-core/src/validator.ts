@@ -121,8 +121,8 @@ export function validateModel(
  *
  * @param content - Raw file content to validate
  * @param fileName - File name (used for naming convention checks)
- * @param expectedSpecVersion - Optional expected specification_version (e.g. "V_0-1-4").
- *   Pass the current FORMAT spec version to validate specification_version matches.
+ * @param expectedSpecVersion - Optional expected spec_version (e.g. "V_0-1-5").
+   *   Pass the current FORMAT spec version to validate spec_version matches.
  */
 export function validateFormatContent(
   content: string,
@@ -217,30 +217,30 @@ export function validateFormatContent(
     message: titleOk ? undefined : 'Missing title',
   })
 
-  // 6. specification_version
-  const specVersionOk = typeof fm.specification_version === 'string' && fm.specification_version.length > 0
+  // 6. spec_version
+  const specVersionOk = typeof fm.spec_version === 'string' && fm.spec_version.length > 0
   checks.push({
     id: 'fm-spec-version',
     label: 'Specification version declared',
-    description: 'specification_version field must be present',
+    description: 'spec_version field must be present',
     category: 'frontmatter',
     severity: 'error',
     passed: specVersionOk,
-    message: specVersionOk ? undefined : 'Missing specification_version',
+    message: specVersionOk ? undefined : 'Missing spec_version',
   })
 
-  // 6b. specification_version matches expected spec version
+  // 6b. spec_version matches expected spec version
   if (specVersionOk && expectedSpecVersion) {
-    const specMatch = fm.specification_version === expectedSpecVersion
+    const specMatch = fm.spec_version === expectedSpecVersion
     checks.push({
       id: 'fm-spec-version-match',
       label: 'Specification version matches current spec',
-      description: `specification_version should be "${expectedSpecVersion}" for the current FORMAT specification`,
+      description: `spec_version should be "${expectedSpecVersion}" for the current FORMAT specification`,
       category: 'frontmatter',
       severity: 'warning',
       passed: specMatch,
       message: specMatch ? undefined
-        : `Expected "${expectedSpecVersion}", got "${fm.specification_version}"`,
+        : `Expected "${expectedSpecVersion}", got "${fm.spec_version}"`,
     })
   }
 

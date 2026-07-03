@@ -1,6 +1,12 @@
 # FORMAT Specification Changelog
 
-## V_0-1-4 (Current)
+## V_0-1-5 (Current)
+- **Compact file suffix**: Renamed `_FORMAT.md` → `_F.md` across all FORMAT files. Reduces typing overhead by ~9 chars per file reference. (§8.1)
+- **Short frontmatter fields**: Renamed `specification_version` → `spec_version`, `specification_url` → `spec_url`. Shorter YAML keys with identical semantics.
+- **Patch bump**: V_0-1-4 → V_0-1-5. Updated source constants, JSDoc examples, and CHANGELOG to reflect the new version.
+- No behavioral or spec-level requirement changes.
+
+## V_0-1-4
 - **BREAKING CORRECTION**: Unified element syntax. ALL concept types (`text`, `weight`, `list`, `category`, `steps`, `sequence`) use bullet-list syntax (`* _F ConceptName:`). Numbered lists (`1. _F ...`, `2. _F ...`) are NOT supported — the parser only recognizes `*` and `-` bullets, and numbered lists add no semantic value since element order is already determined by document position. (§4.3)
 - Removed "Numbered list with _F markers" from the syntax table for `steps` and `sequence` types
 - Updated serializer to always emit `*` prefix regardless of concept type

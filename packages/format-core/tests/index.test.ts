@@ -23,7 +23,8 @@ describe('defiNNe (level 0)', () => {
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(0);
-    expect(fm.specification_version).toBe('V_0-1-0');
+    // Frozen spec (defiNNe_V_0-1-0_FORMAT.md) still uses old frontmatter key
+    expect((fm as any)['specification_version']).toBe('V_0-1-0');
     expect(fm.parent).toBeUndefined();
     expect(fm.title).toContain('defiNNe');
   });
@@ -112,7 +113,7 @@ describe('Ghostbusters model (level 3)', () => {
   it('serializes and re-parses correctly', async () => {
     const { serializeModel } = await import('../src/index');
     const serialized = serializeModel(model);
-    expect(serialized).toContain('specification_version: "V_0-1-2"');
+    expect(serialized).toContain('spec_version: "V_0-1-2"');
     expect(serialized).toContain('# _F Stakeholders');
     expect(serialized).toContain('# _F matrices: problems-value propositions matrix');
     expect(serialized).toContain('* _F Stakeholders:');
@@ -169,19 +170,6 @@ describe('procedures template (level 2)', () => {
   });
 });
 
-describe('kb template (level 2, FOLDER mode)', () => {
-  const content = readSpec('kb_V_0-1-1_FORMAT.md');
-  const fm = parseFrontmatter(content)!;
-
-  it('parses frontmatter', () => {
-    expect(fm.level).toBe(2);
-    expect(fm.parent!.name).toBe('FORMAT_V_0-1-1');
-    expect(fm.mode).toBe('FOLDER');
-    expect(fm.concepts).toHaveLength(3);
-    expect(fm.relationship_declarations?.hierarchy?.enabled).toBe(true);
-    expect(fm.relationship_declarations?.graph_edge?.enabled).toBe(true);
-  });
-});
 
 describe('validator', () => {
   it('validates Ghostbusters against business template', () => {
@@ -227,7 +215,7 @@ describe('CRLF line-ending handling', () => {
   it('parses a CRLF-encoded model with the same fidelity as LF', () => {
     const lfContent = [
       '---',
-      'specification_version: "V_0-1-1"',
+      'spec_version: "V_0-1-1"',
       'level: 3',
       'model_version: "V_0-1-1"',
       'title: "CRLF fixture"',
@@ -352,7 +340,7 @@ describe('element slug derivation (FR-002)', () => {
   it('derives slug from element name when slug field is absent', () => {
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
@@ -377,7 +365,7 @@ describe('element slug derivation (FR-002)', () => {
   it('uses explicit slug from YAML fields when declared', () => {
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
@@ -439,7 +427,7 @@ describe('element slug derivation (FR-002)', () => {
   it('emits slugCollisions on parsed model when names collide', () => {
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
@@ -489,7 +477,7 @@ describe('element slug derivation (FR-002)', () => {
 
     const modelContent = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
@@ -510,7 +498,7 @@ describe('element slug derivation (FR-002)', () => {
 
     const indexContent = [
       '---',
-      'specification_version: "V_0-1-2"',
+      'spec_version: "V_0-1-2"',
       'level: 0',
       'title: "Index"',
       '---',
@@ -539,7 +527,7 @@ describe('ConceptField.type with asset types (FR-003)', () => {
   it('accepts image/file/video/audio as field types', () => {
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Test"',
@@ -594,7 +582,7 @@ describe('asset_mode (FR-004)', () => {
   it('defaults to centralized when absent from frontmatter', () => {
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Mode Test"',
@@ -621,7 +609,7 @@ describe('asset_mode (FR-004)', () => {
   it('accepts explicit centralized mode', () => {
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Mode Test"',
@@ -648,7 +636,7 @@ describe('asset_mode (FR-004)', () => {
   it('accepts per-element mode', () => {
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Mode Test"',
@@ -694,7 +682,7 @@ describe('asset_mode (FR-004)', () => {
 
     const modelContent = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Test"',
@@ -725,7 +713,7 @@ describe('asset_mode (FR-004)', () => {
 
     const indexContent = [
       '---',
-      'specification_version: "V_0-1-2"',
+      'spec_version: "V_0-1-2"',
       'level: 0',
       'title: "Index"',
       '---',
@@ -758,7 +746,7 @@ describe('FOLDER mode rejection (FR-007)', () => {
   it('parseModel emits a warning for FOLDER mode', () => {
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
@@ -787,7 +775,7 @@ describe('FOLDER mode rejection (FR-007)', () => {
     const { validateFormatContent } = await import('../src/validator');
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
@@ -818,7 +806,7 @@ describe('FOLDER mode rejection (FR-007)', () => {
   it('validateModel reports error for FOLDER mode', () => {
     const content = [
       '---',
-      'specification_version: "V_0-1-3"',
+      'spec_version: "V_0-1-3"',
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',

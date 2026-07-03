@@ -41,7 +41,7 @@ function md(frontmatter: Record<string, unknown>, body?: string): string {
 }
 
 const BASE_FM = {
-  specification_version: 'V_0-1-2',
+  spec_version: 'V_0-1-2',
   level: 3,
   model_version: 'V_0-0-1',
   parent: { name: 'business_V_0-1-1', url: 'https://example.com/business' },
@@ -53,7 +53,7 @@ function makeModel(title: string, body?: string): string {
 
 function makeIndex(wikilinks: string[]): string {
   const items = wikilinks.map(w => `* [[${w}]]`).join('\n');
-  return `---\nspecification_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _F index\n\n${items}\n`;
+  return `---\nspec_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _F index\n\n${items}\n`;
 }
 
 /* ── Tests ───────────────────────────────────────────────────── */

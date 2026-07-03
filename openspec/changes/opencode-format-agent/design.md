@@ -49,7 +49,7 @@ Design rules:
 
 ### 2. Single source of truth (`get_spec` / `get_template`)
 
-- **Source:** the published, versioned FORMAT spec/template URL, e.g. `https://raw.githubusercontent.com/innV0/cogNNitive/v{semver}/specs/FORMAT_V_{semver}_FORMAT.md` (matching the existing `specification_url` convention in the models).
+- **Source:** the published, versioned FORMAT spec/template URL, e.g. `https://raw.githubusercontent.com/innV0/cogNNitive/v{semver}/specs/FORMAT_V_{semver}_F.md` (matching the existing `spec_url` convention in the models).
 - **Version resolution:** a model's version comes from its filename SemVer (`..._V_0-1-1_...`). `get_spec`/`get_template` default to that version; an explicit `version` arg overrides.
 - **Caching:** cache by URL+ETag (or version tag). On a cache hit with unchanged ETag, serve cached content. On network failure, serve last-known cached content and annotate staleness; never silently fabricate spec content.
 - **Shared consumption:** `format-core`'s validator resolves the template from the same source (directly or via the same fetch helper), so validator and agent share one truth.

@@ -5,8 +5,8 @@ import { buildFakeTree, type FakeTree } from '../helpers/fakeFs'
 import type { ParsedModel, ModelDriver } from '@innv0/format-core'
 
 const fileDocMd = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-1-1"
+spec_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"
@@ -26,7 +26,7 @@ title: "Serializer File Doc"
 `
 
 const indexMd = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---

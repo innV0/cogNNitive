@@ -69,12 +69,14 @@ function collectFiles(dir, includeArchives) {
 function classifyFile(relPath) {
   const parts = relPath.replace(/\\/g, '/').split('/');
 
-  if (relPath.startsWith('specs') && relPath.endsWith('_FORMAT.md') && !relPath.includes('/samples/')) {
+  const isFormatFile = relPath.endsWith('_FORMAT.md') || relPath.endsWith('_F.md');
+
+  if (relPath.startsWith('specs') && isFormatFile && !relPath.includes('/samples/')) {
     if (relPath.includes('defiNNe') || relPath.includes('/FORMAT')) return 'spec';
     return 'template';
   }
-  if (relPath.includes('/samples/') && relPath.endsWith('_FORMAT.md')) return 'model';
-  if (relPath.endsWith('_FORMAT.md')) {
+  if (relPath.includes('/samples/') && isFormatFile) return 'model';
+  if (isFormatFile) {
     if (relPath.includes('/fixtures/')) return 'fixture';
     if (relPath.startsWith('specs')) return 'model';
     if (relPath.startsWith('archive')) return 'model';
@@ -86,7 +88,7 @@ function classifyFile(relPath) {
   if (relPath.startsWith('docs') && relPath.endsWith('.md')) return 'doc';
   if (relPath.startsWith('.agents') && relPath.endsWith('.md')) return 'skill';
   if (relPath === 'CHANGELOG.md' || relPath === 'specs/CHANGELOG.md') return 'doc';
-  if (relPath.startsWith('specs') && relPath.endsWith('.md') && !relPath.endsWith('_FORMAT.md')) return 'doc';
+  if (relPath.startsWith('specs') && relPath.endsWith('.md') && !relPath.endsWith('_FORMAT.md') && !relPath.endsWith('_F.md')) return 'doc';
   if (relPath.startsWith('openspec')) return 'other';
   if (relPath.startsWith('archive')) return 'model';
   return 'other';
@@ -113,19 +115,19 @@ function extractVersionRefs(relPath, content) {
   // 2. Parse frontmatter for version fields
   const fm = parseFrontmatterBlocks(content);
   if (fm) {
-    // specification_version
-    const sv = fm.match(/^specification_version\s*:\s*['"]?(V_\d+-\d+-\d+)['"]?\s*$/m);
-    if (sv) refs.push({ field: 'specification_version', value: sv[1], location: relPath });
+    // spec_version
+    const sv = fm.match(/^spec_version\s*:\s*['"]?(V_\d+-\d+-\d+)['"]?\s*$/m);
+    if (sv) refs.push({ field: 'spec_version', value: sv[1], location: relPath });
 
     // model_version
     const mv = fm.match(/^model_version\s*:\s*['"]?(V_\d+-\d+-\d+)['"]?\s*$/m);
     if (mv) refs.push({ field: 'model_version', value: mv[1], location: relPath });
 
-    // specification_url (extract version from URL)
-    const su = fm.match(/^specification_url\s*:\s*['"](https?:\/\/[^'"]+)['"]\s*$/m);
+    // spec_url (extract version from URL)
+    const su = fm.match(/^spec_url\s*:\s*['"](https?:\/\/[^'"]+)['"]\s*$/m);
     if (su) {
       const urlVer = su[1].match(/V_\d+-\d+-\d+/);
-      if (urlVer) refs.push({ field: 'specification_url', value: urlVer[0], location: relPath });
+      if (urlVer) refs.push({ field: 'spec_url', value: urlVer[0], location: relPath });
     }
 
     // parent block — name

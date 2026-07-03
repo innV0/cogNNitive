@@ -30,8 +30,8 @@ import { buildFakeTree, type FakeTree } from './helpers/fakeFs'
 // ── Fixtures ────────────────────────────────────────────────────
 
 const SINGLE_FILE_MODEL = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-1-1"
+spec_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"
@@ -53,7 +53,7 @@ Un modelo mínimo para pruebas progresivas.
 `
 
 const INDEX_MD = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---
@@ -165,7 +165,7 @@ describe('Paso 2 — Cargar modelo', () => {
     )
 
     const ghostbustersIndex = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---
@@ -245,7 +245,7 @@ describe('Paso 4 — Fixtures reales desde tests/fixtures/ en la raíz', () => {
     )
 
     const indexMd = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---

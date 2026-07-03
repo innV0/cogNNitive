@@ -3,8 +3,8 @@ import { recursiveParse } from '../../src/model/recursiveParser'
 import { buildFakeTree, type FakeTree } from '../helpers/fakeFs'
 
 const validModelMd = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-1-1"
+spec_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"
@@ -19,7 +19,7 @@ A valid single-file model.
 `
 
 const validIndexMd = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---
@@ -59,7 +59,7 @@ describe('recursiveParser: index.md-driven parser', () => {
 
   it('reports a warning when a wikilink target does not exist', async () => {
     const indexMd = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---
@@ -87,8 +87,8 @@ title: "Workspace Index"
 
   it('reports a collision issue when two models share same element name', async () => {
     const modelWithElement = (title: string, elementName: string) => `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-1-1"
+spec_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"
@@ -108,7 +108,7 @@ title: "${title}"
 `
 
     const indexMd = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---
@@ -134,8 +134,8 @@ title: "Workspace Index"
 
   it('parses model elements into the normalized graph', async () => {
     const modelWithElements = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-1-1"
+spec_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"

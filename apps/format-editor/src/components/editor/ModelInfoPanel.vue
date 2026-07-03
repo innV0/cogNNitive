@@ -188,7 +188,7 @@ function extractFrontmatterField(field: string): string | null {
 }
 
 const formatVersion = computed(() => {
-  return extractFrontmatterField('specification_version') || DEFAULT_FORMAT_VERSION;
+  return extractFrontmatterField('spec_version') || DEFAULT_FORMAT_VERSION;
 });
 
 const templateName = computed(() => {

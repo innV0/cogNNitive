@@ -412,8 +412,8 @@ export function serializeModel(model: ParsedModel): string {
   const lines: string[] = [];
   const fm = model.frontmatter;
   lines.push('---');
-  lines.push(`specification_version: "${fm.specification_version || 'V_0-2-0'}"`);
-  if (fm.specification_url) lines.push(`specification_url: "${fm.specification_url}"`);
+  lines.push(`spec_version: "${fm.spec_version || 'V_0-2-0'}"`);
+  if (fm.spec_url) lines.push(`spec_url: "${fm.spec_url}"`);
   if (fm.level !== undefined) lines.push(`level: ${fm.level}`);
   if (fm.parent) {
     lines.push('parent:');

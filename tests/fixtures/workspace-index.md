@@ -1,5 +1,5 @@
 ---
-specification_version: "V_0-1-3"
+spec_version: "V_0-1-3"
 level: 0
 title: "Test Workspace Index"
 ---

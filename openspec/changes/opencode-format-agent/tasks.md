@@ -35,7 +35,7 @@ Over the 400-line single-PR budget → **chained PRs recommended** (see Review W
 
 Resolve the design's open questions before writing code:
 
-1. **Public spec URL** — confirm the versioned FORMAT spec/template is reachable at a stable public URL (the `specification_url` convention: `https://raw.githubusercontent.com/innV0/cogNNitive/v{semver}/specs/...`). If not published, publishing it is a prerequisite and this task records the plan.
+1. **Public spec URL** — confirm the versioned FORMAT spec/template is reachable at a stable public URL (the `spec_url` convention: `https://raw.githubusercontent.com/innV0/cogNNitive/v{semver}/specs/...`). If not published, publishing it is a prerequisite and this task records the plan.
 2. **`format-core` surface** — determine whether `@innv0/format-core` already exports parse/validate/serialize (+ any spec-fetch helper) programmatically, or whether T1 must add a thin façade.
 3. **`apply_change` write semantics** — decide reject-without-writing (preferred) vs write-then-flag; align with how `format-editor` persists.
 4. **Package placement** — confirm `packages/format-mcp` (preferred) vs `apps/format-mcp`.
@@ -100,7 +100,7 @@ Create the MCP server package. Register the MCP transport over stdio (OpenCode s
 
 ### Test Requirements
 
-- `list_models` returns the known fixtures (FILE `.md` + FOLDER `_FORMAT.md` trees).
+- `list_models` returns the known fixtures (FILE `.md` + FOLDER `_F.md` trees).
 - `read_model` parses a FILE fixture and a FOLDER fixture into the expected structure.
 - Server starts and advertises the two tools (protocol-level smoke test).
 

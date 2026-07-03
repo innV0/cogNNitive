@@ -84,8 +84,8 @@ A level 3 model MUST NOT include `template:` with `concepts`, `markers`, or `mat
 The model frontmatter is limited to:
 
 ```yaml
-specification_version: "V_0-1-4"
-specification_url: "<immutable-url>"
+spec_version: "V_0-1-5"
+spec_url: "<immutable-url>"
 level: 3
 parent:
   name: "<template>_V_x-y-z"
@@ -323,7 +323,7 @@ See individual template specifications for valid `type` values per concept.
 
 ### 6. Self-Description
 
-This document (`FORMAT_V_0-1-4_FORMAT.md`) is itself a level 1 specification following defiNNe. It declares `parent: { name: "defiNNe_V_0-1-0", url: "..." }` and includes the required body sections.
+This document (`FORMAT_V_0-1-5_F.md`) is itself a level 1 specification following defiNNe. It declares `parent: { name: "defiNNe_V_0-1-0", url: "..." }` and includes the required body sections.
 
 ## Template
 
@@ -331,12 +331,12 @@ This document (`FORMAT_V_0-1-4_FORMAT.md`) is itself a level 1 specification fol
 
 ```yaml
 ---
-specification_version: "V_0-1-4"
-specification_url: "<immutable-url>"
+spec_version: "V_0-1-5"
+spec_url: "<immutable-url>"
 level: 2
 parent:
-  name: "FORMAT_V_0-1-4"
-  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.4/specs/FORMAT_V_0-1-4_FORMAT.md"
+  name: "FORMAT_V_0-1-5"
+  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
 title: "<Template Name>"
 concepts: [...]
 markers: [...]
@@ -366,8 +366,8 @@ relationship_declarations: {...}
 
 ```yaml
 ---
-specification_version: "V_0-1-4"
-specification_url: "<immutable-url>"
+spec_version: "V_0-1-5"
+spec_url: "<immutable-url>"
 level: 3
 parent:
   name: "<template>_V_x-y-z"

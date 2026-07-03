@@ -10,7 +10,7 @@ The meta-specification. Defines the structure, versioning conventions (SemVer wi
 
 The central specification with two modes:
 - **FILE mode** — single `.md` document containing concepts, elements, fields, markers, and matrices
-- **FOLDER mode** — each element is a directory node with assets and a `_FORMAT.md` discovery file
+- **FOLDER mode** — each element is a directory node with assets and a `_F.md` discovery file
 
 ## Level 2: Templates
 
@@ -36,7 +36,7 @@ OKF v0.1 defines three conformance requirements (§9). Here is the exact mapping
 
 | OKF Requirement | How FORMAT Satisfies It |
 |---|---|
-| **§9.1** Every non-reserved `.md` file contains a parseable YAML frontmatter block | FORMAT requires YAML frontmatter on every `_FORMAT.md` at all four levels. The `---` delimited block is mandatory — unparseable frontmatter is a validation error. |
+| **§9.1** Every non-reserved `.md` file contains a parseable YAML frontmatter block | FORMAT requires YAML frontmatter on every `_F.md` at all four levels. The `---` delimited block is mandatory — unparseable frontmatter is a validation error. |
 | **§9.2** Every frontmatter block contains a non-empty `type` field | FORMAT's `level` field (0–3) and template system provide equivalent type semantics. A model document's `parent` template name serves as its conceptual type. OKF's permissive consumption model tolerates any `type` value — FORMAT's structured approach exceeds what OKF requires. |
 | **§9.3** Reserved filenames (`index.md`, `log.md`) follow OKF conventions | FORMAT's `index.md` follows the exact same progressive-disclosure convention as OKF §6. FORMAT does not prescribe `log.md` usage, which is optional in OKF as well. No conflicts. |
 
@@ -46,7 +46,7 @@ OKF explicitly states consumers MUST NOT reject a bundle because of:
 
 - Missing optional frontmatter fields ✓
 - Unknown `type` values ✓ — FORMAT's template names are valid OKF type values
-- Unknown additional frontmatter keys ✓ — FORMAT adds `specification_version`, `level`, `parent`, `concepts`, `markers`, `matrices`, `relationship_declarations`, all tolerated
+- Unknown additional frontmatter keys ✓ — FORMAT adds `spec_version`, `level`, `parent`, `concepts`, `markers`, `matrices`, `relationship_declarations`, all tolerated
 - Broken cross-links ✓ — FORMAT also tolerates broken wikilinks with warnings
 - Missing `index.md` files ✓ — FORMAT requires them, which exceeds OKF's baseline
 
@@ -56,8 +56,8 @@ OKF explicitly states consumers MUST NOT reject a bundle because of:
 |---|---|
 | Knowledge Bundle | FORMAT workspace (directory with models) |
 | Concept | FOLDER-mode element node or FILE-mode concept section |
-| Concept ID | File path relative to workspace root (minus `_FORMAT.md` suffix) |
-| Frontmatter (`type`, `title`, `description`, `tags`, `timestamp`) | FORMAT frontmatter (`specification_version`, `level`, `parent`, `model_version`, `title`) |
+| Concept ID | File path relative to workspace root (minus `_F.md` suffix) |
+| Frontmatter (`type`, `title`, `description`, `tags`, `timestamp`) | FORMAT frontmatter (`spec_version`, `level`, `parent`, `model_version`, `title`) |
 | Body (Markdown) | Body (Markdown + `_F` structural markers + matrices) |
 | Cross-linking (`/relative/path.md`) | Wikilinks (`[[target]]`) and standard Markdown links |
 | `index.md` (progressive disclosure) | `index.md` with wikilinks listing workspace models |
@@ -72,7 +72,7 @@ Any FORMAT workspace opened in an OKF consumer will be accepted as a conformant 
 When a model is loaded:
 1. Read the model's `parent` pointer
 2. If not cached in `specs/`, download from the specification URL
-3. Save to `specs/<parent.name>_FORMAT.md`
+3. Save to `specs/<parent.name>_F.md`
 4. Read the downloaded spec's `parent`, repeat until level 0
 5. On subsequent loads, use cache
 6. On version mismatch, re-download

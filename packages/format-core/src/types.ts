@@ -51,8 +51,8 @@ export interface RelationshipTypeDef {
 }
 
 export interface SpecFrontmatter {
-  specification_version: string;
-  specification_url: string;
+  spec_version: string;
+  spec_url: string;
   level: SpecLevel;
   parent?: ParentRef;
   title?: string;

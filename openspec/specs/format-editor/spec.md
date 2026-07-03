@@ -8,9 +8,9 @@ Correct the FOLDER-mode hierarchy derivation in the recursive parser (`recursive
 
 ### Requirement: Recursive Parser (Read)
 
-The parser MUST walk a workspace recursively, and for each node invoke `format-core`'s FILE or FOLDER read primitive according to that node's on-disk representation, inserting the result into the same `modelStore` graph. A directory with no `_FORMAT.md` MUST NOT abort the walk: it MUST become a concept/group node, and the walk MUST recurse unconditionally into that directory's children. A directory with a present but unparseable `_FORMAT.md` MUST report an issue for that node AND still recurse into that directory's children (its subtree is not dropped).
+The parser MUST walk a workspace recursively, and for each node invoke `format-core`'s FILE or FOLDER read primitive according to that node's on-disk representation, inserting the result into the same `modelStore` graph. A directory with no `_F.md` MUST NOT abort the walk: it MUST become a concept/group node, and the walk MUST recurse unconditionally into that directory's children. A directory with a present but unparseable `_F.md` MUST report an issue for that node AND still recurse into that directory's children (its subtree is not dropped).
 
-(Previously: a missing `_FORMAT.md` was treated as a fatal parse failure — `parseFolderNode`'s catch block returned before reaching `dirHandle.entries()`, aborting the branch and silently dropping the whole subtree.)
+(Previously: a missing `_F.md` was treated as a fatal parse failure — `parseFolderNode`'s catch block returned before reaching `dirHandle.entries()`, aborting the branch and silently dropping the whole subtree.)
 
 #### Scenario: Recursive read across mixed tree
 
@@ -20,14 +20,14 @@ The parser MUST walk a workspace recursively, and for each node invoke `format-c
 
 #### Scenario: Missing `_FORMAT.md` becomes a concept node and recursion continues
 
-- GIVEN a directory has no `_FORMAT.md` (e.g. `AILab`)
+- GIVEN a directory has no `_F.md` (e.g. `AILab`)
 - WHEN the parser visits that directory
 - THEN the directory becomes a concept/group node
 - AND the walk recurses into its child entries instead of aborting
 
 #### Scenario: Present-but-unparseable `_FORMAT.md` still recurses
 
-- GIVEN a directory's `_FORMAT.md` exists but fails to parse (malformed content)
+- GIVEN a directory's `_F.md` exists but fails to parse (malformed content)
 - WHEN the parser visits that directory
 - THEN an issue is reported for that node's path
 - AND the walk still recurses into that directory's children (no subtree is dropped)
@@ -52,7 +52,7 @@ The graph MUST distinguish three node kinds beneath the root: Concept (a type, f
 
 #### Scenario: Directory with `_FORMAT.md` and `type` recognized as an element
 
-- GIVEN a directory has a parseable `_FORMAT.md` declaring `type: "AILab"` (e.g. `AILab/Anthropic`)
+- GIVEN a directory has a parseable `_F.md` declaring `type: "AILab"` (e.g. `AILab/Anthropic`)
 - WHEN the tree is built
 - THEN the directory is represented as an element node of concept `AILab`, nested under the `AILab` concept node
 
@@ -78,7 +78,7 @@ On read, the source of truth for hierarchy MUST be per-mode: for FILE nodes, the
 
 #### Scenario: FILE node hierarchy from index block
 
-- GIVEN a FILE node's `_FORMAT.md` declares an index-block taxonomy
+- GIVEN a FILE node's `_F.md` declares an index-block taxonomy
 - WHEN the parser builds that node's element hierarchy
 - THEN the hierarchy matches the taxonomy edges, not any directory structure
 
@@ -111,7 +111,7 @@ Loading a catalog-shaped directory handle (root `_FORMAT.md` in FOLDER mode, bar
 
 #### Scenario: `AI_Industry_V_1-0-0_catalog`-shaped fixture parses end-to-end
 
-- GIVEN a catalog-shaped fixture modeled on `models/AI_Industry_V_1-0-0_catalog/` (bare `AILab` directory containing `Anthropic/_FORMAT.md` with `type: "AILab"`)
+- GIVEN a catalog-shaped fixture modeled on `models/AI_Industry_V_1-0-0_catalog/` (bare `AILab` directory containing `Anthropic/_F.md` with `type: "AILab"`)
 - WHEN `recursiveParse` runs over the fixture's root directory handle
 - THEN the resulting tree is non-empty
 - AND it contains concept node `AILab` with element child `Anthropic`

@@ -5,7 +5,7 @@ import { useModelStore } from '../../src/stores/modelStore'
 import { buildFakeTree } from '../helpers/fakeFs'
 
 const indexMd = `---
-specification_version: "V_0-1-2"
+spec_version: "V_0-1-2"
 level: 0
 title: "Workspace Index"
 ---
@@ -16,8 +16,8 @@ title: "Workspace Index"
 `
 
 const validFormatMd = `---
-specification_version: "V_0-1-1"
-specification_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-1-1"
+spec_url: "https://example.test/specs/business_V_0-1-1_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"

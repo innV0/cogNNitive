@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { validateFormatContent } from '../../src/shared/validator'
 
 const validModel = `---
-specification_version: "V_0-1-4"
-specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-1-5"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"
@@ -24,8 +24,8 @@ type: "BusinessModel"
 `
 
 const validModelNoType = `---
-specification_version: "V_0-1-4"
-specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-1-5"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 level: 3
 parent:
   name: "business_V_0-1-1"
@@ -46,7 +46,7 @@ title: "Ghostbusters"
 
 describe('validateFormatContent', () => {
   it('returns all expected check IDs', () => {
-    const report = validateFormatContent(validModel, 'Ghostbusters_V_0-1-2_business_F.md', 'V_0-1-4')
+    const report = validateFormatContent(validModel, 'Ghostbusters_V_0-1-2_business_F.md', 'V_0-1-5')
     const ids = report.checks.map(c => c.id).sort()
     // 15+ checks: 8-9 frontmatter + 7 body + 3-4 convention
     expect(ids).toContain('fm-level')
@@ -69,7 +69,7 @@ describe('validateFormatContent', () => {
   })
 
   it('passes frontmatter checks for valid model', () => {
-    const report = validateFormatContent(validModel, 'test_F.md', 'V_0-1-4')
+    const report = validateFormatContent(validModel, 'test_F.md', 'V_0-1-5')
     const frontmatterChecks = report.checks.filter(c => c.category === 'frontmatter')
     expect(frontmatterChecks.every(c => c.passed)).toBe(true)
   })
@@ -114,12 +114,12 @@ describe('validateFormatContent', () => {
     expect(invalidCheck!.severity).toBe('error')
   })
 
-  it('warns on mismatched specification_version', () => {
-    const report = validateFormatContent(validModel, 'test_F.md', 'V_0-1-5')
+  it('warns on mismatched spec_version', () => {
+    const report = validateFormatContent(validModel, 'test_F.md', 'V_0-1-6')
     const specMatchCheck = report.checks.find(c => c.id === 'fm-spec-version-match')
     expect(specMatchCheck).toBeDefined()
     expect(specMatchCheck!.passed).toBe(false)
-    expect(specMatchCheck!.message).toContain('V_0-1-5')
+    expect(specMatchCheck!.message).toContain('V_0-1-6')
   })
 
   it('warns on missing type field for _F.md files', () => {

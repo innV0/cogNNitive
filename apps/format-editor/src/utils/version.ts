@@ -30,7 +30,7 @@ export interface ParsedFormatName {
   version: SemVer;
 }
 
-/** Renders a SemVer as the FORMAT version string, e.g. `V_0-1-4`. */
+/** Renders a SemVer as the FORMAT version string, e.g. `V_0-1-5`. */
 export function formatVersionString(v: SemVer): string {
   return `V_${v.major}-${v.minor}-${v.patch}`;
 }
