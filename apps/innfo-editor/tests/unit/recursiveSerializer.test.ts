@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { recursiveParse } from '../../src/model/recursiveParser'
 import { recursiveSerialize } from '../../src/model/recursiveSerializer'
 import { buildFakeTree, type FakeTree } from '../helpers/fakeFs'
-import type { ParsedModel, ModelDriver } from '@innv0/format-core'
+import type { ParsedModel, ModelDriver } from '@innv0/innfo-core'
 
 const fileDocMd = `---
 spec_version: "V_0-1-1"

@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { validateFormatContent } from '../../src/shared/validator'
 
 const validModel = `---
-spec_version: "V_0-1-5"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-2-0"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/iNNfo_V_0-2-0_NN.md"
 level: 3
-parent:
+parent_spec:
   name: "business_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 model_version: "V_0-1-2"
@@ -13,40 +13,38 @@ title: "Ghostbusters"
 type: "BusinessModel"
 ---
 
-> [!NOTE] This is a FORMAT business model.
+> [!NOTE] This is an iNNfo business model.
 
-# _F index
-- Stakeholders
-- MarketSegments
+# _NN index
+* [[Stakeholders]]
 
-# _F Stakeholders
-* _F Stakeholders: Ghostbusters Inc.
+# _NN Stakeholders
+* _NN Stakeholders: Ghostbusters Inc.
 `
 
 const validModelNoType = `---
-spec_version: "V_0-1-5"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
+spec_version: "V_0-2-0"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/iNNfo_V_0-2-0_NN.md"
 level: 3
-parent:
+parent_spec:
   name: "business_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 model_version: "V_0-1-2"
 title: "Ghostbusters"
 ---
 
-> [!NOTE] This is a FORMAT business model.
+> [!NOTE] This is an iNNfo business model.
 
-# _F index
-- Stakeholders
-- MarketSegments
+# _NN index
+* [[Stakeholders]]
 
-# _F Stakeholders
-* _F Stakeholders: Ghostbusters Inc.
+# _NN Stakeholders
+* _NN Stakeholders: Ghostbusters Inc.
 `
 
 describe('validateFormatContent', () => {
   it('returns all expected check IDs', () => {
-    const report = validateFormatContent(validModel, 'Ghostbusters_V_0-1-2_business_F.md', 'V_0-1-5')
+    const report = validateFormatContent(validModel, 'Ghostbusters_V_0-1-2_business_NN.md', 'V_0-2-0')
     const ids = report.checks.map(c => c.id).sort()
     // 15+ checks: 8-9 frontmatter + 7 body + 3-4 convention
     expect(ids).toContain('fm-level')
@@ -69,14 +67,14 @@ describe('validateFormatContent', () => {
   })
 
   it('passes frontmatter checks for valid model', () => {
-    const report = validateFormatContent(validModel, 'test_F.md', 'V_0-1-5')
+    const report = validateFormatContent(validModel, 'test_NN.md', 'V_0-2-0')
     const frontmatterChecks = report.checks.filter(c => c.category === 'frontmatter')
     expect(frontmatterChecks.every(c => c.passed)).toBe(true)
   })
 
   it('detects missing frontmatter fields', () => {
     const noTitle = validModel.replace(/^title:.*$/m, '')
-    const report = validateFormatContent(noTitle, 'test_F.md')
+    const report = validateFormatContent(noTitle, 'test_NN.md')
     const titleCheck = report.checks.find(c => c.id === 'fm-title')
     expect(titleCheck?.passed).toBe(false)
     expect(titleCheck?.message).toContain('Missing title')
@@ -84,21 +82,21 @@ describe('validateFormatContent', () => {
 
   it('detects invalid version format', () => {
     const badVersion = validModel.replace(/^model_version:.*$/m, 'model_version: "bad"')
-    const report = validateFormatContent(badVersion, 'test_F.md')
+    const report = validateFormatContent(badVersion, 'test_NN.md')
     const versionCheck = report.checks.find(c => c.id === 'fm-version-format')
     expect(versionCheck?.passed).toBe(false)
   })
 
-  it('flags missing _F element markers', () => {
-    const noMarkers = validModel.replace(/\* _F Stakeholders:.*$/m, '* Stakeholders: Ghostbusters Inc.')
-    const report = validateFormatContent(noMarkers, 'test_F.md')
+  it('flags missing _NN element markers', () => {
+    const noMarkers = validModel.replace(/\* _NN Stakeholders:.*$/m, '* Stakeholders: Ghostbusters Inc.')
+    const report = validateFormatContent(noMarkers, 'test_NN.md')
     const markerCheck = report.checks.find(c => c.id === 'body-element-markers')
     expect(markerCheck?.passed).toBe(false)
   })
 
-  it('warns on numbered-list _F markers', () => {
-    const numbered = validModel.replace('* _F Stakeholders: Ghostbusters Inc.', '1. _F Stakeholders: Ghostbusters Inc.')
-    const report = validateFormatContent(numbered, 'test_F.md')
+  it('warns on numbered-list _NN markers', () => {
+    const numbered = validModel.replace('* _NN Stakeholders: Ghostbusters Inc.', '1. _NN Stakeholders: Ghostbusters Inc.')
+    const report = validateFormatContent(numbered, 'test_NN.md')
     const numberedCheck = report.checks.find(c => c.id === 'body-numbered-list-markers')
     expect(numberedCheck).toBeDefined()
     expect(numberedCheck!.passed).toBe(false)
@@ -106,8 +104,8 @@ describe('validateFormatContent', () => {
   })
 
   it('errors on invalid bullet characters', () => {
-    const plusBullet = validModel.replace('* _F Stakeholders: Ghostbusters Inc.', '+ _F Stakeholders: Ghostbusters Inc.')
-    const report = validateFormatContent(plusBullet, 'test_F.md')
+    const plusBullet = validModel.replace('* _NN Stakeholders: Ghostbusters Inc.', '+ _NN Stakeholders: Ghostbusters Inc.')
+    const report = validateFormatContent(plusBullet, 'test_NN.md')
     const invalidCheck = report.checks.find(c => c.id === 'body-invalid-bullet-chars')
     expect(invalidCheck).toBeDefined()
     expect(invalidCheck!.passed).toBe(false)
@@ -115,15 +113,15 @@ describe('validateFormatContent', () => {
   })
 
   it('warns on mismatched spec_version', () => {
-    const report = validateFormatContent(validModel, 'test_F.md', 'V_0-1-6')
+    const report = validateFormatContent(validModel, 'test_NN.md', 'V_0-1-6')
     const specMatchCheck = report.checks.find(c => c.id === 'fm-spec-version-match')
     expect(specMatchCheck).toBeDefined()
     expect(specMatchCheck!.passed).toBe(false)
     expect(specMatchCheck!.message).toContain('V_0-1-6')
   })
 
-  it('warns on missing type field for _F.md files', () => {
-    const report = validateFormatContent(validModelNoType, 'test_F.md')
+  it('warns on missing type field for _NN.md files', () => {
+    const report = validateFormatContent(validModelNoType, 'test_NN.md')
     const typeCheck = report.checks.find(c => c.id === 'conv-type-field')
     expect(typeCheck).toBeDefined()
     expect(typeCheck!.passed).toBe(false)
@@ -131,7 +129,7 @@ describe('validateFormatContent', () => {
   })
 
   it('returns structured summary with totals', () => {
-    const report = validateFormatContent(validModel, 'test_F.md')
+    const report = validateFormatContent(validModel, 'test_NN.md')
     expect(report.summary).toHaveProperty('total')
     expect(report.summary).toHaveProperty('passed')
     expect(report.summary).toHaveProperty('errors')

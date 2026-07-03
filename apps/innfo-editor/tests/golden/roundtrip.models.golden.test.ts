@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { recursiveParse } from '../../src/model/recursiveParser'
 import { recursiveSerialize } from '../../src/model/recursiveSerializer'
 import { buildFakeTree } from '../helpers/fakeFs'
-import type { ParsedModel, ModelDriver } from '@innv0/format-core'
+import type { ParsedModel, ModelDriver } from '@innv0/innfo-core'
 import type { ModelNode } from '../../src/model/types'
 
 // Frozen fixtures (see recursiveParser.models.golden.test.ts).
@@ -13,7 +13,7 @@ const fixtureFiles = readdirSync(modelsDir).filter((f) => f.endsWith('.md'))
 
 function makeIndex(wikilinks: string[]): string {
   const items = wikilinks.map(w => `* [[${w}]]`).join('\n')
-  return `---\nspec_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _F index\n\n${items}\n`
+  return `---\nspec_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _NN index\n\n${items}\n`
 }
 
 /** Structural summary used to compare two parses without noise from
