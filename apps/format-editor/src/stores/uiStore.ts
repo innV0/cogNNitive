@@ -22,6 +22,10 @@ export const useUiStore = defineStore('ui', () => {
     activeConcept.value = name
   }
 
+  function setActivePerspective(id: string): void {
+    activePerspective.value = id
+  }
+
   function setActiveView(view: ActiveView): void {
     activeView.value = view
   }
@@ -46,6 +50,7 @@ export const useUiStore = defineStore('ui', () => {
     selectedInstanceId,
     activeMatrixIndex,
     setActiveConcept,
+    setActivePerspective,
     setActiveView,
     selectNode,
     selectInstance,

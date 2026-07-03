@@ -1,33 +1,39 @@
 <template>
   <div class="space-y-2">
     <div
-      v-if="!neighborhoods.length"
+      v-if="!neighborhood"
       class="text-muted-foreground text-xs italic text-center p-4"
     >
       This concept is not part of any perspective.
     </div>
 
     <div
-      v-for="n in neighborhoods"
-      :key="n.perspective.id"
+      v-else-if="neighborhood.parents.length === 0 && neighborhood.children.length === 0"
+      class="text-muted-foreground text-xs italic text-center p-4"
+    >
+      No taxonomy neighbors for this concept.
+    </div>
+
+    <div
+      v-else
       class="rounded-lg border border-border bg-background/60 p-2.5 space-y-1.5"
     >
       <!-- Perspective header -->
       <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-        <IconRenderer :icon="n.perspective.icon" custom-class="w-3 h-3 text-primary" />
-        <span>{{ n.perspective.name }}</span>
+        <IconRenderer :icon="neighborhood.perspective.icon" custom-class="w-3 h-3 text-primary" />
+        <span>{{ neighborhood.perspective.name }}</span>
       </div>
 
       <!-- Stacked tiers: parents ▲ / active ● / children ▼ -->
       <!-- Parent tier -->
-      <div v-if="n.parents.length" class="perspective-tier">
+      <div v-if="neighborhood.parents.length" class="perspective-tier">
         <span class="perspective-tier__label">Parent</span>
         <div class="flex items-center flex-wrap gap-1">
           <button
-            v-for="p in n.parents"
+            v-for="p in neighborhood.parents"
             :key="'p-' + p"
             class="perspective-chip"
-            @click="$emit('select', p)"
+            @click="selectConcept(p)"
           >
             <IconRenderer :icon="iconFor(p)" custom-class="w-3 h-3 shrink-0 text-muted-foreground" />
             <span class="truncate">{{ p }}</span>
@@ -36,7 +42,7 @@
       </div>
 
       <!-- Connector -->
-      <div v-if="n.parents.length" class="perspective-connector"></div>
+      <div v-if="neighborhood.parents.length" class="perspective-connector"></div>
 
       <!-- Active tier -->
       <div class="perspective-tier">
@@ -48,22 +54,30 @@
       </div>
 
       <!-- Connector -->
-      <div v-if="n.children.length" class="perspective-connector"></div>
+      <div v-if="neighborhood.children.length" class="perspective-connector"></div>
 
       <!-- Children tier -->
-      <div v-if="n.children.length" class="perspective-tier">
+      <div v-if="neighborhood.children.length" class="perspective-tier">
         <span class="perspective-tier__label">Children</span>
         <div class="flex items-center flex-wrap gap-1">
           <button
-            v-for="c in n.children"
+            v-for="c in neighborhood.children"
             :key="'c-' + c"
             class="perspective-chip"
-            @click="$emit('select', c)"
+            @click="selectConcept(c)"
           >
             <IconRenderer :icon="iconFor(c)" custom-class="w-3 h-3 shrink-0 text-muted-foreground" />
             <span class="truncate">{{ c }}</span>
           </button>
         </div>
+      </div>
+
+      <!-- Sibling count -->
+      <div
+        v-if="siblingCount > 0"
+        class="text-xs text-muted-foreground pt-1 text-right"
+      >
+        {{ siblingCount }} sibling{{ siblingCount !== 1 ? 's' : '' }}
       </div>
     </div>
   </div>
@@ -71,64 +85,52 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useModelStore } from '../../stores/modelStore';
+import { useMetamodelStore } from '../../stores/metamodelStore';
+import { useUiStore } from '../../stores/uiStore';
 import IconRenderer from './IconRenderer.vue';
-import type { Perspective, PerspectiveNeighborhood } from '../../stores/types';
 
 const props = defineProps<{
   conceptName: string;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'select', name: string): void;
 }>();
 
-const modelStore = useModelStore();
+const metamodelStore = useMetamodelStore();
+const uiStore = useUiStore();
 
-// Derive perspectives from conceptBindings and localMetamodel on root node
-const perspectives = computed<Perspective[]>(() => {
-  const rootId = modelStore.rootIds[0];
-  if (!rootId) return [];
-  const root = modelStore.getNode(rootId);
-  if (!root?.localMetamodel?.concepts) return [];
-
-  // Build a simple default perspective from the concept hierarchy
-  const conceptNames = root.localMetamodel.concepts.map(c => c.name);
-  if (conceptNames.length === 0) return [];
-
-  return [{
-    id: 'default',
-    name: 'Hierarchy',
-    icon: 'layers',
-    edges: conceptNames.slice(0, -1).map((parent, i) => ({
-      parent,
-      child: conceptNames[i + 1],
-    })),
-  }];
+const neighborhood = computed(() => {
+  if (!props.conceptName) return null;
+  return metamodelStore.getNeighborhood(props.conceptName);
 });
 
-const iconFor = (name: string): string => {
-  const rootId = modelStore.rootIds[0];
-  if (!rootId) return '';
-  const root = modelStore.getNode(rootId);
-  if (!root?.localMetamodel?.concepts) return '';
-  const concept = root.localMetamodel.concepts.find(c => c.name === name);
+const siblingCount = computed(() => {
+  if (!props.conceptName) return 0;
+  const edges = metamodelStore.taxonomyEdges;
+  // Find parent concepts of the current concept
+  const parentNames = edges
+    .filter((e) => e.child === props.conceptName)
+    .map((e) => e.parent);
+  if (parentNames.length === 0) return 0;
+  // Count other children of those parents
+  const siblingNames = new Set(
+    edges
+      .filter((e) => parentNames.includes(e.parent) && e.child !== props.conceptName)
+      .map((e) => e.child),
+  );
+  return siblingNames.size;
+});
+
+function iconFor(name: string): string {
+  const concept = metamodelStore.getConceptByName(name);
   return concept?.icon || '';
-};
+}
 
-const neighborhoods = computed<PerspectiveNeighborhood[]>(() => {
-  return perspectives.value.map(p => {
-    const parents: string[] = [];
-    const children: string[] = [];
-
-    for (const edge of p.edges) {
-      if (edge.child === props.conceptName) parents.push(edge.parent);
-      if (edge.parent === props.conceptName) children.push(edge.child);
-    }
-
-    return { perspective: p, parents, children };
-  });
-});
+function selectConcept(name: string): void {
+  uiStore.setActivePerspective(`taxonomy-${name}`);
+  emit('select', name);
+}
 </script>
 
 <style scoped>
