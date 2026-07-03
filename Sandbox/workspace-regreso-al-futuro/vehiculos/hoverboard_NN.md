@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # Hoverboard — Aerotabla
 
 Levitación magnética. Velocidad máxima ~50 mph. Autonomía 4-6 horas.

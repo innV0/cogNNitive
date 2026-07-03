@@ -10,7 +10,6 @@ test.describe('Session Persistence — IndexedDB Save/Restore', () => {
     await loadHomePage(page)
     await openMockFolder(page)
 
-    // Check that IndexedDB was initialized
     const hasDB = await page.evaluate(() => {
       return new Promise((resolve) => {
         const req = indexedDB.open('format-editor')
@@ -30,18 +29,12 @@ test.describe('Session Persistence — IndexedDB Save/Restore', () => {
     await loadHomePage(page)
     await openMockFolder(page)
 
-    // Wait for workspace to fully load
-    await page.waitForTimeout(1000)
-
-    // Reload the page
     await page.reload()
-    await page.waitForTimeout(2000)
+    await page.waitForLoadState('networkidle')
 
-    // Navigate back to workspace (session should restore last file)
     await page.locator('button', { hasText: /Open folder/i }).first().click()
-    await page.waitForTimeout(2000)
+    await page.waitForURL('**/workspace', { timeout: 15000 })
 
-    // The workspace should load
     await expect(page.getByText('BTTFKB')).toBeVisible()
   })
 
@@ -49,11 +42,8 @@ test.describe('Session Persistence — IndexedDB Save/Restore', () => {
     await loadHomePage(page)
     await openMockFolder(page)
 
-    // Resize sidebar using the resize handle
-    const resizeHandle = page.locator('[class*="cursor-col-resize"]').first()
-    await expect(resizeHandle).toBeVisible()
+    await expect(page.getByTestId('resize-handle').first()).toBeVisible()
 
-    // Get initial sidebar width
     const initialWidth = await page.evaluate(() => {
       return new Promise<number | null>((resolve) => {
         const req = indexedDB.open('format-editor')
@@ -72,8 +62,6 @@ test.describe('Session Persistence — IndexedDB Save/Restore', () => {
       })
     })
 
-    // Sidebar width should eventually be persisted
-    // (even null is valid — it means default)
     if (initialWidth !== null && initialWidth !== undefined) {
       expect(typeof initialWidth).toBe('number')
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="node-media">
+  <div data-testid="node-media" class="node-media">
     <!-- Images gallery grid -->
     <div v-if="imageAssets.length > 0" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
       <button
@@ -53,11 +53,13 @@
         v-if="lightboxOpen"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
         @click.self="closeLightbox"
+        data-testid="lightbox-overlay"
       >
         <button
           class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors cursor-pointer z-10"
           @click="closeLightbox"
           aria-label="Close lightbox"
+          data-testid="lightbox-close"
         >
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18" />

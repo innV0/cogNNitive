@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col" :class="inline ? '' : (localNodeId ? 'h-[480px] min-h-0' : 'h-full')" :style="inline ? { height: height + 'px', minHeight: height + 'px' } : {}">
+  <div data-testid="graph-viewer" class="flex flex-col" :class="inline ? '' : (localNodeId ? 'h-[480px] min-h-0' : 'h-full')" :style="inline ? { height: height + 'px', minHeight: height + 'px' } : {}">
     <!-- Layout selector header (hidden in inline mode) -->
     <div v-if="!inline" class="flex items-center gap-2 px-4 py-2 border-b border-border bg-muted/30 shrink-0">
       <button
@@ -127,9 +127,11 @@ const allNodes = computed<GNode[]>(() => {
 
   // Create instance nodes from modelStore.nodes
   for (const node of Object.values(modelStore.nodes)) {
-    const color = typeColorMap.get(node.type) || node.conceptBinding?.name
-      ? getHexColor(conceptColors[node.conceptBinding!.name] || 'slate')
-      : '#94a3b8';
+    const typeColor = typeColorMap.get(node.type);
+    const conceptColor = node.conceptBinding?.name
+      ? getHexColor(conceptColors[node.conceptBinding.name] ?? 'slate')
+      : null;
+    const color = typeColor ?? conceptColor ?? '#94a3b8';
     addNode(`inst:${node.id}`, node.name, node.type, color, true);
   }
 

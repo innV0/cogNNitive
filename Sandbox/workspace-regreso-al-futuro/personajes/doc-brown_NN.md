@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # Dr. Emmett Brown — Científico
 
 65 años. Inventor del condensador de flujo. Fundador de Hill Valley Time

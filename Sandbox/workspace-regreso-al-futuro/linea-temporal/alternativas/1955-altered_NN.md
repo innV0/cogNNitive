@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # Realidad Alternativa: La Grieta del Baile (1955-Altered)
 
 Marty no logra que George baile con Lorraine. Probabilidad de

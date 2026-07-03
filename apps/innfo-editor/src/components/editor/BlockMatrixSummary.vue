@@ -1,5 +1,5 @@
 <template>
-  <div class="block-matrix-summary">
+  <div data-testid="block-matrix-summary" class="block-matrix-summary">
     <template v-if="chips.length > 0">
       <div class="flex flex-wrap gap-2">
         <div

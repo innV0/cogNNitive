@@ -1,5 +1,6 @@
 <template>
   <div
+    data-testid="block-sheet"
     class="rounded-lg bg-slate-50 dark:bg-slate-800/50 transition-all duration-200 flex flex-col relative border border-slate-200 dark:border-slate-700"
   >
     <!-- Header: concept label + markers + controls -->

@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # Jennifer Parker — Novia de Marty
 
 17 años. Sensata, equilibrada. Sabe de los viajes temporales

@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # Componentes del DeLorean
 
 - Motor V6 PRV 2.85L

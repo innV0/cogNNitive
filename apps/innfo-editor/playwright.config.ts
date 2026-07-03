@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   testDir: './e2e',
@@ -25,7 +29,7 @@ export default defineConfig({
   webServer: {
     command: 'npx vite --port 5173',
     port: 5173,
-    cwd: 'D:\\Users\\lucas\\Documents\\GitHub\\innV0\\cogNNitive\\apps\\innfo-editor',
+    cwd: __dirname,
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },

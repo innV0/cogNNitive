@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # Evento: Carrera del Hoverboard (BTTF-II)
 
 | Campo | Valor |

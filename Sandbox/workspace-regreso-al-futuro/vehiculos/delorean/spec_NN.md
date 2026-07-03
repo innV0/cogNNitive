@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # DeLorean DMC-12 — Ficha Técnica
 
 | Especificación | Valor |

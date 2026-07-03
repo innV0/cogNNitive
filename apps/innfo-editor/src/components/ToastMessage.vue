@@ -6,7 +6,7 @@ const { toasts, dismiss } = useToast()
 
 <template>
   <Teleport to="body">
-    <div v-if="toasts.length" class="toast-container">
+    <div v-if="toasts.length" class="toast-container" data-testid="toast-container">
       <div
         v-for="t in toasts"
         :key="t.id"

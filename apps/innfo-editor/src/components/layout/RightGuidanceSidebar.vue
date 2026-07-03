@@ -1,5 +1,6 @@
 <template>
   <div
+    data-testid="right-guidance-sidebar"
     class="relative flex shrink-0"
     :class="[isCollapsed ? 'w-0 transition-all duration-300 ease-in-out' : '']"
     :style="isCollapsed ? {} : { width: width + 'px' }"
@@ -10,6 +11,7 @@
       @pointerdown="startResize"
       class="absolute top-0 left-0 z-30 h-full w-1.5 cursor-col-resize hover:bg-primary/30 active:bg-primary/50 transition-colors"
       title="Drag to resize"
+      data-testid="resize-handle"
     ></div>
 
     <!-- Collapse Button Trigger when Collapsed -->

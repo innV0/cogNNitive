@@ -217,6 +217,7 @@ onUnmounted(() => {
             <button
               v-for="view in (['editor', 'graph', 'matrices', 'info'] as const)"
               :key="view"
+              :data-testid="'view-switcher-' + view"
               class="px-2.5 py-1 text-xs font-medium rounded transition-all cursor-pointer capitalize"
               :class="uiStore.activeView === view
                 ? 'bg-white dark:bg-slate-700 text-primary shadow-xs'

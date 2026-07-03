@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # Misión: Salvar a Doc (BTTF-III)
 
 | Campo | Valor |

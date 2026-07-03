@@ -1,6 +1,6 @@
 ---
-spec_version: "V_0-1-5"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
+spec_version: "V_0-2-0"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/iNNfo_V_0-2-0_NN.md"
 level: 3
 parent_spec:
   name: "kb_V_0-1-1"
@@ -32,6 +32,6 @@ community:
 ---
 
 > [!NOTE]
-> This is a **FORMAT document** — a plain-text Markdown file. Each element in this KB is a subdirectory with its own `_F.md`.
+> This is an **iNNfo document** — a plain-text Markdown file. Each element in this KB is a subdirectory with its own `_NN.md`.
 
-Compatible with: FORMAT V_0-1-5 spec conventions — taxonomy-driven concept hierarchy, YIQ color contrast on pills, parent-chain color resolution, perspective neighborhood navigation.
+Compatible with: iNNfo V_0-2-0 spec conventions — taxonomy-driven concept hierarchy, YIQ color contrast on pills, parent-chain color resolution, perspective neighborhood navigation.

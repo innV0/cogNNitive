@@ -1,5 +1,6 @@
 <template>
   <aside
+    data-testid="left-sidebar"
     class="relative border-r border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/60 flex flex-col overflow-y-auto shrink-0"
     :style="{ width: width + 'px' }"
   >
@@ -8,6 +9,7 @@
       @pointerdown="startResize"
       class="absolute top-0 right-0 z-30 h-full w-1.5 cursor-col-resize hover:bg-primary/30 active:bg-primary/50 transition-colors"
       title="Drag to resize"
+      data-testid="resize-handle"
     ></div>
 
     <div class="px-3 py-4 space-y-4">
@@ -28,6 +30,7 @@
             @click="expandAll"
             class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-2xs text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors flex items-center justify-center"
             title="Expand All"
+            data-testid="expand-all"
           >
             <ChevronsDown class="w-3.5 h-3.5" />
           </button>
@@ -35,6 +38,7 @@
             @click="collapseAll"
             class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-2xs text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors flex items-center justify-center"
             title="Collapse All"
+            data-testid="collapse-all"
           >
             <ChevronsUp class="w-3.5 h-3.5" />
           </button>

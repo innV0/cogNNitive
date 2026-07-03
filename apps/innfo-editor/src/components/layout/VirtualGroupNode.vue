@@ -1,5 +1,5 @@
 <template>
-  <div class="select-none">
+  <div data-testid="virtual-group-node" class="select-none">
     <!-- ── Virtual concept group header ── -->
     <div
       class="flex items-center gap-1 px-2 py-1 rounded-md transition-colors text-xs group cursor-pointer"

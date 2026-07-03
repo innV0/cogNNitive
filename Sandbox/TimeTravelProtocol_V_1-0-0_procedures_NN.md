@@ -1,6 +1,6 @@
 ---
-spec_version: "V_0-1-5"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
+spec_version: "V_0-2-0"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/iNNfo_V_0-2-0_NN.md"
 level: 3
 parent_spec:
   name: "procedures_V_0-1-1"
@@ -10,9 +10,9 @@ title: "Time Travel Protocol — Standard Operating Procedure"
 ---
 
 > [!NOTE]
-> This is a **FORMAT document** — a plain-text Markdown file that carries its own schema in the YAML frontmatter.
+> This is an **iNNfo document** — a plain-text Markdown file that carries its own schema in the YAML frontmatter.
 
-# _F index
+# _NN index
 
 * [[Procedure]]
 * [[Work]]
@@ -22,7 +22,7 @@ title: "Time Travel Protocol — Standard Operating Procedure"
 * [[Position]]
 * [[Person]]
 
-# _F Procedure
+# _NN Procedure
 
 ## Protocolo estándar de viaje temporal (SOP-TT-001)
 
@@ -40,9 +40,9 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
 - En caso de paradoja inminente, activar protocolo de auto-corrección
 - No mirar directamente al vórtice temporal
 
-# _F Work
+# _NN Work
 
-* _F Work: Calibración del condensador de flujo
+* _NN Work: Calibración del condensador de flujo
   ```yaml
   step_type: "task"
   next: "Verificación de combustible"
@@ -53,7 +53,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   Encender el sistema principal. Verificar que las luces del condensador
   parpadeen en secuencia correcta.
 
-* _F Work: Verificación de combustible
+* _NN Work: Verificación de combustible
   ```yaml
   step_type: "task"
   next: "Ingreso de coordenadas temporales"
@@ -64,7 +64,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   ```
   Verificar que la fuente de energía esté operativa.
 
-* _F Work: Ingreso de coordenadas temporales
+* _NN Work: Ingreso de coordenadas temporales
   ```yaml
   step_type: "task"
   next: "Abrir compuertas de flujo"
@@ -74,7 +74,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   ```
   Ingresar fecha (DÍA/MES/AÑO) y hora exacta de destino.
 
-* _F Work: Abrir compuertas de flujo
+* _NN Work: Abrir compuertas de flujo
   ```yaml
   step_type: "task"
   next: "Acelerar a 88 mph"
@@ -84,7 +84,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   ```
   Activar secuencia de apertura de compuertas temporales.
 
-* _F Work: Acelerar a 88 mph
+* _NN Work: Acelerar a 88 mph
   ```yaml
   step_type: "task"
   next: "Activar condensador"
@@ -93,7 +93,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   ```
   Acelerar hasta alcanzar EXACTAMENTE 88 millas por hora.
 
-* _F Work: Activar condensador
+* _NN Work: Activar condensador
   ```yaml
   step_type: "event"
   next: "Verificar llegada"
@@ -103,7 +103,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   Al alcanzar 88 mph, el condensador genera el vórtice. El vehículo viaja
   a través del tiempo.
 
-* _F Work: Verificar llegada
+* _NN Work: Verificar llegada
   ```yaml
   step_type: "task"
   next: "Ocultar el DeLorean"
@@ -113,7 +113,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   ```
   Confirmar visualmente la fecha esperada.
 
-* _F Work: Ocultar el DeLorean
+* _NN Work: Ocultar el DeLorean
   ```yaml
   step_type: "task"
   tool: "Generador de moscas"
@@ -121,7 +121,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   ```
   Buscar un lugar seguro. Activar el generador de moscas.
 
-* _F Work: Ejecutar misión
+* _NN Work: Ejecutar misión
   ```yaml
   step_type: "task"
   condition: "Misión completada o peligro inminente"
@@ -129,7 +129,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   ```
   Realizar la actividad planificada.
 
-* _F Work: Regresar a la línea temporal original
+* _NN Work: Regresar a la línea temporal original
   ```yaml
   step_type: "task"
   condition: "Tripulación a bordo + 88 mph alcanzable"
@@ -139,83 +139,83 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
   ```
   Repetir el proceso con coordenadas de origen. Documentar anomalías.
 
-# _F Artifact
+# _NN Artifact
 
-* _F Artifact: Condensador calibrado
+* _NN Artifact: Condensador calibrado
   Reporte de estado del condensador post-calibración.
 
-* _F Artifact: Coordenadas de destino
+* _NN Artifact: Coordenadas de destino
   Documento con fecha, hora, altitud y coordenadas del destino.
 
-* _F Artifact: Vórtice temporal generado
+* _NN Artifact: Vórtice temporal generado
   Registro automático del vórtice: duración, potencia, estabilidad.
 
-* _F Artifact: DeLorean oculto
+* _NN Artifact: DeLorean oculto
   Confirmación de que el vehículo está fuera de la vista del público.
 
-# _F Tools
+# _NN Tools
 
-* _F Tools: DeLorean DMC-12
+* _NN Tools: DeLorean DMC-12
   Vehículo base con conversión temporal. Potencia: 1.21 GW. Puertas ala de gaviota.
 
-* _F Tools: Condensador de flujo
+* _NN Tools: Condensador de flujo
   Inventado el 5 de noviembre de 1955. Genera el campo temporal.
 
-* _F Tools: Sr. Fusión
+* _NN Tools: Sr. Fusión
   Generador de energía doméstico que funciona con basura orgánica.
 
-* _F Tools: Pantalla de destino del DeLorean
+* _NN Tools: Pantalla de destino del DeLorean
   Panel digital en el tablero. Muestra fecha, hora y altitud.
 
-* _F Tools: Generador de moscas
+* _NN Tools: Generador de moscas
   Dispositivo de camuflaje temporal. Adapta la vestimenta a la época de destino.
 
-# _F Roles
+# _NN Roles
 
-* _F Roles: Piloto temporal
+* _NN Roles: Piloto temporal
   ```yaml
   scope: "internal"
   ```
   Conduce el DeLorean, gestiona la aceleración y ejecuta el viaje.
 
-* _F Roles: Navegante cronológico
+* _NN Roles: Navegante cronológico
   ```yaml
   scope: "internal"
   ```
   Calcula coordenadas, monitorea la línea temporal, detecta anomalías.
 
-* _F Roles: Especialista en camuflaje
+* _NN Roles: Especialista en camuflaje
   ```yaml
   scope: "internal"
   ```
   Gestiona la integración del equipo en la época de destino.
 
-* _F Roles: Historiador de campo
+* _NN Roles: Historiador de campo
   ```yaml
   scope: "internal"
   ```
   Documenta eventos, verifica fechas, previene paradojas.
 
-# _F Position
+# _NN Position
 
-* _F Position: Director de viajes temporales
+* _NN Position: Director de viajes temporales
   Autoriza todos los viajes y gestiona el protocolo.
 
-* _F Position: Ingeniero de vuelo temporal
+* _NN Position: Ingeniero de vuelo temporal
   Opera los sistemas del DeLorean y el condensador de flujo.
 
-* _F Position: Conductor de pruebas
+* _NN Position: Conductor de pruebas
   Pilota el DeLorean en misiones y viajes de prueba.
 
-# _F Person
+# _NN Person
 
-* _F Person: Dr. Emmett Brown
+* _NN Person: Dr. Emmett Brown
   Fundador, Director de Viajes Temporales. Autoridad máxima.
 
-* _F Person: Marty McFly
+* _NN Person: Marty McFly
   Conductor de pruebas principal. Piloto senior.
 
-# _F matrices: work-roles matrix
+# _NN matrices: work-roles matrix
 
 | Work \ Roles | Piloto temporal | Navegante cronológico | Especialista en camuflaje | Historiador de campo |
 | :--- | :---: | :---: | :---: | :---: |
@@ -230,7 +230,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
 | Ejecutar misión | Informed | Consulted | Consulted | Responsible |
 | Regresar a la línea temporal original | Responsible | Accountable | — | — |
 
-# _F matrices: positions-roles matrix
+# _NN matrices: positions-roles matrix
 
 | Position \ Roles | Piloto temporal | Navegante cronológico | Especialista en camuflaje | Historiador de campo |
 | :--- | :---: | :---: | :---: | :---: |
@@ -238,14 +238,14 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
 | Ingeniero de vuelo temporal | — | Assumes | — | — |
 | Conductor de pruebas | Assumes | — | — | — |
 
-# _F matrices: persons-positions matrix
+# _NN matrices: persons-positions matrix
 
 | Person \ Position | Director de viajes temporales | Ingeniero de vuelo temporal | Conductor de pruebas |
 | :--- | :---: | :---: | :---: |
 | Dr. Emmett Brown | Occupies | — | — |
 | Marty McFly | — | — | Occupies |
 
-# _F matrices: work-tools matrix
+# _NN matrices: work-tools matrix
 
 | Work \ Tools | DeLorean DMC-12 | Condensador de flujo | Sr. Fusión | Pantalla de destino | Generador de moscas |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -260,7 +260,7 @@ con condensador de flujo. Rango operativo probado: 1885–2015.
 | Ejecutar misión | — | — | — | — | — |
 | Regresar a la línea temporal original | Uses | Uses | — | Uses | — |
 
-# _F matrices: work-artifacts matrix
+# _NN matrices: work-artifacts matrix
 
 | Work \ Artifact | Condensador calibrado | Coordenadas de destino | Vórtice temporal generado | DeLorean oculto |
 | :--- | :---: | :---: | :---: | :---: |

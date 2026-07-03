@@ -1,5 +1,5 @@
 <template>
-  <div class="block-relationships">
+  <div data-testid="block-relationships" class="block-relationships">
     <template v-if="relationships.length > 0">
       <div
         v-for="rel in relationships"

@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # Misión: Recuperar el Almanaque (BTTF-II)
 
 | Campo | Valor |

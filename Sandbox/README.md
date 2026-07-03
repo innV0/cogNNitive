@@ -1,14 +1,13 @@
-# Sandbox — Regreso al Futuro ⚡
+# Sandbox — Regreso al Futuro
 
-Workspace FORMAT V_0-1-5 para probar la aplicación cogNNitive con todas las
-features implementadas en `port-legacy-gaps`.
+Workspace iNNfo V_0-2-0 para probar la aplicación cogNNitive.
 
-## Contenido FORMAT
+## Contenido
 
 | Archivo | Tipo | Descripción |
 |---------|------|-------------|
-| `HillValleyTimeTravel_V_1-0-0_business_F.md` | FILE | Modelo de negocio con stakeholders, problemas, matrices grandes (16×10) |
-| `TimeTravelProtocol_V_1-0-0_procedures_F.md` | FILE | Procedimiento operativo con pasos, roles, herramientas, matrices |
+| `HillValleyTimeTravel_V_1-0-0_business_NN.md` | FILE | Modelo de negocio con stakeholders, problemas, matrices grandes (16×10) |
+| `TimeTravelProtocol_V_1-0-0_procedures_NN.md` | FILE | Procedimiento operativo con pasos, roles, herramientas, matrices |
 | `BackToTheFuture_V_1-0-0_kb/` | FOLDER | Knowledge Base con entidades con colorHex, taxonomía, graph_edges |
 | `workspace-regreso-al-futuro/` | WORKSPACE | Carpeta completa para abrir con File System Access API |
 
@@ -17,13 +16,12 @@ features implementadas en `port-legacy-gaps`.
 ### Opción 1: Abrir carpeta local (recomendado)
 
 ```bash
-npm --prefix apps/format-editor run dev
+npm --prefix apps/innfo-editor run dev
 # → http://localhost:5173
-# → "Open Local Folder" → seleccionar Sandbox/
+# → "Open Local Folder" → seleccionar sandbox/
 ```
 
-**Qué abre**: El workspace completo `workspace-regreso-al-futuro/` con todos
-los personajes, vehículos, líneas temporales, misiones y artefactos.
+**Qué abre**: `sandbox/index.md` con wikilinks a los modelos FILE-mode y al KB folder. El workspace `workspace-regreso-al-futuro/` se abre por separado (Opción 3).
 
 ### Opción 2: Cargar modelo individual por URL
 
@@ -31,14 +29,15 @@ los personajes, vehículos, líneas temporales, misiones y artefactos.
 # Desde el root del repo:
 python -m http.server 8000
 # En la app: "Load from URL" →
-#   http://localhost:8000/Sandbox/HillValleyTimeTravel_V_1-0-0_business_F.md
-#   http://localhost:8000/Sandbox/TimeTravelProtocol_V_1-0-0_procedures_F.md
+#   http://localhost:8000/sandbox/HillValleyTimeTravel_V_1-0-0_business_NN.md
+#   http://localhost:8000/sandbox/TimeTravelProtocol_V_1-0-0_procedures_NN.md
 ```
 
-### Opción 3: Cargar KB folder
+### Opción 3: Cargar workspace o KB folder
 
 ```bash
-# "Open Local Folder" → Sandbox/BackToTheFuture_V_1-0-0_kb/
+# "Open Local Folder" → sandbox/workspace-regreso-al-futuro/
+# "Open Local Folder" → sandbox/BackToTheFuture_V_1-0-0_kb/
 ```
 
 ## Testing Guide — Feature por Feature
@@ -125,7 +124,7 @@ correctamente según el tipo de field.
 
 **Qué probar**: Scrolling virtual en matrices grandes (10k+ celdas).
 
-**Datos de prueba**: `HillValleyTimeTravel_V_1-0-0_business_F.md`
+**Datos de prueba**: `HillValleyTimeTravel_V_1-0-0_business_NN.md`
 contiene una matriz **Stakeholder × Service** de 16 filas × 10 columnas
 (160 celdas con 9 valores distintos: Accountable, Responsible, Consulted,
 Informed, Min, Max, Neutral, Low, High).
@@ -148,7 +147,7 @@ Informed, Min, Max, Neutral, Low, High).
 
 **Cómo probar**:
 1. **Directory Picker**: Botón "Open Local Folder" → seleccionar
-   `Sandbox/workspace-regreso-al-futuro/` → se carga el workspace completo
+   `sandbox/workspace-regreso-al-futuro/` → se carga el workspace completo
 2. **URL Loading**: Botón "Load from URL" → pegar URL de un modelo →
    se parsea y carga correctamente
 3. **Auto-backup**: Con backup activado, editar y guardar → verificar que
@@ -168,7 +167,7 @@ Informed, Min, Max, Neutral, Low, High).
 **Qué probar**: Panel de perspectiva de taxonomía con Parents/Children/Siblings,
 navegación por clicks.
 
-**Datos de prueba** (en KB root `_F.md` frontmatter):
+**Datos de prueba** (en KB root `_NN.md` frontmatter):
 
 ```yaml
 taxonomy:

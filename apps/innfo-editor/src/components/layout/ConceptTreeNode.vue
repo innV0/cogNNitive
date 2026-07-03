@@ -1,5 +1,5 @@
 <template>
-  <div class="select-none">
+  <div data-testid="concept-tree-node" class="select-none">
     <!-- ── Node row ── -->
     <div
       class="flex items-center gap-1 px-2 py-1 rounded-md transition-colors text-xs group cursor-pointer"

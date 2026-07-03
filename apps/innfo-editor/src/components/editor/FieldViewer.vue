@@ -1,5 +1,5 @@
 <template>
-  <div class="field-viewer space-y-3">
+  <div data-testid="field-viewer" class="field-viewer space-y-3">
     <div
       v-for="entry in fieldEntries"
       :key="entry.def.name"

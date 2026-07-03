@@ -1,6 +1,6 @@
 ---
-spec_version: "V_0-1-5"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
+spec_version: "V_0-2-0"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/iNNfo_V_0-2-0_NN.md"
 level: 3
 parent_spec:
   name: "business_V_0-1-1"
@@ -10,51 +10,51 @@ title: "Hill Valley Time Travel Corp"
 ---
 
 > [!NOTE]
-> This is a **FORMAT document** — a plain-text Markdown file that carries its own schema in the YAML frontmatter.
+> This is an **iNNfo document** — a plain-text Markdown file that carries its own schema in the YAML frontmatter.
 
-# _F index
+# _NN index
 
-* _F index: Business summary
-* _F index: Market
-  * _F index: Stakeholders
-  * _F index: Competition
-* _F index: Problems
-* _F index: Value propositions
-* _F index: Solutions
-  * _F index: Products and services
-  * _F index: Features
-* _F index: Organization
-  * _F index: Business idea
-  * _F index: Business objectives
-* _F index: Analysis
-  * _F index: Assumptions
-  * _F index: Risks
-* _F index: Validation
-  * _F index: Experiments
+* _NN index: Business summary
+* _NN index: Market
+  * _NN index: Stakeholders
+  * _NN index: Competition
+* _NN index: Problems
+* _NN index: Value propositions
+* _NN index: Solutions
+  * _NN index: Products and services
+  * _NN index: Features
+* _NN index: Organization
+  * _NN index: Business idea
+  * _NN index: Business objectives
+* _NN index: Analysis
+  * _NN index: Assumptions
+  * _NN index: Risks
+* _NN index: Validation
+  * _NN index: Experiments
 
-# _F Business summary
+# _NN Business summary
 
 Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mundo. Fundada por el Dr. Emmett Brown en 1985 (con la ayuda involuntaria de Marty McFly), ofrece experiencias turísticas crono-asistidas: viajes a cualquier época de la historia de Hill Valley con garantía de retorno.
 
 > "Carretera... ¿a dónde vamos? ¡A DONDE SEA QUE VAYAMOS!" — Dr. Emmett Brown, CEO
 
-# _F Stakeholders
+# _NN Stakeholders
 
-* _F Stakeholders: Dr. Emmett Brown
+* _NN Stakeholders: Dr. Emmett Brown
   ```yaml
   weight: 10
   priority: "!"
   ```
   Fundador, CEO e inventor del condensador de flujo. Visión: democratizar el tiempo.
 
-* _F Stakeholders: Marty McFly
+* _NN Stakeholders: Marty McFly
   ```yaml
   weight: 9
   ```
   Conductor de pruebas, socio silencioso, y el único que ha viajado al pasado, futuro
   y salvaje oeste en el mismo mes. Responsable de garantizar que nadie le diga "gallina".
 
-* _F Stakeholders: Jennifer Parker
+* _NN Stakeholders: Jennifer Parker
   ```yaml
   weight: 7
   certainty: "?"
@@ -62,7 +62,7 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   Novia de Marty. Sensata, con ambos pies en la tierra. Rol no oficial: evitar que
   Marty firme cheques que su cuerpo no pueda cobrar en líneas temporales alternativas.
 
-* _F Stakeholders: Biff Tannen
+* _NN Stakeholders: Biff Tannen
   ```yaml
   weight: 2
   priority: "!"
@@ -70,9 +70,9 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   Accionista no deseado. Intentó obtener el negocio mediante manipulación temporal
   con un almanaque deportivo. Actualmente bajo vigilancia temporal.
 
-# _F Problems
+# _NN Problems
 
-* _F Problems: Paradojas temporales
+* _NN Problems: Paradojas temporales
   ```yaml
   weight: 9
   priority: "!"
@@ -81,7 +81,7 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   cronológico puede borrar la existencia del viajero o crear realidades alternativas
   distópicas.
 
-* _F Problems: Combustible para el viaje
+* _NN Problems: Combustible para el viaje
   ```yaml
   weight: 8
   ```
@@ -89,14 +89,14 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   práctico), luego un rayo (poco predecible), y finalmente un Sr. Fusión que funciona
   con basura doméstica.
 
-* _F Problems: Precisión cronométrica
+* _NN Problems: Precisión cronométrica
   ```yaml
   weight: 7
   ```
   Llegar a 10 minutos de diferencia puede significar perderse en la historia para
   siempre. El DeLorean solo viaja al instante exacto si la altitud es correcta.
 
-* _F Problems: Detección de anomalías
+* _NN Problems: Detección de anomalías
   ```yaml
   weight: 6
   certainty: "?"
@@ -104,16 +104,16 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   No existe aún un sistema para detectar si alguien está alterando la línea temporal
   desde otro punto en el tiempo.
 
-# _F Value propositions
+# _NN Value propositions
 
-* _F Value propositions: Turismo temporal seguro
+* _NN Value propositions: Turismo temporal seguro
   ```yaml
   weight: 9
   ```
   Viajá a cualquier época de Hill Valley con guía certificado, protocolo de retorno
   garantizado, y seguro anti-paradoja.
 
-* _F Value propositions: Corrección histórica
+* _NN Value propositions: Corrección histórica
   ```yaml
   weight: 7
   completion: ">"
@@ -121,16 +121,16 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   Servicio selectivo de rescate histórico para personas atrapadas en el tiempo.
   Casos de éxito: rescate del Dr. Brown en 1885.
 
-* _F Value propositions: Alquiler de DeLorean
+* _NN Value propositions: Alquiler de DeLorean
   ```yaml
   weight: 5
   rating: "+"
   ```
   Para viajeros experimentados con licencia temporal clase T.
 
-# _F Products and services
+# _NN Products and services
 
-* _F Products and services: Experiencia "Baile Under the Sea"
+* _NN Products and services: Experiencia "Baile Under the Sea"
   ```yaml
   weight: 9
   priority: "!"
@@ -139,7 +139,7 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   con Marty McFly (grabación asegurada de Johnny B. Goode), y cena con hamburguesas
   de los 50.
 
-* _F Products and services: Safari Salvaje Oeste 1885
+* _NN Products and services: Safari Salvaje Oeste 1885
   ```yaml
   weight: 8
   ```
@@ -147,7 +147,7 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   con Buford "Perro Rabioso" Tannen, y fotografía con el DeLorean original equipado
   con ruedas para el desierto.
 
-* _F Products and services: Tour Futurista 2015
+* _NN Products and services: Tour Futurista 2015
   ```yaml
   weight: 7
   completion: ">"
@@ -155,16 +155,16 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   Visitá el Hill Valley del futuro: hoverboards, zapatos autoajustables, pizza
   hidratada, y el juzgado reconvertido. NO incluye encuentro con Biff anciano.
 
-* _F Products and services: Sr. Fusión Unidad Doméstica
+* _NN Products and services: Sr. Fusión Unidad Doméstica
   ```yaml
   weight: 6
   ```
   Generador de energía que funciona con basura orgánica. Ideal para el hogar moderno
   (y para alimentar viajes temporales).
 
-# _F Features
+# _NN Features
 
-* _F Features: Condensador de flujo
+* _NN Features: Condensador de flujo
   ```yaml
   weight: 10
   priority: "!"
@@ -172,30 +172,30 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   El corazón del sistema de viaje temporal. Genera el vórtice que permite
   desplazarse en el tiempo. Solo funciona a 88 mph.
 
-* _F Features: Pantalla de destino temporal
+* _NN Features: Pantalla de destino temporal
   ```yaml
   weight: 8
   ```
   Panel digital que muestra la fecha y hora de destino. Requiere entrada manual
   a través del teclado del DeLorean.
 
-* _F Features: Generador de moscas
+* _NN Features: Generador de moscas
   ```yaml
   weight: 5
   ```
   Sistema de camuflaje para encajar en cualquier época. Adapta la vestimenta
   del viajero al periodo de destino.
 
-# _F Assumptions
+# _NN Assumptions
 
-* _F Assumptions: El viajero quiere volver
+* _NN Assumptions: El viajero quiere volver
   ```yaml
   weight: 9
   ```
   Asumimos que todos los clientes desean regresar a su línea temporal original.
   Hasta ahora, nadie ha querido quedarse.
 
-* _F Assumptions: 1.21 GW es alcanzable
+* _NN Assumptions: 1.21 GW es alcanzable
   ```yaml
   weight: 7
   certainty: "?"
@@ -203,7 +203,7 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   Con el Sr. Fusión la potencia es estable. Sin embargo, en exteriores sin
   infraestructura, sigue dependiendo de rayos o plutonio.
 
-* _F Assumptions: No hay efectos secundarios
+* _NN Assumptions: No hay efectos secundarios
   ```yaml
   weight: 3
   priority: "!"
@@ -211,9 +211,9 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   Asumimos que viajar en el tiempo no causa daños a largo plazo. Aún no tenemos
   datos de viajeros mayores de 30 años post-viaje.
 
-# _F Risks
+# _NN Risks
 
-* _F Risks: Paradoja del abuelo
+* _NN Risks: Paradoja del abuelo
   ```yaml
   weight: 9
   priority: "!"
@@ -221,21 +221,21 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   El riesgo más grave. Si un viajero impide el nacimiento de uno de sus ancestros,
   su existencia se desvanece. Teóricamente evitable con protocolos de no-intervención.
 
-* _F Risks: Línea temporal alternativa
+* _NN Risks: Línea temporal alternativa
   ```yaml
   weight: 8
   ```
   Regresar a una versión alterada de la realidad. Caso documentado: Hill Valley
   convertido en casino por Biff Tannen (1985-A).
 
-* _F Risks: DeLorean varado
+* _NN Risks: DeLorean varado
   ```yaml
   weight: 7
   ```
   Quedarse sin combustible en una época sin repuestos. El DeLorean funciona con
   partes únicas de 1981.
 
-* _F Risks: Encuentro con uno mismo
+* _NN Risks: Encuentro con uno mismo
   ```yaml
   weight: 6
   certainty: "?"
@@ -243,9 +243,9 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   Las consecuencias de encontrarse con tu yo de otra época no están completamente
   documentadas. Posible desintegración temporal.
 
-# _F Experiments
+# _NN Experiments
 
-* _F Experiments: Viaje de prueba a +1 hora
+* _NN Experiments: Viaje de prueba a +1 hora
   ```yaml
   weight: 8
   completion: ">"
@@ -253,14 +253,14 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   Enviar un objeto inanimado 1 hora al futuro y verificar su retorno.
   Resultado: exitoso. El objeto regresó intacto.
 
-* _F Experiments: Viaje con rata de laboratorio
+* _NN Experiments: Viaje con rata de laboratorio
   ```yaml
   weight: 7
   ```
   Enviar un ser vivo (Einstein, el perro) 1 minuto al futuro.
   Resultado: exitoso. El perro no mostró efectos adversos.
 
-* _F Experiments: Viaje humano a 1955
+* _NN Experiments: Viaje humano a 1955
   ```yaml
   weight: 9
   completion: ">"
@@ -268,7 +268,7 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
   Primer viaje humano (Marty McFly, no autorizado). Creó una paradoja menor
   resuelta exitosamente. Demostró que la línea temporal se autocorrige.
 
-# _F matrices: problems-value propositions matrix
+# _NN matrices: problems-value propositions matrix
 
 | Problems \ Value propositions | Turismo temporal seguro | Corrección histórica | Alquiler de DeLorean |
 | :--- | :---: | :---: | :---: |
@@ -277,7 +277,7 @@ Hill Valley Time Travel Corp es la primera empresa de viajes temporales del mund
 | Precisión cronométrica | Very High | High | Low |
 | Detección de anomalías | Slightly High | High | Neutral |
 
-# _F matrices: stakeholder-service impact matrix
+# _NN matrices: stakeholder-service impact matrix
 
 | Stakeholder \ Service | Baile Under the Sea | Safari Oeste 1885 | Tour Futurista 2015 | Sr. Fusión Hogar | Viaje a la Luna | Clase de Guitarra | Cena Medieval | Tour Submarino | Safari Jurásico | Polo Norte 2150 |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |

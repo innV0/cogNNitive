@@ -1,3 +1,8 @@
+---
+spec_version: "V_0-2-0"
+type: "note"
+---
+
 # Condensador de Flujo
 
 Núcleo del sistema de viaje temporal. Inventado el 5 de noviembre de 1955

@@ -2,6 +2,7 @@
   <component
     :is="as"
     ref="triggerEl"
+    data-testid="block-pill"
     :class="pillClasses"
     :style="pillStyle"
     @mouseenter="showInfoIcon = true"

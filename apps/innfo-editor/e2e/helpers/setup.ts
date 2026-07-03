@@ -276,8 +276,7 @@ concepts:
 export async function loadHomePage(page: Page) {
   await page.goto('/app/')
   await page.waitForLoadState('networkidle')
-  // Wait for the directory picker modal to render
-  await page.waitForTimeout(500)
+  await page.locator('button', { hasText: /Open folder/i }).first().waitFor({ state: 'visible', timeout: 10000 })
 }
 
 /**
@@ -292,10 +291,9 @@ export async function openMockFolder(page: Page) {
 
   // Wait for workspace navigation and tree to render
   await page.waitForURL('**/workspace', { timeout: 15000 }).catch(() => {})
-  await page.waitForTimeout(1500)
 
   // Wait for at least one tree root node to appear
-  await page.waitForSelector('text=BTTFKB', { timeout: 10000 }).catch(() => {})
+  await page.getByText('BTTFKB').first().waitFor({ state: 'visible', timeout: 10000 })
 }
 
 /**
@@ -306,7 +304,8 @@ export async function expandAllNodes(page: Page) {
   const expandBtn = page.getByTitle('Expand All').first()
   if (await expandBtn.isVisible()) {
     await expandBtn.click()
-    await page.waitForTimeout(500)
+    // Wait for tree nodes to become visible
+    await page.getByText('Delorean').first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => {})
   }
 }
 

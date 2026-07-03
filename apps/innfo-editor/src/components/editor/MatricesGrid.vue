@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 flex flex-col min-h-0">
+  <div data-testid="matrices-grid" class="flex-1 flex flex-col min-h-0">
     <!-- Matrix Dropdown Selector Header -->
     <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3 shrink-0 mb-4 bg-slate-50 dark:bg-slate-900/60 p-2 rounded-lg gap-3">
       <div class="flex items-center gap-2">
@@ -8,6 +8,7 @@
           <button
             @click="isOpen = !isOpen"
             class="min-w-[200px] flex items-center justify-between gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-2xs hover:border-slate-300 dark:hover:border-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer transition-all"
+            data-testid="matrix-selector"
           >
             <span class="truncate">{{ activeMatrix ? activeMatrix.name : 'Select Matrix' }}</span>
             <ChevronDown class="w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" />

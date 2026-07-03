@@ -1,6 +1,7 @@
 <template>
   <component
     :is="as"
+    :data-testid="'matrix-pill-' + name"
     :class="pillClasses"
     :title="tooltipText"
     v-bind="$attrs"
