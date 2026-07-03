@@ -20,6 +20,7 @@ import { validateFormatContent } from '../shared/validator'
 import type { ValidationReport as ValidationReportType } from '../shared/validation-types'
 import { useToast } from '../shared/useToast'
 import { useHashSync } from '../composables/useHashSync'
+import { AlertTriangle, X } from 'lucide-vue-next'
 
 const router = useRouter()
 const workspaceStore = useWorkspaceStore()
@@ -237,6 +238,36 @@ onUnmounted(() => {
           <span class="text-xs text-slate-400 dark:text-slate-500 ml-auto">
             {{ selectedNodeId ? `Selected: ${modelStore.getNode(selectedNodeId)?.name ?? selectedNodeId}` : 'No node selected' }}
           </span>
+        </div>
+
+        <!-- ── Parse Issues Banner ── -->
+        <div
+          v-if="modelStore.parseIssues.length > 0"
+          class="flex items-start gap-3 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800"
+        >
+          <AlertTriangle class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-amber-800 dark:text-amber-300 mb-1">
+              Workspace loaded with issues
+            </p>
+            <ul class="space-y-0.5">
+              <li
+                v-for="(issue, i) in modelStore.parseIssues"
+                :key="i"
+                class="text-xs text-amber-700 dark:text-amber-400"
+              >
+                <span class="font-mono text-[10px] opacity-70">{{ issue.path }}:</span>
+                {{ issue.message }}
+              </li>
+            </ul>
+          </div>
+          <button
+            class="shrink-0 p-1 rounded hover:bg-amber-100 dark:hover:bg-amber-800/50 text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 transition-colors cursor-pointer"
+            @click="modelStore.clearParseIssues()"
+            title="Dismiss"
+          >
+            <X class="w-4 h-4" />
+          </button>
         </div>
 
         <!-- ── Editor View ── -->

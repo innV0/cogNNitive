@@ -16,7 +16,7 @@ export async function injectMockFileSystem(page: Page, context: BrowserContext) 
     // with _NN.md. Section headers use # _NN prefix, element markers use
     // * _NN Concept: Name — NOT the old _F syntax.
     const MOCK_TREE: Record<string, any> = {
-      'index.md': `# _NN index\n\n* [[HillValleyCorp_NN.md]]\n* [[TimeTravelProtocol_NN.md]]\n* [[BTTFKB_NN.md]]\n`,
+      'index.md': '# _NN index\n\n* [[HillValleyCorp_NN.md]]\n* [[TimeTravelProtocol_NN.md]]\n* [[BTTFKB_NN.md]]\n',
       // ── Business model ──
       // Root node name: "HillValleyCorp"
       'HillValleyCorp_NN.md': `---
@@ -202,15 +202,29 @@ concepts:
         }
       }
 
-      async getFileHandle(name: string): Promise<any> {
-        const value = this.tree[name]
-        if (typeof value !== 'string') throw new Error(`File not found: ${name}`)
+      async getFileHandle(name: string, _options?: { create?: boolean }): Promise<any> {
+        let value = this.tree[name]
+        if (typeof value !== 'string') {
+          if (_options?.create) {
+            value = ''
+            this.tree[name] = value
+          } else {
+            throw new Error(`File not found: ${name}`)
+          }
+        }
         return new MockFileHandle(name, value)
       }
 
-      async getDirectoryHandle(name: string): Promise<any> {
-        const value = this.tree[name]
-        if (typeof value !== 'object') throw new Error(`Directory not found: ${name}`)
+      async getDirectoryHandle(name: string, _options?: { create?: boolean }): Promise<any> {
+        let value = this.tree[name]
+        if (typeof value !== 'object') {
+          if (_options?.create) {
+            value = {}
+            this.tree[name] = value
+          } else {
+            throw new Error(`Directory not found: ${name}`)
+          }
+        }
         return new MockDirectoryHandle(name, value)
       }
     }

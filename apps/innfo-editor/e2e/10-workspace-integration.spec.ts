@@ -72,7 +72,7 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
     await expect(main).toBeVisible()
 
     // Toolbar elements
-    await expect(page.getByText('Validate')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Validate' })).toBeVisible()
     await expect(page.getByText('▼', { exact: true }).or(page.locator('[class*="view-switcher"]'))).toBeVisible()
 
     // 3. RIGHT PANEL - guidance/collapsible sidebar
@@ -182,11 +182,7 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
   })
 
   test('UI Pattern: Home page has recent files list', async ({ page }) => {
-    // Open a folder first so it appears in recent
-    await openMockFolder(page)
-    await page.waitForTimeout(500)
-
-    // Go back to home
+    // Go back to home (beforeEach already opened a folder)
     await page.getByText(/← Home|Home/).first().click()
     await page.waitForTimeout(1000)
 

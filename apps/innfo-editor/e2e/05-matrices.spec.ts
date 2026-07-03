@@ -16,7 +16,7 @@ test.describe('Matrices — Virtual Scrolling, MatrixSummary, MatrixPill Navigat
     await page.waitForTimeout(1000)
 
     // Matrices view should render
-    await expect(page.getByText('matrices').or(page.locator('[class*="matrices"]'))).toBeVisible()
+    await expect(page.getByRole('button', { name: 'matrices' }).or(page.locator('[class*="matrix-view"]'))).toBeVisible()
   })
 
   test('Matrix definitions shown in sidebar Relations section', async ({ page }) => {

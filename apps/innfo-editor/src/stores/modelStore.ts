@@ -2,12 +2,13 @@ import { defineStore } from 'pinia'
 import type { ModelNode } from '../model/types'
 import type { DirectoryHandleLike } from './workspaceStore'
 import { recursiveParse } from '../model/recursiveParser'
-import type { ModelDriver } from '@innv0/innfo-core'
+import type { ModelDriver, ParseIssue } from '@innv0/innfo-core'
 
 export interface ModelState {
   nodes: Record<string, ModelNode>
   rootIds: string[]
   dirtyIds: Set<string>
+  parseIssues: ParseIssue[]
 }
 
 /**
@@ -20,6 +21,7 @@ export const useModelStore = defineStore('model', {
     nodes: {},
     rootIds: [],
     dirtyIds: new Set<string>(),
+    parseIssues: [],
   }),
   getters: {
     getNode: (state) => (id: string): ModelNode | undefined => state.nodes[id],
@@ -58,6 +60,10 @@ export const useModelStore = defineStore('model', {
       this.dirtyIds.delete(id)
     },
 
+    clearParseIssues(): void {
+      this.parseIssues = []
+    },
+
     isDirty(id: string): boolean {
       return this.dirtyIds.has(id)
     },
@@ -70,6 +76,7 @@ export const useModelStore = defineStore('model', {
      */
     async parseFromHandle(handle: DirectoryHandleLike, driver?: ModelDriver): Promise<void> {
       const result = await recursiveParse(handle, driver)
+      this.parseIssues = result.issues
       this.setGraph(result.nodes, result.rootIds)
     },
 

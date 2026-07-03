@@ -164,13 +164,13 @@ test.describe('BlockSheet — 4 Tabs, Markdown, Relationships, Matrix Summary, M
     }
 
     // "View" should be active by default (first tab)
-    const viewTab = page.getByText('View', { exact: true })
+    const viewTab = page.getByRole('button', { name: 'View', exact: true })
     const isActive = await viewTab.getAttribute('class')
     // Active tab should have underline style or active class
     expect(isActive?.includes('active') || isActive?.includes('underline') || isActive?.includes('border-b')).toBeTruthy()
 
     // Switch to Compliance tab
-    const complianceTab = page.getByText('Compliance', { exact: true })
+    const complianceTab = page.getByRole('button', { name: 'Compliance', exact: true })
     await complianceTab.click()
     await page.waitForTimeout(500)
 
