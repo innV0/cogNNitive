@@ -59,23 +59,29 @@ const chips = computed<MatrixChip[]>(() => {
 
   // Parse frontmatter to get matrix definitions
   const fm = parseFrontmatter(root.rawContent)
-  const matrices: MatrixDecl[] = (fm as any)?.matrices ?? []
+  const rawMatrices = (fm as any)?.matrices
+  const matrices: MatrixDecl[] = Array.isArray(rawMatrices) ? rawMatrices : []
   if (matrices.length === 0) return []
 
   const result: MatrixChip[] = []
 
   // Helper: count non-dash/empty cells for a matrix + concept instance
+  // Cell keys are formatted as `{matrixName}||{rowInstance}||{colInstance}`.
+  // The node can appear as a row (parts[1]) or column (parts[2]) participant.
   function countNonDashCells(matrixName: string, rootNodeId: string, conceptInstanceName: string): number {
     const rn = modelStore.getNode(rootNodeId)
     if (!rn?.fields) return 0
 
     let count = 0
     for (const [key, fv] of Object.entries(rn.fields)) {
-      // Fields keyed as `{matrixName}||{row}||{col}`
-      if (key.startsWith(`${matrixName}||${conceptInstanceName}||`)) {
-        const val = fv?.value
-        if (val !== undefined && val !== null && val !== '' && val !== '-' && val !== false) {
-          count++
+      const parts = key.split('||')
+      if (parts.length >= 3 && parts[0] === matrixName) {
+        // Row: matrix||nodeName||*   Col: matrix||*||nodeName
+        if (parts[1] === conceptInstanceName || parts[2] === conceptInstanceName) {
+          const val = fv?.value
+          if (val !== undefined && val !== null && val !== '' && val !== '-' && val !== false) {
+            count++
+          }
         }
       }
     }

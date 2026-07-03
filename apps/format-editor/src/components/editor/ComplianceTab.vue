@@ -81,31 +81,27 @@ const props = defineProps<{
 }>()
 
 /**
- * Filter checks to those that mention the concept type.
- * A check is scoped to a concept type if its `id`, `label`, or `message`
- * references the concept type, OR if it's a general check that applies to
- * all concept types (no specific concept reference).
+ * Filter checks to those relevant for the concept type.
+ *
+ * Inclusion rules:
+ * 1. Frontmatter/structural checks apply to all concept types.
+ * 2. Checks whose `id`, `label`, or `message` textually reference the
+ *    concept type apply to that type.
+ * 3. All other checks are excluded — they belong to other concepts.
  */
 const scopedChecks = computed<ValidationCheck[]>(() => {
   const concept = props.conceptType.toLowerCase()
 
   return props.report.checks.filter(check => {
-    // Include checks that reference this concept type
-    const checkText = [check.id, check.label, check.message].filter(Boolean).join(' ').toLowerCase()
-    if (checkText.includes(concept)) return true
-
-    // Include general checks (frontmatter, structural) that apply to all concepts
+    // Frontmatter checks apply to all concept types
     if (check.category === 'frontmatter') return true
 
-    // Include body/convention checks that don't reference any specific concept
-    const conceptRefs = props.report.checks.some(c => {
-      const text = [c.id, c.label, c.message].filter(Boolean).join(' ').toLowerCase()
-      return text.includes(concept) && c.category === check.category
-    })
-    if (!conceptRefs) {
-      // This category has no concept-specific checks, include all
-      return true
-    }
+    // Include checks that reference this concept type by text
+    const checkText = [check.id, check.label, check.message]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+    if (checkText.includes(concept)) return true
 
     return false
   })

@@ -120,6 +120,24 @@
       </button>
     </div>
 
+    <!-- Tab bar (read mode only, when expanded) -->
+    <div
+      v-if="!collapsed && !isEditing"
+      class="flex items-center gap-1 px-3 border-b border-slate-200 dark:border-slate-700 select-none"
+    >
+      <button
+        v-for="tab in tabDefs"
+        :key="tab.id"
+        @click="activeTab = tab.id"
+        class="px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer -mb-px"
+        :class="activeTab === tab.id
+          ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-500'
+          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+
     <!-- Expandable body / edit form -->
     <div
       v-show="(!collapsed && !disableExpand) || isEditing"
@@ -154,62 +172,108 @@
           </div>
         </template>
 
-        <!-- Read-mode expanded body -->
+        <!-- Read-mode tabbed content -->
         <template v-else>
-          <!-- Content section -->
-          <div v-if="renderedDescription" class="border-t border-slate-200 dark:border-slate-700 pt-5">
-            <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
-              <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
-              Content
+
+          <!-- ═══ View Tab (default) ═══ -->
+          <div v-if="activeTab === 'view'" class="space-y-6">
+
+            <!-- Content section: full Markdown rendering -->
+            <div v-if="renderedDescription" class="border-t border-slate-200 dark:border-slate-700 pt-5">
+              <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
+                <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
+                Content
+              </div>
+              <div
+                class="prose prose-slate max-w-none text-lg text-slate-600 dark:text-slate-300 leading-relaxed break-words bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-100 dark:border-slate-700"
+                v-html="renderedDescription"
+              ></div>
             </div>
-            <div
-              class="prose prose-slate max-w-none text-lg text-slate-600 dark:text-slate-300 leading-relaxed break-words bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-100 dark:border-slate-700"
-              v-html="renderedDescription"
-            ></div>
+
+            <!-- Fields via FieldViewer -->
+            <div v-if="conceptFields && conceptFields.length > 0" class="border-t border-slate-200 dark:border-slate-700 pt-5">
+              <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
+                <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
+                Fields
+              </div>
+              <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 p-4">
+                <FieldViewer :node-id="blockIdForFields" :field-definitions="conceptFields" />
+              </div>
+            </div>
+
+            <!-- Relationships via BlockRelationships -->
+            <div v-if="hasRelationships" class="border-t border-slate-200 dark:border-slate-700 pt-5">
+              <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
+                <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
+                Relationships
+              </div>
+              <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 p-4">
+                <BlockRelationships :relationships="relationshipsList" :on-navigate="navigateToNode" />
+              </div>
+            </div>
+
+            <!-- Matrix participation via BlockMatrixSummary -->
+            <div v-if="hasMatrices && block.id" class="border-t border-slate-200 dark:border-slate-700 pt-5">
+              <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
+                <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
+                Matrix
+              </div>
+              <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 p-4">
+                <BlockMatrixSummary :root-node-id="rootNodeId" :node-concept="conceptType" :node-id="block.id" />
+              </div>
+            </div>
+
+            <!-- Media: image gallery + file attachments via NodeMedia -->
+            <div v-if="assetItems.length > 0" class="border-t border-slate-200 dark:border-slate-700 pt-5">
+              <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
+                <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
+                Media &amp; Attachments
+              </div>
+              <NodeMedia :assets="assetItems" />
+            </div>
           </div>
 
-          <!-- Element fields section -->
-          <div v-if="hasVisibleFields" class="border-t border-slate-200 dark:border-slate-700 pt-5">
-            <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
-              <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
-              Fields
-            </div>
-            <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 p-4 space-y-2">
-              <div
-                v-for="field in visibleFields"
-                :key="field.name"
-                class="flex items-start gap-2 text-sm"
-              >
-                <span class="font-semibold text-slate-500 dark:text-slate-400 shrink-0 min-w-[100px] uppercase tracking-wide">{{ field.name.replace(/_/g, ' ') }}</span>
-                <span v-if="field.isWikiLink" class="text-indigo-600 underline decoration-dotted">[[{{ field.value }}]]</span>
-                <span v-else class="text-slate-700 dark:text-slate-300">{{ field.value }}</span>
+          <!-- ═══ Visual Tab: inline GraphViewer ═══ -->
+          <div v-else-if="activeTab === 'visual'" class="pt-2">
+            <GraphViewer v-if="block.id" :inline="true" :local-node-id="block.id" :height="320" />
+            <p v-else class="text-xs text-slate-400 dark:text-slate-500 italic px-3 py-2">No node selected for graph view.</p>
+          </div>
+
+          <!-- ═══ History Tab ═══ -->
+          <div v-else-if="activeTab === 'history'">
+            <div class="border-t border-slate-200 dark:border-slate-700 pt-5 space-y-3">
+              <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
+                <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
+                History
+              </div>
+              <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 p-4 space-y-3 text-sm">
+                <div class="flex items-start gap-2">
+                  <span class="font-semibold text-slate-500 dark:text-slate-400 w-24 shrink-0">Name</span>
+                  <span class="text-slate-700 dark:text-slate-300">{{ block.name || '(Empty)' }}</span>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="font-semibold text-slate-500 dark:text-slate-400 w-24 shrink-0">Path</span>
+                  <span class="text-slate-700 dark:text-slate-300 font-mono text-xs break-all">{{ nodePath }}</span>
+                </div>
+                <div v-if="lastSaved" class="flex items-start gap-2">
+                  <span class="font-semibold text-slate-500 dark:text-slate-400 w-24 shrink-0">Last saved</span>
+                  <span class="text-slate-700 dark:text-slate-300">{{ lastSaved }}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Relationships section (placeholder — Phase 5 will replace with BlockRelationships) -->
-          <div v-if="hasRelationships" class="border-t border-slate-200 dark:border-slate-700 pt-5">
-            <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
-              <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
-              Relationships
-            </div>
-            <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 p-4">
-              <div
-                v-for="rel in relationshipsList"
-                :key="rel.targetId"
-                class="flex items-center gap-2 text-sm py-1"
-              >
-                <span class="text-xs font-mono text-slate-500 dark:text-slate-400">{{ rel.label }}:</span>
-                <button
-                  class="text-primary hover:underline cursor-pointer text-left"
-                  @click="navigateToNode(rel.targetId)"
-                >
-                  {{ rel.targetId }}
-                </button>
+          <!-- ═══ Compliance Tab ═══ -->
+          <div v-else-if="activeTab === 'compliance'">
+            <div class="border-t border-slate-200 dark:border-slate-700 pt-5">
+              <div class="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
+                <span class="w-1.5 h-4 rounded-full bg-slate-400 shrink-0"></span>
+                Compliance
               </div>
-              <p v-if="relationshipsList.length === 0" class="text-xs text-slate-400 italic">No relationships defined.</p>
+              <ComplianceTab :report="complianceReport" :concept-type="conceptType" />
             </div>
           </div>
+
         </template>
       </div>
     </div>
@@ -217,17 +281,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { ChevronDown, ArrowUp, ArrowDown, Pencil, Check, Trash2, PlusCircle } from 'lucide-vue-next';
 import IconRenderer from './IconRenderer.vue';
 import WidgetField from '../../shared/widgets/WidgetField.vue';
 import { getMarkerIcon, getMarkerClasses } from './MarkerIcons';
-import { renderInlineMarkdown } from '../../utils/renderMarkdown';
+import { renderMarkdown } from '../../utils/markdown';
 import { useModelStore } from '../../stores/modelStore';
 import { commitFieldValue, commitMarkerValue } from '../../shared/provenance';
 import { MARKER_CYCLE_COUNT } from '../../utils/constants';
 import { getColorClasses } from '../../utils/colors';
 import type { BlockKind } from '../../utils/conceptVisuals';
+
+// Tab dependencies
+import GraphViewer from './GraphViewer.vue';
+import FieldViewer from './FieldViewer.vue';
+import BlockRelationships from './BlockRelationships.vue';
+import BlockMatrixSummary from './BlockMatrixSummary.vue';
+import NodeMedia from './NodeMedia.vue';
+import ComplianceTab from './ComplianceTab.vue';
+import { parseFrontmatter } from '@innv0/format-core';
+import type { ValidationReport } from '../../shared/validation-types';
 
 const props = withDefaults(defineProps<{
   block: { id?: string; name: string; description: string; fields?: Record<string, any> };
@@ -246,6 +320,7 @@ const props = withDefaults(defineProps<{
   showAddChild?: boolean;
   isFirst?: boolean;
   isLast?: boolean;
+  validationReport?: ValidationReport | null;
 }>(), {
   conceptFields: () => [],
   conceptColor: '',
@@ -257,6 +332,7 @@ const props = withDefaults(defineProps<{
   showAddChild: false,
   isFirst: false,
   isLast: false,
+  validationReport: null,
 });
 
 const emit = defineEmits<{
@@ -273,9 +349,23 @@ const emit = defineEmits<{
 
 const modelStore = useModelStore();
 
+// ── Tab state ───────────────────────────────────────────────────
+
+const tabDefs = [
+  { id: 'view', label: 'View' },
+  { id: 'visual', label: 'Visual' },
+  { id: 'history', label: 'History' },
+  { id: 'compliance', label: 'Compliance' },
+] as const;
+
+const activeTab = ref<'view' | 'visual' | 'history' | 'compliance'>('view');
+
+// ── Palette ─────────────────────────────────────────────────────
+
 const palette = computed(() => getColorClasses(props.conceptColor));
 
-// ── Markers (hardcoded default list until Phase 6 metamodel adapter) ──
+// ── Markers ─────────────────────────────────────────────────────
+
 const allMarkers = computed(() => {
   return [
     { name: 'completion', icon: 'check-circle', color: 'emerald' },
@@ -304,12 +394,16 @@ const cycleMarker = (markerName: string) => {
 const markerClassesFor = (markerName: string) =>
   getMarkerClasses(markerName, getMarkerScore(markerName));
 
+// ── Name helpers ────────────────────────────────────────────────
+
 const cleanConceptName = computed(() => {
   const name = props.conceptName;
   return name.endsWith('s') ? name.slice(0, -1) : name;
 });
 
-// Strip everything from the first _F marker onwards
+// ── Markdown rendering ──────────────────────────────────────────
+
+/** Strip everything from the first _F marker onwards. */
 function stripBlockDefinitions(text: string): string {
   const blockPattern = /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*_F\s+[\w\s-]+?:/m;
   const idx = text.search(blockPattern);
@@ -321,32 +415,17 @@ const renderedDescription = computed(() => {
   const text = props.kind === 'concept'
     ? stripBlockDefinitions(props.block.description)
     : props.block.description;
-  const html = renderInlineMarkdown(text);
-  return html;
+  return renderMarkdown(text);
 });
 
-const visibleFields = computed(() => {
-  if (!props.conceptFields || !props.block.fields) return [];
-  return props.conceptFields
-    .map((field: any) => {
-      const val = props.block.fields?.[field.name];
-      if (val === undefined || val === '' || val === null || val === false) return null;
-      const isReference = field.type === 'reference';
-      return {
-        name: field.name,
-        value: typeof val === 'boolean' ? (val ? 'Yes' : 'No') : val,
-        isWikiLink: isReference,
-      };
-    })
-    .filter((f: { name: string; value: any; isWikiLink: boolean } | null): f is { name: string; value: any; isWikiLink: boolean } => f !== null);
-});
+// ── Node from store (full model data) ───────────────────────────
 
-const hasVisibleFields = computed(() => visibleFields.value.length > 0);
+const nodeFromStore = computed(() =>
+  props.block.id ? modelStore.getNode(props.block.id) : undefined
+);
 
-// The nodeId used for WidgetField field reads/writes
-const blockIdForFields = computed(() => props.block.id || '');
+// ── Relationships ───────────────────────────────────────────────
 
-// Relationships read from modelStore
 const hasRelationships = computed(() => {
   if (!props.block.id) return false;
   const node = modelStore.getNode(props.block.id);
@@ -359,6 +438,65 @@ const relationshipsList = computed(() => {
   return node?.relationships ?? [];
 });
 
+// ── Matrix summaries ────────────────────────────────────────────
+
+const rootNodeId = computed(() => modelStore.rootIds[0] ?? '');
+
+const hasMatrices = computed(() => {
+  if (!rootNodeId.value) return false;
+  const root = modelStore.getNode(rootNodeId.value);
+  if (!root?.rawContent) return false;
+  const fm = parseFrontmatter(root.rawContent);
+  const matrices: unknown[] = (fm as any)?.matrices ?? [];
+  return matrices.length > 0;
+});
+
+// ── Assets / Media ──────────────────────────────────────────────
+
+const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'ico'];
+
+const assetItems = computed<Array<{ filename: string; url: string }>>(() => {
+  const node = nodeFromStore.value;
+  if (!node?.assets || node.assets.length === 0) return [];
+  return node.assets.map((path: string) => ({
+    filename: path.split('/').pop() || path,
+    url: path,
+  }));
+});
+
+// ── History tab ─────────────────────────────────────────────────
+
+const nodePath = computed(() => {
+  const node = nodeFromStore.value;
+  return node?.source?.path ?? '';
+});
+
+const lastSaved = computed<string | null>(() => {
+  const node = nodeFromStore.value;
+  if (!node?.rawContent) return null;
+  try {
+    const fm = parseFrontmatter(node.rawContent);
+    return (fm as any)?.last_saved ?? null;
+  } catch {
+    return null;
+  }
+});
+
+// ── Compliance tab ──────────────────────────────────────────────
+
+const emptyReport: ValidationReport = {
+  checks: [],
+  summary: { total: 0, passed: 0, errors: 0, warnings: 0 },
+};
+
+const complianceReport = computed(() => props.validationReport ?? emptyReport);
+
+// ── Field viewer node ID ────────────────────────────────────────
+
+const blockIdForFields = computed(() => props.block.id || '');
+
+// ── Navigation ──────────────────────────────────────────────────
+
 const navigateToNode = (targetId: string) => {
   emit('navigate-to-node', targetId);
 };
@@ -368,6 +506,8 @@ const navigateToInstance = () => {
   emit('navigate-to-node', props.block.name);
   emit('update:collapsed', false);
 };
+
+// ── Input handlers ──────────────────────────────────────────────
 
 const onInput = (event: Event) => {
   const textarea = event.target as HTMLTextAreaElement;
@@ -380,7 +520,6 @@ const onNameInput = (event: Event) => {
   const newName = (event.target as HTMLInputElement).value;
   props.block.name = newName;
   if (props.block.id) {
-    // Upsert the node with updated name
     const existing = modelStore.getNode(props.block.id);
     if (existing) {
       modelStore.upsertNode({ ...existing, name: newName });

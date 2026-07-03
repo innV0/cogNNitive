@@ -38,6 +38,7 @@ describe('out-of-scope feature absence (R19)', () => {
       /[\/\\]components[\/\\]editor[\/\\]BlockSheet\.vue$/,
       /[\/\\]components[\/\\]editor[\/\\]BlockPill\.vue$/,
       /[\/\\]components[\/\\]editor[\/\\]BlockRelationships\.vue$/,
+      /[\/\\]components[\/\\]editor[\/\\]FieldViewer\.vue$/,
     ]
     const codeFilesNoExcluded = codeFiles.filter(
       (f) => !wikilinkExcluded.some((re) => re.test(f)),

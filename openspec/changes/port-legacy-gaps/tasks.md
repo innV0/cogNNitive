@@ -57,11 +57,11 @@ Files: `BlockPill.vue`, `ConceptTreeNode.vue`, `VirtualGroupNode.vue`, `LeftSide
 - [x] B.5 Create `FieldViewer.vue` — dispatches fields to widget registry via `WidgetField`, read/edit modes, `commitFieldValue` integration
 - [x] B.6 Create `ComplianceTab.vue` — scoped `ValidationReport` results for the node's concept type
 - [x] B.7 Update `GraphViewer.vue` — add `inline` prop (no layout selector, 320px height via `height` prop, `localNodeId` scope)
-- [ ] B.8 Update `BlockSheet.vue` — 4-tab layout (View/Visual/History/Compliance), lazy v-if rendering, markdown via `renderMarkdown`, FieldViewer, rels, matrix summary, media, attachments
-- [ ] B.9 Update `BlockFeed.vue` — wire `navigate-to-node` event, pass through `conceptFields` and `hasMarkers` to BlockSheet
-- [ ] B.10 Write tests for BlockRelationships, BlockMatrixSummary, FieldViewer — chip rendering, mode switching, empty states
-- [ ] B.11 Write tests for NodeMedia — image loading, lightbox open/close, non-image file display
-- [ ] B.12 Write tests for ComplianceTab — validation results scoped by concept type
+- [x] B.8 Update `BlockSheet.vue` — 4-tab layout (View/Visual/History/Compliance), lazy v-if rendering, markdown via `renderMarkdown`, FieldViewer, rels, matrix summary, media, attachments
+- [x] B.9 Update `BlockFeed.vue` — wire `navigate-to-node` event, pass through `conceptFields` and `hasMarkers` to BlockSheet (already correctly wired)
+- [x] B.10 Write tests for BlockRelationships, BlockMatrixSummary, FieldViewer — chip rendering, mode switching, empty states
+- [x] B.11 Write tests for NodeMedia — image loading, lightbox open/close, non-image file display
+- [x] B.12 Write tests for ComplianceTab — validation results scoped by concept type
 
 Files: `package.json`, `utils/markdown.ts`, `BlockRelationships.vue`, `BlockMatrixSummary.vue`, `NodeMedia.vue`, `FieldViewer.vue`, `ComplianceTab.vue`, `GraphViewer.vue`, `BlockSheet.vue`, `BlockFeed.vue`, 3 test files
 
@@ -136,13 +136,13 @@ Files: `utils/db.ts`, `stores/workspaceStore.ts`, `composables/useResizablePanel
 
 ## Verification Criteria
 
-- [ ] All existing tests pass (unchanged suites)
-- [ ] Each phase's new specs are covered by tests
+- [x] All existing tests pass (unchanged suites)
+- [x] Each phase's new specs are covered by tests
 - [ ] Build succeeds with no TypeScript errors
-- [ ] Tree nodes display colored pills with YIQ-optimized text, instance counters, info popups, ghost states (per R-TN-01–07)
-- [ ] BlockSheet renders full Markdown, inline graph, relationships, matrix summary, media with lightbox, widget-based fields, 4 tabs (per R-SC-01–10)
-- [ ] All 14 new widgets resolve from registry and render in read/edit modes (per R-WR-01–16)
-- [ ] MatricesGrid virtualizes 10k+ cells with scroll position per matrix (per R-MV-01–07)
-- [ ] Directory picker opens native folder dialog; URL-loaded models parse correctly; backup created on save (per R-FS-01–06)
-- [ ] Taxonomy edges parse from frontmatter; perspective neighborhood navigable (per R-TP-01–06)
+- [x] Tree nodes display colored pills with YIQ-optimized text, instance counters, info popups, ghost states (per R-TN-01–07)
+- [x] BlockSheet renders full Markdown, inline graph, relationships, matrix summary, media with lightbox, widget-based fields, 4 tabs (per R-SC-01–10)
+- [x] All 14 new widgets resolve from registry and render in read/edit modes (per R-WR-01–16)
+- [x] MatricesGrid virtualizes 10k+ cells with scroll position per matrix (per R-MV-01–07)
+- [x] Directory picker opens native folder dialog; URL-loaded models parse correctly; backup created on save (per R-FS-01–06)
+- [x] Taxonomy edges parse from frontmatter; perspective neighborhood navigable (per R-TP-01–06)
 - [ ] Session state survives page reload; version panel creates semver bumps (per R-SP-01–07, R-VM-01–07)
