@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { injectMockFileSystem, loadHomePage, openMockFolder } from './helpers/setup'
+import { injectMockFileSystem, loadHomePage, openMockFolder, expandAllNodes } from './helpers/setup'
 
 test.describe('Widget Registry — 14 Widget Types', () => {
   test.beforeEach(async ({ page, context }) => {
     await injectMockFileSystem(page, context)
     await loadHomePage(page)
     await openMockFolder(page)
+    await expandAllNodes(page)
     await page.getByText('Delorean').first().click()
     await page.waitForTimeout(1000)
   })

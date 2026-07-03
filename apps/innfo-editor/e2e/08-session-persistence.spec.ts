@@ -38,11 +38,11 @@ test.describe('Session Persistence — IndexedDB Save/Restore', () => {
     await page.waitForTimeout(2000)
 
     // Navigate back to workspace (session should restore last file)
-    await page.getByText('Open Local Folder').first().click()
+    await page.locator('button', { hasText: /Open folder/i }).first().click()
     await page.waitForTimeout(2000)
 
     // The workspace should load
-    await expect(page.getByText('Back to the Future KB')).toBeVisible()
+    await expect(page.getByText('BTTFKB')).toBeVisible()
   })
 
   test('R-SP-03: Sidebar widths persist via IndexedDB', async ({ page, context }) => {

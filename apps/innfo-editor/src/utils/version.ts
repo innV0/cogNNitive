@@ -40,7 +40,7 @@ export function formatVersionString(v: SemVer): string {
  * Returns null when the name does not match the §8.1 convention.
  */
 export function parseFormatFilename(fileName: string): ParsedFormatName | null {
-  // 1. Try New: <ModelName>_V_x-y-z_<TemplateName>_F.md
+  // 1. Try New: <ModelName>_V_x-y-z_<TemplateName>_NN.md
   const newMatch = fileName.match(/^(.+?)_V_(\d+)-(\d+)-(\d+)(?:_(.+?))?_NN\.md$/);
   if (newMatch) {
     const templateName = newMatch[5];
@@ -56,7 +56,7 @@ export function parseFormatFilename(fileName: string): ParsedFormatName | null {
     };
   }
 
-  // 2. Try Old: <ModelName>_BM_V_x-y-z_F.md
+  // 2. Try Old: <ModelName>_BM_V_x-y-z_NN.md
   const oldMatch = fileName.match(/^(.+?)_BM_V_(\d+)-(\d+)-(\d+)_NN\.md$/);
   if (oldMatch) {
     return {

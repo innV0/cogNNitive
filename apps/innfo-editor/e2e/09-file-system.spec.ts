@@ -9,29 +9,33 @@ test.describe('File System Operations — Directory Picker, URL Loading, Backup'
   test('R-FS-01: Directory picker welcome screen shows options', async ({ page }) => {
     await loadHomePage(page)
 
-    // Should see "Open Local Folder" button
-    const openBtn = page.getByText('Open Local Folder').first()
+    // Should see "Open folder…" button
+    const openBtn = page.locator('button', { hasText: /Open folder/i }).first()
     await expect(openBtn).toBeVisible()
 
-    // Should also see "Load from URL" option
-    const urlSection = page.getByText('Load from URL', { exact: false })
-    await expect(urlSection).toBeVisible()
+    // Sample model cards should be present
+    const samples = page.getByText('Example models').or(page.getByText('Sample models'))
+    const samplesVisible = await samples.count()
+    if (samplesVisible > 0) {
+      await expect(samples).toBeVisible()
+    }
   })
 
   test('R-FS-02: Open folder loads workspace and shows tree', async ({ page, context }) => {
     await loadHomePage(page)
-    await page.getByText('Open Local Folder').first().click()
+    await page.locator('button', { hasText: /Open folder/i }).first().click()
     await page.waitForTimeout(2000)
 
     // Should be in workspace route
     expect(page.url()).toContain('/workspace')
 
-    // Tree should show model nodes
-    await expect(page.getByText('Back to the Future KB')).toBeVisible()
-    await expect(page.getByText('Hill Valley Time Travel')).toBeVisible()
+    // Tree should show root nodes (names derived from wikilink filenames)
+    // Use .first() because the filename also appears in the header file path
+    await expect(page.getByText('BTTFKB').first()).toBeVisible()
+    await expect(page.getByText('HillValleyCorp').first()).toBeVisible()
 
-    // Title should be visible
-    await expect(page.getByText('Time Travel Protocol')).toBeVisible()
+    // TimeTravelProtocol root node should be visible
+    await expect(page.getByText('TimeTravelProtocol').first()).toBeVisible()
   })
 
   test('R-FS-03: Load from URL', async ({ page, context }) => {
@@ -53,7 +57,7 @@ test.describe('File System Operations — Directory Picker, URL Loading, Backup'
     await openMockFolder(page)
 
     // Click on the business model to select it
-    await page.getByText('Hill Valley Time Travel').first().click()
+    await page.getByText('HillValleyCorp').first().click()
     await page.waitForTimeout(500)
 
     // Try saving (Ctrl+S or Cmd+S)

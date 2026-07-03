@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { injectMockFileSystem, loadHomePage, openMockFolder } from './helpers/setup'
+import { injectMockFileSystem, loadHomePage, openMockFolder, expandAllNodes } from './helpers/setup'
 
 /**
  * Integration test: full workspace workflow — open folder, navigate tree,
@@ -55,7 +55,7 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
     await page.waitForTimeout(1000)
     // Should be back at home page
     expect(page.url()).toBe('/app/')
-    await expect(page.getByText('Open Local Folder')).toBeVisible()
+    await expect(page.locator('button', { hasText: /Open folder/i })).toBeVisible()
   })
 
   test('UI Pattern: Three-panel layout with resizable sidebars', async ({ page }) => {
@@ -96,7 +96,7 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
 
   test('UI Pattern: Validation button triggers modal with report', async ({ page }) => {
     // Select a node with content
-    await page.getByText('Hill Valley Time Travel').first().click()
+    await page.getByText('HillValleyCorp').first().click()
     await page.waitForTimeout(500)
 
     // Click Validate
@@ -137,6 +137,8 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
   })
 
   test('UI Pattern: Selected node stays highlighted across view switches', async ({ page }) => {
+    // Expand tree to reveal child elements
+    await expandAllNodes(page)
     // Select Delorean in tree
     await page.getByText('Delorean').first().click()
     await page.waitForTimeout(500)
@@ -159,7 +161,7 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
 
   test('UI Pattern: Keyboard shortcuts — Ctrl+S saves', async ({ page }) => {
     // Select a node
-    await page.getByText('Hill Valley Time Travel').first().click()
+    await page.getByText('HillValleyCorp').first().click()
     await page.waitForTimeout(500)
 
     // Press Ctrl+S
@@ -197,6 +199,8 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
   })
 
   test('UI Pattern: Right sidebar guidance panel shows concept help', async ({ page }) => {
+    // Expand tree to reveal child elements
+    await expandAllNodes(page)
     // Select a node with a concept type
     await page.getByText('Delorean').first().click()
     await page.waitForTimeout(500)
@@ -219,7 +223,7 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
 
   test('UI Pattern: Toast messages appear and disappear', async ({ page }) => {
     // Trigger a toast by saving
-    await page.getByText('Hill Valley Time Travel').first().click()
+    await page.getByText('HillValleyCorp').first().click()
     await page.waitForTimeout(500)
     await page.keyboard.press('Control+s')
     await page.waitForTimeout(500)

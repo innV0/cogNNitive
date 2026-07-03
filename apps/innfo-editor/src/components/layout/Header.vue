@@ -10,7 +10,7 @@
       <div v-if="hasRootNode" class="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-600 text-xs text-slate-500 dark:text-slate-400">
         <!-- Format Version -->
         <div class="flex items-center gap-1">
-          <span>Format:</span>
+          <span>iNNfo:</span>
           <span class="font-mono">{{ formatVersion }}</span>
         </div>
 

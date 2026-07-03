@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test'
-import { injectMockFileSystem, loadHomePage, openMockFolder } from './helpers/setup'
+import { injectMockFileSystem, loadHomePage, openMockFolder, expandAllNodes } from './helpers/setup'
 
 test.describe('BlockSheet — 4 Tabs, Markdown, Relationships, Matrix Summary, Media, Field Viewer, Compliance', () => {
   test.beforeEach(async ({ page, context }) => {
     await injectMockFileSystem(page, context)
     await loadHomePage(page)
     await openMockFolder(page)
+    // Expand tree to reveal child elements (collapsed by default)
+    await expandAllNodes(page)
     // Select the Delorean node to open BlockSheet
     await page.getByText('Delorean').first().click()
     await page.waitForTimeout(1000)

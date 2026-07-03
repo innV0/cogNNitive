@@ -5,7 +5,7 @@
  * constant or be validated against it by scripts/check-spec-version.ts.
  *
  * When bumping the spec version:
- *   1. Update DEFAULT_FORMAT_VERSION here.
+ *   1. Update DEFAULT_INNFO_VERSION here.
  *   2. Run `npm run check:spec-version` — it will list every stale file.
  *   3. Update each stale file to match.
  *   4. Never duplicate this value as a hardcoded string elsewhere in .ts/.vue.

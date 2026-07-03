@@ -39,8 +39,8 @@ test.describe('Home Page — Landing & Workspace Entry', () => {
     await page.waitForTimeout(2000)
 
     // Should navigate to workspace with tree nodes visible
-    // The tree shows model names from the mock
-    await page.waitForSelector('text=Back to the Future KB', { timeout: 15000 }).catch(() => {
+    // The tree shows root node names derived from wikilink filenames
+    await page.waitForSelector('text=BTTFKB', { timeout: 15000 }).catch(() => {
       // Maybe the KB loads differently — check for any tree content
     })
 

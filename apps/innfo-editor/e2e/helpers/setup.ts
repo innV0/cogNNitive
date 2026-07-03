@@ -10,272 +10,175 @@ export async function injectMockFileSystem(page: Page, context: BrowserContext) 
 
   // Inject mock BEFORE navigation — addInitScript runs on every page
   await context.addInitScript(() => {
-    // ── Mock root workspace tree ──────────────────────────────────
+    // ── Mock root workspace tree (iNNfo _NN.md syntax) ────────────
+    //
+    // CRITICAL: The app's recursiveParse() only processes wikilinks ending
+    // with _NN.md. Section headers use # _NN prefix, element markers use
+    // * _NN Concept: Name — NOT the old _F syntax.
     const MOCK_TREE: Record<string, any> = {
-      'index.md': `# _F index\n\n* [[HillValleyTimeTravel_V_1-0-0_business_F.md]]\n* [[TimeTravelProtocol_V_1-0-0_procedures_F.md]]\n`,
-      'HillValleyTimeTravel_V_1-0-0_business_F.md': `---
+      'index.md': `# _NN index\n\n* [[HillValleyCorp_NN.md]]\n* [[TimeTravelProtocol_NN.md]]\n* [[BTTFKB_NN.md]]\n`,
+      // ── Business model ──
+      // Root node name: "HillValleyCorp"
+      'HillValleyCorp_NN.md': `---
 spec_version: "V_0-1-5"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
-level: 3
-parent_spec:
-  name: "business_V_0-1-1"
-  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 model_version: "V_1-0-0"
 title: "Hill Valley Time Travel Corp"
-taxonomy:
-  roots:
-    - concept: "Stakeholders"
-      colorHex: "#7C3AED"
-      children:
-        - concept: "Founders"
-          colorHex: "#0891B2"
-taxonomyEdges:
-  - parent: "Stakeholders"
-    child: "Founders"
+concepts:
+  - name: "Stakeholders"
+    type: "stakeholder"
+    color: "#7C3AED"
+markers:
+  - name: "priority"
+    symbol: "!"
+    color: "#E11D48"
+  - name: "weight"
+    symbol: "#"
+    color: "#8B5CF6"
 ---
 
-# _F index
+# _NN index
 
-* _F index: Business summary
-* _F index: Market
-  * _F index: Stakeholders
-* _F index: Organization
-  * _F index: Business idea
+* _NN Stakeholders
+  * _NN Founders
 
-# _F Business summary
+# _NN Stakeholders
 
-Hill Valley Time Travel Corp.
-
-# _F Stakeholders
-
-* _F Stakeholders: Dr. Emmett Brown
-  \`\`\`yaml
+* _NN Stakeholders: Dr. Emmett Brown
+  \x60\x60\x60yaml
   weight: 10
   colorHex: "#7C3AED"
-  \`\`\`
+  role: CEO
+  \x60\x60\x60
   Founder and CEO.
 
-* _F Stakeholders: Marty McFly
-  \`\`\`yaml
+* _NN Stakeholders: Marty McFly
+  \x60\x60\x60yaml
   weight: 9
   colorHex: "#0891B2"
-  \`\`\`
+  role: Test Pilot
+  \x60\x60\x60
   Test pilot.
 
-# _F Business idea
-
-Revolutionize time travel.
-
-# _F matrices: stakeholder-risk matrix
+# _NN matrices: stakeholder-risk matrix
 
 | Stakeholder \\\\ Risk | Paradox | Fuel |
 | :--- | :---: | :---: |
 | Dr. Emmett Brown | High | Max |
 | Marty McFly | Medium | High |
 `,
-      'TimeTravelProtocol_V_1-0-0_procedures_F.md': `---
+      // ── Procedures model ──
+      // Root node name: "TimeTravelProtocol"
+      'TimeTravelProtocol_NN.md': `---
 spec_version: "V_0-1-5"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
-level: 3
-parent_spec:
-  name: "procedures_V_0-1-1"
-  url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/procedures_V_0-1-1_FORMAT.md"
 model_version: "V_1-0-0"
 title: "Time Travel Protocol"
+concepts:
+  - name: "Procedure"
+    type: "step"
+  - name: "Role"
+    type: "role"
 ---
 
-# _F index
+# _NN index
 
-* [[Procedure]]
-* [[Work]]
-* [[Artifact]]
-* [[Tools]]
-* [[Roles]]
+* _NN Procedure
+* _NN Role
 
-# _F Procedure
+# _NN Procedure
 
-Standard time travel procedure.
+* _NN Procedure: Calibrate Flux
+  Standard flux capacitor calibration procedure.
 
-# _F matrices: work-roles matrix
+* _NN Procedure: Accelerate
+  \x60\x60\x60yaml
+  safety_check: required
+  \x60\x60\x60
+  Engage time circuits and accelerate to 88 mph.
+
+# _NN matrices: work-roles matrix
 
 | Work \\\\ Role | Pilot | Navigator |
 | :--- | :---: | :---: |
 | Calibrate flux | — | Accountable |
-| Accelerate to 88mph | Responsible | — |
+| Accelerate | Responsible | — |
 `,
-      // ── KB folder ──
-      'kb': {
-        '_F.md': `---
+      // ── KB model (flat — recursiveParse only reads wikilinks, not subdirs) ──
+      // Root node name: "BTTFKB"
+      'BTTFKB_NN.md': `---
 spec_version: "V_0-1-5"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
 model_version: "V_1-0-0"
 title: "Back to the Future KB"
 type: "KB"
-taxonomy:
-  roots:
-    - concept: "Technology"
-      colorHex: "#2563EB"
-      children:
-        - concept: "Vehicles"
-          colorHex: "#059669"
-        - concept: "Devices"
-          colorHex: "#D97706"
-  community:
-    label: "BTTF Universe"
-    colorHex: "#4F46E5"
+concepts:
+  - name: "Topic"
+    type: "topic"
+    icon: "wrench"
+    color: "#059669"
+  - name: "Persona"
+    type: "persona"
+    icon: "user"
+    color: "#0891B2"
 ---
-Knowledge Base for Back to the Future.
-`,
-        'Delorean': {
-          '_F.md': `---
-type: "Topic"
-colorHex: "#059669"
-fields:
-  category: "technology"
-  status: "published"
+
+# _NN index
+
+* _NN Topic
+  * _NN Vehicles
+  * _NN Devices
+* _NN Persona
+
+# _NN Topic
+
+* _NN Topic: Delorean
+  \x60\x60\x60yaml
+  category: technology
+  status: published
   year_introduced: 1981
   max_speed: 88
   color: "#C0C0C0"
-  tags: ["time-machine", "dmc-12"]
   rating: 5
-  website: "https://bttf.fandom.com"
-  build_date: "1981-01-01"
-markers:
-  weight: 10
-  priority: "!"
-  certainty: 5
-graph_edges:
-  - target: "../DocBrown"
-    label: "built-by"
-    weight: 10
-taxonomy:
-  perspective: "Vehicles"
----
-DeLorean DMC-12 time machine.
+  \x60\x60\x60
+  DeLorean DMC-12 time machine.
 
-\`\`\`typescript
-interface TimeMachine {
-  maxSpeed: 88 // mph
-  powerRequired: 1.21 // GW
-}
-\`\`\`
-
-\`\`\`mermaid
-graph LR
-    A[Mr. Fusion] --> B[Flux Capacitor]
-    B --> C[88 mph]
-    C --> D[Time Travel!]
-\`\`\`
-
-| Feature | Value |
-|---------|-------|
-| Top Speed | 88 mph |
-| Power | 1.21 GW |
-| Doors | Gull-wing |
-`,
-        },
-        'FluxCapacitor': {
-          '_F.md': `---
-type: "Topic"
-colorHex: "#D97706"
-fields:
-  category: "technology"
-  status: "published"
+* _NN Topic: FluxCapacitor
+  \x60\x60\x60yaml
+  category: technology
   year_invented: 1955
   power_output: 1.21
-  power_unit: "gigawatts"
-  tags: ["time-travel", "core-device"]
+  power_unit: gigawatts
   rating: 5
-  invention_date: "1955-11-05"
-markers:
-  weight: 10
-  priority: "!"
-graph_edges:
-  - target: "../DocBrown"
-    label: "invented-by"
-    weight: 10
-taxonomy:
-  perspective: "Devices"
----
-Flux Capacitor — makes time travel possible.
-`,
-        },
-        'DocBrown': {
-          '_F.md': `---
-type: "Persona"
-colorHex: "#0891B2"
-fields:
-  role: "inventor"
-  expertise_level: "expert"
-  birth_year: 1920
-  is_active: true
-  tags: ["scientist", "inventor"]
-  rating: 5
-  birth_date: "1920-01-01"
-  inventions_count: 47
-markers:
-  weight: 10
-  certainty: 5
-graph_edges:
-  - target: "../MartyMcFly"
-    label: "mentor"
-    weight: 10
-taxonomy:
-  perspective: "Founders"
----
-Dr. Emmett Brown. Inventor of the flux capacitor.
-`,
-        },
-        'MartyMcFly': {
-          '_F.md': `---
-type: "Persona"
-colorHex: "#0891B2"
-fields:
-  role: "time traveler"
-  expertise_level: "advanced"
-  birth_year: 1968
-  tags: ["protagonist", "time-traveler"]
-  rating: 4
-  birth_date: "1968-06-09"
-  times_traveled: 5
-markers:
-  weight: 9
-graph_edges:
-  - target: "../DocBrown"
-    label: "student-mentor"
-    weight: 10
-taxonomy:
-  perspective: "Founders"
----
-Marty McFly — time traveling teenager.
-`,
-        },
-        'Hoverboard': {
-          '_F.md': `---
-type: "Topic"
-colorHex: "#059669"
-fields:
-  category: "technology"
-  status: "published"
+  \x60\x60\x60
+  Flux Capacitor — makes time travel possible.
+
+* _NN Topic: Hoverboard
+  \x60\x60\x60yaml
+  category: technology
   year_introduced: 2015
   max_speed: 35
-  color: "#FF1493"
-  tags: ["transport", "future-tech"]
   rating: 3
-  release_date: "2015-10-21"
-markers:
-  weight: 7
-graph_edges:
-  - target: "../MartyMcFly"
-    label: "used-by"
-    weight: 7
-taxonomy:
-  perspective: "Devices"
----
-Hoverboard — magnetic levitation skateboard.
+  \x60\x60\x60
+  Hoverboard — magnetic levitation skateboard.
+
+# _NN Persona
+
+* _NN Persona: DocBrown
+  \x60\x60\x60yaml
+  role: inventor
+  expertise_level: expert
+  birth_year: 1920
+  rating: 5
+  \x60\x60\x60
+  Dr. Emmett Brown. Inventor of the flux capacitor.
+
+* _NN Persona: MartyMcFly
+  \x60\x60\x60yaml
+  role: time traveler
+  expertise_level: advanced
+  birth_year: 1968
+  rating: 4
+  \x60\x60\x60
+  Marty McFly — time traveling teenager.
 `,
-        },
-      },
     }
 
     // ── Mock FileSystemDirectoryHandle ──
@@ -341,8 +244,8 @@ Hoverboard — magnetic levitation skateboard.
 
     // Also override showOpenFilePicker for single-file load
     ;(window as any).showOpenFilePicker = async () => {
-      const content = MOCK_TREE['HillValleyTimeTravel_V_1-0-0_business_F.md']
-      return [new MockFileHandle('HillValleyTimeTravel_V_1-0-0_business_F.md', content)]
+      const content = MOCK_TREE['HillValleyCorp_NN.md']
+      return [new MockFileHandle('HillValleyCorp_NN.md', content)]
     }
 
     // Mock clipboard for copy operations
@@ -373,12 +276,24 @@ export async function openMockFolder(page: Page) {
   await folderBtn.waitFor({ state: 'visible', timeout: 10000 })
   await folderBtn.click()
 
-  // Wait for workspace to load
-  await page.waitForTimeout(2000)
+  // Wait for workspace navigation and tree to render
+  await page.waitForURL('**/workspace', { timeout: 15000 }).catch(() => {})
+  await page.waitForTimeout(1500)
 
-  // Wait for tree to appear (either KB or model nodes)
-  await page.waitForSelector('text=Back to the Future KB', { timeout: 15000 }).catch(() => {})
-  await page.waitForSelector('text=Hill Valley Time Travel', { timeout: 5000 }).catch(() => {})
+  // Wait for at least one tree root node to appear
+  await page.waitForSelector('text=BTTFKB', { timeout: 10000 }).catch(() => {})
+}
+
+/**
+ * Expands all tree nodes by clicking the "Expand All" button in the sidebar header.
+ * Required before interacting with child elements (collapsed by default).
+ */
+export async function expandAllNodes(page: Page) {
+  const expandBtn = page.getByTitle('Expand All').first()
+  if (await expandBtn.isVisible()) {
+    await expandBtn.click()
+    await page.waitForTimeout(500)
+  }
 }
 
 // MOCK_TREE is defined inside addInitScript (browser context), not exported from Node.js

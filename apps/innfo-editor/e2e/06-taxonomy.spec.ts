@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { injectMockFileSystem, loadHomePage, openMockFolder } from './helpers/setup'
+import { injectMockFileSystem, loadHomePage, openMockFolder, expandAllNodes } from './helpers/setup'
 
 test.describe('Taxonomy Perspectives — Concept Tree, Neighborhood, Navigation', () => {
   test.beforeEach(async ({ page, context }) => {
@@ -9,9 +9,8 @@ test.describe('Taxonomy Perspectives — Concept Tree, Neighborhood, Navigation'
   })
 
   test('R-TP-01: Taxonomy-defined perspective navigation', async ({ page }) => {
-    // Open KB root
-    await page.getByText('Back to the Future KB').first().click()
-    await page.waitForTimeout(1000)
+    // Expand tree to reveal child elements
+    await expandAllNodes(page)
 
     // Select a KB node that has taxonomy perspective assigned
     await page.getByText('Delorean').first().click()
@@ -44,7 +43,8 @@ test.describe('Taxonomy Perspectives — Concept Tree, Neighborhood, Navigation'
     if (techGroupExists > 0) {
       await expect(technologyGroup.first()).toBeVisible()
     } else {
-      // Fallback: child concepts should show taxonomy perspective in content
+      // Fallback: expand tree and select Delorean
+      await expandAllNodes(page)
       await page.getByText('Delorean').first().click()
       await page.waitForTimeout(1000)
 
@@ -55,6 +55,8 @@ test.describe('Taxonomy Perspectives — Concept Tree, Neighborhood, Navigation'
   })
 
   test('R-TP-04: Perspective neighborhood shows parents/children/siblings', async ({ page }) => {
+    // Expand tree to reveal child elements
+    await expandAllNodes(page)
     // Select Delorean (perspective: "Vehicles", child of Technology)
     await page.getByText('Delorean').first().click()
     await page.waitForTimeout(1000)
@@ -80,6 +82,8 @@ test.describe('Taxonomy Perspectives — Concept Tree, Neighborhood, Navigation'
   })
 
   test('R-TP-06: No relationship editor in perspectives', async ({ page }) => {
+    // Expand tree to reveal child elements
+    await expandAllNodes(page)
     // Perspectives are read-only — no add/edit/delete controls
     await page.getByText('Delorean').first().click()
     await page.waitForTimeout(1000)
