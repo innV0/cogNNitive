@@ -10,60 +10,60 @@ tests/
 ├── README.md                        # ⬅ estás acá
 └── fixtures/
     ├── workspace-index.md           # Índice del workspace de prueba
-    ├── catalog_FORMAT.md            # Business FILE — AI Industry Catalog
-    ├── file-model_FORMAT.md         # Business FILE — progressive smoke test
-    ├── sample-model_FORMAT.md       # Business FILE — minimal shape validation
+    ├── catalog_F.md            # Business FILE — AI Industry Catalog
+    ├── file-model_F.md         # Business FILE — progressive smoke test
+    ├── sample-model_F.md       # Business FILE — minimal shape validation
     ├── folder-model/                # KB FOLDER — progressive smoke test
-    │   ├── _FORMAT.md
+    │   ├── _F.md
     │   ├── Risk/
-    │   │   ├── tech-debt/_FORMAT.md
-    │   │   └── timeline/_FORMAT.md
+    │   │   ├── tech-debt/_F.md
+    │   │   └── timeline/_F.md
     │   ├── Feature/
-    │   │   ├── auth/_FORMAT.md
-    │   │   └── dashboard/_FORMAT.md
-    │   └── Meeting/_FORMAT.md
+    │   │   ├── auth/_F.md
+    │   │   └── dashboard/_F.md
+    │   └── Meeting/_F.md
     ├── music-business/
-    │   └── music-business_FORMAT.md  # Business FILE — Vinyl Records Inc.
+    │   └── music-business_F.md  # Business FILE — Vinyl Records Inc.
     ├── music-catalog/               # Catalog FOLDER
-    │   ├── _FORMAT.md
+    │   ├── _F.md
     │   ├── Artist/
-    │   │   ├── Radiohead/_FORMAT.md
-    │   │   └── Nina Simone/_FORMAT.md
+    │   │   ├── Radiohead/_F.md
+    │   │   └── Nina Simone/_F.md
     │   ├── Album/
-    │   │   ├── OK Computer/_FORMAT.md
-    │   │   └── I Put a Spell on You/_FORMAT.md
+    │   │   ├── OK Computer/_F.md
+    │   │   └── I Put a Spell on You/_F.md
     │   ├── Genre/
-    │   │   ├── Alternative Rock/_FORMAT.md
-    │   │   └── Jazz Blues/_FORMAT.md
+    │   │   ├── Alternative Rock/_F.md
+    │   │   └── Jazz Blues/_F.md
     │   └── Instrument/
-    │       ├── Electric Guitar/_FORMAT.md
-    │       └── Piano/_FORMAT.md
+    │       ├── Electric Guitar/_F.md
+    │       └── Piano/_F.md
     ├── music-production/
-    │   └── music-production_FORMAT.md # Procedures FILE — Song Recording
+    │   └── music-production_F.md # Procedures FILE — Song Recording
     └── music-kb/                     # KB FOLDER
-        ├── _FORMAT.md
-        ├── Producer/_FORMAT.md
-        ├── Music Theory/_FORMAT.md
-        └── Mixing Guide/_FORMAT.md
+        ├── _F.md
+        ├── Producer/_F.md
+        ├── Music Theory/_F.md
+        └── Mixing Guide/_F.md
 ```
 
 ## Propósito de cada modelo
 
 | Modelo | Template | Modo | Propósito |
 |--------|----------|------|-----------|
-| `catalog_FORMAT.md` | business_V_0-1-1 | FILE | Catálogo AI Industry — conceptos Problems y Value propositions |
-| `file-model_FORMAT.md` | business_V_0-1-1 | FILE | Smoke test FILE — 5 elementos inline con Business summary, Problems, Value propositions |
-| `sample-model_FORMAT.md` | business_V_0-1-1 | FILE | Validación mínima de forma — 1 elemento Problem |
+| `catalog_F.md` | business_V_0-1-1 | FILE | Catálogo AI Industry — conceptos Problems y Value propositions |
+| `file-model_F.md` | business_V_0-1-1 | FILE | Smoke test FILE — 5 elementos inline con Business summary, Problems, Value propositions |
+| `sample-model_F.md` | business_V_0-1-1 | FILE | Validación mínima de forma — 1 elemento Problem |
 | `folder-model/` | kb_V_0-1-1 | FOLDER | Smoke test FOLDER — Topics anidados (Risk, Feature) y sub-modelo Meeting |
 | `music-business/` | business_V_0-1-1 | FILE | Negocio discográfico completo — Problems, Value propositions, Channels, Stakeholders, matriz |
 | `music-catalog/` | catalog_V_0-1-2 | FOLDER | Catálogo musical — Artists, Albums, Genres, Instruments con graph_edges |
 | `music-production/` | procedures_V_0-1-1 | FILE | Workflow de grabación — Work steps, Artifacts, Tools, Roles, 3 matrices |
 | `music-kb/` | kb_V_0-1-1 | FOLDER | Base de conocimiento — Personas, Topics, References con graph_edges |
 
-> ⚠️ **Nota técnica**: El parser (`recursiveParse`) ignora archivos `_FORMAT.md`
+> ⚠️ **Nota técnica**: El parser (`recursiveParse`) ignora archivos `_F.md`
 > al nivel raíz del workspace (línea 408 de recursiveParser.ts). Por eso los
-> modelos FILE se llaman `*_FORMAT.md` y no `*/_FORMAT.md`.
-> Los modelos FOLDER se representan como carpetas con `_FORMAT.md` adentro.
+> modelos FILE se llaman `*_F.md` y no `*/_F.md`.
+> Los modelos FOLDER se representan como carpetas con `_F.md` adentro.
 
 ---
 
@@ -118,7 +118,7 @@ npx vitest run tests/progressive-smoke.test.ts --reporter=verbose
 
 ## Árbol esperado por paso
 
-### Paso 2 — Modelo FILE (`file-model_FORMAT.md`)
+### Paso 2 — Modelo FILE (`file-model_F.md`)
 
 | Nodo | Tipo/Kind | StorageMode | Padre |
 |------|-----------|-------------|-------|
@@ -145,7 +145,7 @@ npx vitest run tests/progressive-smoke.test.ts --reporter=verbose
 | End-of-day check | element | FOLDER | Meeting |
 | Sprint 12 | element | FOLDER | Meeting |
 
-### Modelo — Music Business (`music-business/music-business_FORMAT.md`)
+### Modelo — Music Business (`music-business/music-business_F.md`)
 
 | Nodo | Tipo/Kind | StorageMode | Padre |
 |------|-----------|-------------|-------|
@@ -182,7 +182,7 @@ npx vitest run tests/progressive-smoke.test.ts --reporter=verbose
 | Electric Guitar | element (Instrument) | FOLDER | Instrument |
 | Piano | element (Instrument) | FOLDER | Instrument |
 
-### Modelo — Music Production (`music-production/music-production_FORMAT.md`)
+### Modelo — Music Production (`music-production/music-production_F.md`)
 
 | Nodo | Tipo/Kind | StorageMode | Padre |
 |------|-----------|-------------|-------|

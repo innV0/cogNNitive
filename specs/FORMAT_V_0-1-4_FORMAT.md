@@ -25,6 +25,11 @@ relationship_types:
 ---
 
 > [!NOTE]
+> **This specification version is superseded.**
+> The latest version is **[FORMAT_V_0-1-5_F.md](./FORMAT_V_0-1-5_F.md)**.
+> It remains frozen and immutable as published. New models SHOULD target V_0-1-5.
+
+> [!NOTE]
 > This is a **FORMAT document** — a plain-text Markdown file that carries its own schema in the YAML frontmatter.
 
 # FORMAT Specification
@@ -184,20 +189,22 @@ The `_F index:` syntax follows the same nesting rules:
 - All syntaxes MUST reference concept names defined in the template; unresolvable references SHOULD be flagged by the application.
 - The workspace root `index.md` MUST use Markdown link syntax for OKF compatibility (see §5.1.1).
 
+**List characters**: Index block list items MUST use `*` (asterisk) or `-` (hyphen) as the bullet character. The parser recognizes both forms. Numbered lists (`1.`, `2.`, etc.) are NOT supported for index blocks. The regex pattern for valid list items is `/^\s*[*\-]\s+/`.
+
 #### 4.3. Concept Block
 
 Each concept in the model corresponds to a section in the document body. The content syntax depends on the concept's `type`:
 
 | Type | Syntax | Description |
-|---|---|---|
+|---|---|---|---|
 | `text` | Free-form Markdown paragraph(s) | Single block of content, no elements |
 | `weight` | Bullet list with `_F` markers | Multi-instance, each with optional YAML fields |
 | `list` | Bullet list with `_F` markers | Multi-instance, each with optional YAML fields |
 | `category` | No content block needed | Taxonomy-only concept; children appear in index |
-| `steps` | Numbered list with `_F` markers | Ordered sequence of instances |
-| `sequence` | Numbered list with `_F` markers | Ordered sequence of events |
+| `steps` | Bullet list with `_F` markers | Ordered sequence of instances |
+| `sequence` | Bullet list with `_F` markers | Ordered sequence of events |
 
-All multi-instance types (`weight`, `list`, `steps`, `sequence`) use the same element syntax:
+All multi-instance types (`weight`, `list`, `steps`, `sequence`) use the same bullet-list element syntax:
 
 ```markdown
 # _F Stakeholders
@@ -214,6 +221,8 @@ All multi-instance types (`weight`, `list`, `steps`, `sequence`) use the same el
 **Concept heading**: The `# _F <ConceptName>` heading introduces a concept block. The `_F` marker signals a FORMAT structural element, and the concept name MUST match a known concept from the template frontmatter. The hidden form uses `# <!-- _F --> <ConceptName>`, where only the `_F` marker is invisible and the heading text renders normally.
 
 **Element markers**: The visible `_F` marker (`_F <ConceptName>:`) on a bullet declares which concept the element belongs to. The colon separates the concept name from the element name. For invisible markers, use the HTML comment alternative: `<!-- _F <ConceptName>: -->` followed by the element name.
+
+**List characters**: Element markers MUST use `*` (asterisk) or `-` (hyphen) as the bullet character. The parser regex for valid element markers is `/^\s*[*\-]\s+_F\s+([\w\s-]+?):\s+(.*)$/`. Numbered lists (`1. _F Concept: Name`, `2. _F Concept: Name`, etc.) are NOT supported — they are silently ignored by the parser and produce no elements. The order of elements is determined exclusively by their position in the document.
 
 - The YAML fenced code block immediately following the element bullet declares element-specific fields.
 - The description text follows the YAML block (or the bullet line if no YAML block exists).

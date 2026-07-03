@@ -7,7 +7,7 @@ Shared TypeScript library used across the iNNv0 ecosystem.
 - **Parser** — unified frontmatter, concept, and matrix parsing for both FILE and FOLDER modes
 - **Model** — type definitions for Concept, Element, Field, Marker, Matrix, Relationship
 - **Validator** — validates model instances against template schemas
-- **IO Drivers** — `file-driver.ts` for single-document FILE mode, `folder-driver.ts` for node-based FOLDER mode (detects `_FORMAT.md` files)
+- **IO Drivers** — `file-driver.ts` for single-document FILE mode, `folder-driver.ts` for node-based FOLDER mode (detects `_F.md` files)
 - **Resolver** — resolves the parent chain from level 3 to level 0, downloading specs as needed and caching them locally
 
 ## API

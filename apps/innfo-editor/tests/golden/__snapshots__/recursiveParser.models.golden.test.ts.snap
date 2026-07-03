@@ -1,0 +1,169 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`recursiveParser golden: frozen models/* fixtures > parses Comprehensive_Test_Procedure_V_1-0-0_procedures_F.md into a normalized graph snapshot 1`] = `
+{
+  "issueCount": 0,
+  "nodeCount": 1,
+  "nodes": [
+    {
+      "childCount": 0,
+      "fieldKeys": [],
+      "id": "Comprehensive_Test_Procedure_V_1-0-0_procedures",
+      "markerKeys": [],
+      "name": "Comprehensive_Test_Procedure_V_1-0-0_procedures",
+      "parentId": null,
+      "type": "document",
+    },
+  ],
+  "rootIds": [
+    "Comprehensive_Test_Procedure_V_1-0-0_procedures",
+  ],
+}
+`;
+
+exports[`recursiveParser golden: frozen models/* fixtures > parses FORMAT_V_0-1-0_business_F.md into a normalized graph snapshot 1`] = `
+{
+  "issueCount": 0,
+  "nodeCount": 1,
+  "nodes": [
+    {
+      "childCount": 0,
+      "fieldKeys": [],
+      "id": "FORMAT_V_0-1-0_business",
+      "markerKeys": [],
+      "name": "FORMAT_V_0-1-0_business",
+      "parentId": null,
+      "type": "FORMAT",
+    },
+  ],
+  "rootIds": [
+    "FORMAT_V_0-1-0_business",
+  ],
+}
+`;
+
+exports[`recursiveParser golden: frozen models/* fixtures > parses FORMAT_V_0-1-1_business_F.md into a normalized graph snapshot 1`] = `
+{
+  "issueCount": 0,
+  "nodeCount": 1,
+  "nodes": [
+    {
+      "childCount": 0,
+      "fieldKeys": [],
+      "id": "FORMAT_V_0-1-1_business",
+      "markerKeys": [],
+      "name": "FORMAT_V_0-1-1_business",
+      "parentId": null,
+      "type": "FORMAT",
+    },
+  ],
+  "rootIds": [
+    "FORMAT_V_0-1-1_business",
+  ],
+}
+`;
+
+exports[`recursiveParser golden: frozen models/* fixtures > parses Ghostbusters_V_0-1-1_business_F.md into a normalized graph snapshot 1`] = `
+{
+  "issueCount": 0,
+  "nodeCount": 1,
+  "nodes": [
+    {
+      "childCount": 0,
+      "fieldKeys": [],
+      "id": "Ghostbusters_V_0-1-1_business",
+      "markerKeys": [],
+      "name": "Ghostbusters_V_0-1-1_business",
+      "parentId": null,
+      "type": "Ghostbusters",
+    },
+  ],
+  "rootIds": [
+    "Ghostbusters_V_0-1-1_business",
+  ],
+}
+`;
+
+exports[`recursiveParser golden: frozen models/* fixtures > parses Knowledge_Management_V_1-0-0_procedures_F.md into a normalized graph snapshot 1`] = `
+{
+  "issueCount": 0,
+  "nodeCount": 1,
+  "nodes": [
+    {
+      "childCount": 0,
+      "fieldKeys": [],
+      "id": "Knowledge_Management_V_1-0-0_procedures",
+      "markerKeys": [],
+      "name": "Knowledge_Management_V_1-0-0_procedures",
+      "parentId": null,
+      "type": "document",
+    },
+  ],
+  "rootIds": [
+    "Knowledge_Management_V_1-0-0_procedures",
+  ],
+}
+`;
+
+exports[`recursiveParser golden: frozen models/* fixtures > parses Knowledge_Management_V_1-0-1_procedures_F.md into a normalized graph snapshot 1`] = `
+{
+  "issueCount": 0,
+  "nodeCount": 1,
+  "nodes": [
+    {
+      "childCount": 0,
+      "fieldKeys": [],
+      "id": "Knowledge_Management_V_1-0-1_procedures",
+      "markerKeys": [],
+      "name": "Knowledge_Management_V_1-0-1_procedures",
+      "parentId": null,
+      "type": "document",
+    },
+  ],
+  "rootIds": [
+    "Knowledge_Management_V_1-0-1_procedures",
+  ],
+}
+`;
+
+exports[`recursiveParser golden: frozen models/* fixtures > parses iNNv0_Innovation_Process_V_1-0-0_procedures_F.md into a normalized graph snapshot 1`] = `
+{
+  "issueCount": 0,
+  "nodeCount": 1,
+  "nodes": [
+    {
+      "childCount": 0,
+      "fieldKeys": [],
+      "id": "iNNv0_Innovation_Process_V_1-0-0_procedures",
+      "markerKeys": [],
+      "name": "iNNv0_Innovation_Process_V_1-0-0_procedures",
+      "parentId": null,
+      "type": "document",
+    },
+  ],
+  "rootIds": [
+    "iNNv0_Innovation_Process_V_1-0-0_procedures",
+  ],
+}
+`;
+
+exports[`recursiveParser golden: frozen models/* fixtures > parses mini-file_V_0-0-1_business_F.md into a normalized graph snapshot 1`] = `
+{
+  "issueCount": 0,
+  "nodeCount": 1,
+  "nodes": [
+    {
+      "childCount": 0,
+      "fieldKeys": [],
+      "id": "mini-file_V_0-0-1_business",
+      "markerKeys": [],
+      "name": "mini-file_V_0-0-1_business",
+      "parentId": null,
+      "type": "Mini File — FILE mode smoke test",
+    },
+  ],
+  "rootIds": [
+    "mini-file_V_0-0-1_business",
+  ],
+}
+`;

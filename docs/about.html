@@ -115,15 +115,15 @@
           </div>
           <div class="card">
             <h3 style="margin-top:var(--space-sm);font-size:18px;">Conformance met</h3>
-            <p>OKF v0.1 conformance (§9) requires: (1) parseable YAML frontmatter on every non-reserved <code>.md</code> file, (2) a non-empty <code>type</code> field, (3) reserved filenames follow OKF conventions. FORMAT satisfies all three: every <code>_FORMAT.md</code> has frontmatter, the <code>level</code>+template system provides type semantics, and <code>index.md</code> follows the same progressive-disclosure pattern.</p>
+            <p>OKF v0.1 conformance (§9) requires: (1) parseable YAML frontmatter on every non-reserved <code>.md</code> file, (2) a non-empty <code>type</code> field, (3) reserved filenames follow OKF conventions. FORMAT satisfies all three: every <code>_F.md</code> has frontmatter, the <code>level</code>+template system provides type semantics, and <code>index.md</code> follows the same progressive-disclosure pattern.</p>
           </div>
           <div class="card">
             <h3 style="margin-top:var(--space-sm);font-size:18px;">Extensions tolerated</h3>
-            <p>OKF explicitly states consumers MUST NOT reject bundles because of unknown additional frontmatter keys, unknown <code>type</code> values, or missing optional fields. FORMAT's richer frontmatter — <code>specification_version</code>, <code>level</code>, <code>parent</code>, <code>concepts</code>, <code>markers</code>, <code>matrices</code> — is fully tolerated by OKF consumers.</p>
+            <p>OKF explicitly states consumers MUST NOT reject bundles because of unknown additional frontmatter keys, unknown <code>type</code> values, or missing optional fields. FORMAT's richer frontmatter — <code>spec_version</code>, <code>level</code>, <code>parent</code>, <code>concepts</code>, <code>markers</code>, <code>matrices</code> — is fully tolerated by OKF consumers.</p>
           </div>
           <div class="card">
             <h3 style="margin-top:var(--space-sm);font-size:18px;">FOLDER mode = OKF Bundle</h3>
-            <p>FORMAT FOLDER mode produces exactly the directory-of-Markdown-files structure that OKF defines as a <em>knowledge bundle</em> (§3). Each <code>_FORMAT.md</code> maps to an OKF <em>concept document</em> (§4) with <code>index.md</code> as the directory listing (§6). Wikilinks and standard Markdown links coexist for cross-linking.</p>
+            <p>FORMAT FOLDER mode produces exactly the directory-of-Markdown-files structure that OKF defines as a <em>knowledge bundle</em> (§3). Each <code>_F.md</code> maps to an OKF <em>concept document</em> (§4) with <code>index.md</code> as the directory listing (§6). Wikilinks and standard Markdown links coexist for cross-linking.</p>
           </div>
         </div>
       </div>

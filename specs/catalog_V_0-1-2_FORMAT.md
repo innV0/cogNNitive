@@ -2,7 +2,7 @@
 specification_version: "V_0-1-2"
 specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/catalog_V_0-1-2_FORMAT.md"
 level: 2
-parent:
+parent_spec:
   name: "FORMAT_V_0-1-2"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-2_FORMAT.md"
 title: "Catalog Template"
@@ -338,7 +338,7 @@ graph_edges:
 specification_version: "V_0-1-2"
 specification_url: "..."
 level: 3
-parent:
+parent_spec:
   name: "catalog_V_0-1-2"
   url: "..."
 model_version: "V_1-0-0"
@@ -380,12 +380,12 @@ The official sample for this template is at `specs/catalog_V_0-1-2/samples/Music
 
 ```yaml
 # From the Music_History sample:
-parent:
+parent_spec:
   name: "catalog_V_1-0-0"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/catalog_V_0-1-2_FORMAT.md"
 
 # This template's parent:
-parent:
+parent_spec:
   name: "FORMAT_V_0-1-2"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-2_FORMAT.md"
 ```

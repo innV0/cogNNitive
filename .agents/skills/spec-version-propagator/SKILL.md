@@ -1,7 +1,7 @@
 ---
 description: >
   Detect and propagate specification version bumps across the entire repo.
-  When the FORMAT spec (or any spec) changes version, this skill identifies
+  When the iNNfo spec (or any spec) changes version, this skill identifies
   every file that needs updating — frontmatter, file names, URLs, constants,
   documentation, and test fixtures.
 trigger: >
@@ -16,7 +16,7 @@ version: "1.0.0"
 
 ## Purpose
 
-The FORMAT ecosystem has a strict parent-chain dependency graph. When a specification version changes (`V_0-1-N` → `V_0-1-M`), the change **ripples** through every file that references that version — directly or transitively.
+The iNNfo ecosystem has a strict parent-chain dependency graph. When a specification version changes (`V_0-2-N` → `V_0-2-M`), the change **ripples** through every file that references that version — directly or transitively.
 
 This skill maps the **complete propagation graph** and provides a companion script to detect every stale file.
 
@@ -26,7 +26,7 @@ This skill maps the **complete propagation graph** and provides a companion scri
 Level 0: defiNNe (meta-spec, rarely bumped)
   │  parent of
   ▼
-Level 1: FORMAT (the concrete spec)
+Level 1: iNNfo (the concrete spec)
   │  parent of
   ▼
 Level 2: Templates (business, procedures, kb, catalog)
@@ -39,15 +39,15 @@ Level 3: Models, fixtures, samples
 
 | Artifact | What to Update | Example |
 |---|---|---|
-| **Spec file itself** | File name rename; `specification_version`; `specification_url` | `FORMAT_V_0-1-2_FORMAT.md` → `FORMAT_V_0-1-3_FORMAT.md` |
-| **Level 2 Templates** | `parent.name` (e.g. `FORMAT_V_0-1-2` → `FORMAT_V_0-1-3`); `parent.url`; optionally `specification_version` | `business_V_0-1-1_FORMAT.md` |
-| **Level 3 Models & Samples** | `specification_version`; `specification_url` (if it references the spec); `parent.url` (if it references a template) | `Ghostbusters_V_0-1-2_business_FORMAT.md` |
-| **Test fixtures** | Same as Level 3 models | `tests/fixtures/*_FORMAT.md` |
-| **Test inline frontmatter** | Hardcoded version strings in `.test.ts` files | `.test.ts` with `specification_version: "V_0-1-2"` |
-| **Source code constants** | `DEFAULT_FORMAT_VERSION` in `constants.ts` | |
+| **Spec file itself** | File name rename; `spec_version`; `spec_url` | `FORMAT_V_0-1-2_FORMAT.md` → `FORMAT_V_0-1-3_FORMAT.md` |
+| **Level 2 Templates** | `parent.name` (e.g. `FORMAT_V_0-1-2` → `FORMAT_V_0-1-3`); `parent.url`; optionally `spec_version` | `business_V_0-1-1_FORMAT.md` |
+| **Level 3 Models & Samples** | `spec_version`; `spec_url` (if it references the spec); `parent.url` (if it references a template) | `Ghostbusters_V_0-1-2_business_FORMAT.md` |
+| **Test fixtures** | Same as Level 3 models | `tests/fixtures/*_F.md` |
+| **Test inline frontmatter** | Hardcoded version strings in `.test.ts` files | `.test.ts` with `spec_version: "V_0-1-2"` |
+| **Source code constants** | `DEFAULT_INNFO_VERSION` in `constants.ts` | |
 | **Documentation** | Version strings, file paths, URLs in `.md` docs | `docs/spec_consolidation.md` |
 | **CHANGELOGs** | New entry + version strings | `specs/CHANGELOG.md`, `CHANGELOG.md` |
-| **Workspace index** | `specification_version` if it references the spec | `tests/fixtures/workspace-index.md` |
+| **Workspace index** | `spec_version` if it references the spec | `tests/fixtures/workspace-index.md` |
 
 ## Companion Script
 
@@ -86,8 +86,8 @@ When bumping a spec version, follow this order:
 cp specs/FORMAT_V_0-1-2_FORMAT.md specs/FORMAT_V_0-1-3_FORMAT.md
 
 # 1b. Update frontmatter in the new file:
-#   - specification_version: "V_0-1-3"
-#   - specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.2/specs/FORMAT_V_0-1-3_FORMAT.md"
+#   - spec_version: "V_0-1-3"
+#   - spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.2/specs/FORMAT_V_0-1-3_FORMAT.md"
 #   (use the tag that matches the repo release, not necessarily the spec version)
 
 # 1c. If the content changed, update the spec body accordingly
@@ -98,7 +98,7 @@ cp specs/FORMAT_V_0-1-2_FORMAT.md specs/FORMAT_V_0-1-3_FORMAT.md
 Edit `apps/format-editor/src/utils/constants.ts`:
 
 ```typescript
-export const DEFAULT_FORMAT_VERSION = 'V_0-1-3';
+export const DEFAULT_INNFO_VERSION = 'V_0-2-0';
 ```
 
 ### Step 3 — Run the checker
@@ -111,18 +111,18 @@ This lists every file still referencing the OLD version.
 
 ### Step 4 — Propagate to templates (Level 2)
 
-For each template spec (`business_V_0-1-1_FORMAT.md`, `procedures_V_0-1-1_FORMAT.md`, `kb_V_0-1-1_FORMAT.md`, `catalog_V_0-1-2_FORMAT.md`):
+For each template spec (`business_V_0-1-1_NN.md`, `procedures_V_0-1-1_NN.md`, `kb_V_0-1-1_NN.md`, `catalog_V_0-1-2_NN.md`):
 
 - Update `parent.name` to point to the new FORMAT version
 - Update `parent.url` to point to the new FORMAT file URL
-- Optionally bump the template's own version in `specification_version`
+- Optionally bump the template's own version in `spec_version`
 
 ### Step 5 — Propagate to models, samples, and fixtures (Level 3)
 
 For every model/fixture/sample that references the old version:
 
-- Update `specification_version` (the spec version the model was authored against)
-- Update `specification_url` if it references the spec directly
+- Update `spec_version` (the spec version the model was authored against)
+- Update `spec_url` if it references the spec directly
 - Update `parent.url` if it references a template whose file path changed
 
 ### Step 6 — Update test inline frontmatter
@@ -136,7 +136,7 @@ Search and replace version references in `docs/`:
 - `docs/spec_consolidation.md`
 - `docs/documentation/specifications.md`
 - `docs/documentation/usage.md`
-- `docs/cogNNitive/_FORMAT.md`
+- `docs/cogNNitive/_F.md`
 - `docs/SESSION_HANDOFF.md` (if still relevant)
 - `docs/changesets/*.md`
 
@@ -157,15 +157,15 @@ node scripts/check-spec-version.mjs --version V_0-1-1 --check
 The script scans these glob patterns:
 
 | Pattern | Category | What version field is checked |
-|---|---|---|
-| `specs/*_FORMAT.md` | Specs & Templates | `specification_version`, `parent.name`, `parent.url` |
-| `specs/*/samples/*_FORMAT.md` | Samples | `specification_version`, `specification_url`, `parent.url` |
-| `tests/fixtures/*_FORMAT.md` | Test Fixtures | `specification_version`, `specification_url`, `parent.url` |
-| `tests/fixtures/*.md` | Workspace index | `specification_version` |
-| `apps/**/tests/fixtures/models/*_FORMAT.md` | App Fixtures | `specification_version`, `specification_url`, `parent.url` |
+|---|---|---|---|
+| `specs/*_F.md` (and `_FORMAT.md` for frozen) | Specs & Templates | `spec_version`, `parent.name`, `parent.url` |
+| `specs/*/samples/*_F.md` | Samples | `spec_version`, `spec_url`, `parent.url` |
+| `tests/fixtures/*_F.md` | Test Fixtures | `spec_version`, `spec_url`, `parent.url` |
+| `tests/fixtures/*.md` | Workspace index | `spec_version` |
+| `apps/**/tests/fixtures/models/*_F.md` | App Fixtures | `spec_version`, `spec_url`, `parent.url` |
 | `apps/**/tests/**/*.test.ts` | Test code | Inline frontmatter strings |
 | `packages/**/tests/**/*.test.ts` | Package tests | Inline frontmatter strings |
-| `apps/**/src/**/*.ts` | Source code | `DEFAULT_FORMAT_VERSION` |
+| `apps/**/src/**/*.ts` | Source code | `DEFAULT_INNFO_VERSION` |
 | `packages/**/src/**/*.ts` | Source code | Version strings, comments |
 | `docs/**/*.md` | Documentation | Version string references |
 | `CHANGELOG.md` | Changelog | Version entries |
@@ -177,7 +177,7 @@ The script scans these glob patterns:
 When updating URLs, note the two-part version scheme:
 
 ```
-specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-2_FORMAT.md"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-2_FORMAT.md"
                                          ^^^^^^^ ^^^^^^^
                                     repo-tag       spec-file-version
 ```

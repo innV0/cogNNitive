@@ -50,18 +50,18 @@ apps/format-editor/
 
 | Kind | Description | Source |
 |------|-------------|--------|
-| `root` | Workspace root node | Root `_FORMAT.md` |
+| `root` | Workspace root node | Root `_F.md` |
 | `concept` | Type/group node (no own file) | Bare directory, or `# _F` section in FILE mode |
-| `element` | Instance node | Directory with `_FORMAT.md` carrying `type:`, or index-block entry |
+| `element` | Instance node | Directory with `_F.md` carrying `type:`, or index-block entry |
 
 ### Parse flow
 
 1. User picks a folder → `workspaceStore.open(handle)`
 2. `modelStore.parseFromHandle(handle)` → `recursiveParse(handle)`
 3. `parseFolderNode` classifies each directory:
-   - Has parseable `_FORMAT.md` → element/root node + in-file children
-   - No `_FORMAT.md` → concept/group node (recursion continues)
-   - Unparseable `_FORMAT.md` → concept node + recorded issue (recursion continues)
+   - Has parseable `_F.md` → element/root node + in-file children
+   - No `_F.md` → concept/group node (recursion continues)
+   - Unparseable `_F.md` → concept node + recorded issue (recursion continues)
 4. Tree is the **union** of in-file children and child directories
 
 ## Development

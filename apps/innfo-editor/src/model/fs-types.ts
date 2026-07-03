@@ -1,0 +1,6 @@
+/**
+ * App re-export — fs-types now live in @innv0/innfo-core.
+ * This file preserves import paths for existing app code.
+ */
+export type { WritableStreamLike, FileHandleLike, DirectoryHandleLike } from '@innv0/innfo-core'
+export { isDirectoryHandle, isFileHandle } from '@innv0/innfo-core'

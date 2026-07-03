@@ -1,10 +1,10 @@
 # Evaluación Crítica y Estructural del Ecosistema iNNv0
 
 Este documento contiene la evaluación crítica y estructural de los cuatro archivos de especificación que forman la cadena jerárquica de niveles 0→1→2→3 del ecosistema iNNv0:
-1. [defiNNe_V_0-2-0_FORMAT.md](file:///d:/Users/lucas/Documents/GitHub/innV0/cogNNitive/verification/defiNNe_V_0-2-0_FORMAT.md) (Level 0)
-2. [FORMAT_V_0-2-0_FORMAT.md](file:///d:/Users/lucas/Documents/GitHub/innV0/cogNNitive/verification/FORMAT_V_0-2-0_FORMAT.md) (Level 1)
-3. [business_V_1-0-0_FORMAT.md](file:///d:/Users/lucas/Documents/GitHub/innV0/cogNNitive/verification/business_V_1-0-0_FORMAT.md) (Level 2)
-4. [Ghostbusters_V_0-3-0_business_FORMAT.md](file:///d:/Users/lucas/Documents/GitHub/innV0/cogNNitive/verification/Ghostbusters_V_0-3-0_business_FORMAT.md) (Level 3)
+1. [defiNNe_V_0-2-0_F.md](file:///d:/Users/lucas/Documents/GitHub/innV0/cogNNitive/verification/defiNNe_V_0-2-0_F.md) (Level 0)
+2. [FORMAT_V_0-2-0_F.md](file:///d:/Users/lucas/Documents/GitHub/innV0/cogNNitive/verification/FORMAT_V_0-2-0_F.md) (Level 1)
+3. [business_V_1-0-0_F.md](file:///d:/Users/lucas/Documents/GitHub/innV0/cogNNitive/verification/business_V_1-0-0_F.md) (Level 2)
+4. [Ghostbusters_V_0-3-0_business_F.md](file:///d:/Users/lucas/Documents/GitHub/innV0/cogNNitive/verification/Ghostbusters_V_0-3-0_business_F.md) (Level 3)
 
 ---
 
@@ -51,8 +51,8 @@ El sistema propone una cadena de herencia piramidal estricta de 4 niveles ($0 \t
     Los marcadores en `business` (L2) solo declaran `name` y `symbol` (ej. `weight` con `*`). Sin embargo, en el modelo L3 se evalúan con números enteros (`9`, `7`) y en otros casos con su propio símbolo (`!`). El template no provee información sobre si un marcador es de tipo entero, boolean, o un rango específico ($1 \dots 10$). Toda esa regla de negocio está escrita en prosa en el Markdown, invisible para un parser estructurado.
 4.  **Mapeo semántico de tipos de concepto (`text` vs `weight`):**
     ¿Cómo sabe el parser que el bloque `# _F Business summary` (tipo `text`) contiene texto libre y no lleva bullets con comentarios HTML `_F ...:`, mientras que `# _F Problems` (tipo `weight`) sí los requiere? La especificación de Nivel 1 (`FORMAT`) no detalla las reglas de parsing del cuerpo de Markdown asociadas a cada tipo de concepto.
-5.  **El misterio de `specification_url` en el Nivel 3:**
-    Según defiNNe (§5.4), un modelo L3 debe poner en su campo `specification_url` la URL de la especificación de Nivel 1 (`FORMAT`). Esto es absurdo. Si el modelo es un entregable de datos de un proyecto, su `specification_url` debería apuntar a sí mismo para persistencia, o no tenerlo, ya que el link con el esquema se hace mediante el `parent` (que apunta al template L2).
+5.  **El misterio de `spec_url` en el Nivel 3:**
+    Según defiNNe (§5.4), un modelo L3 debe poner en su campo `spec_url` la URL de la especificación de Nivel 1 (`FORMAT`). Esto es absurdo. Si el modelo es un entregable de datos de un proyecto, su `spec_url` debería apuntar a sí mismo para persistencia, o no tenerlo, ya que el link con el esquema se hace mediante el `parent` (que apunta al template L2).
 
 ---
 

@@ -97,7 +97,7 @@
         <div class="card" style="text-align:center">
           <div style="width:48px;height:48px;border-radius:50%;background:var(--brand-primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;margin:0 auto var(--space-md);">2</div>
           <h3>Single parse pass</h3>
-          <p>The recursive parser walks every directory. <code>_FORMAT.md</code> directories become element nodes; bare directories become concept nodes. One tree for FILE and FOLDER together.</p>
+          <p>The recursive parser walks every directory. <code>_F.md</code> directories become element nodes; bare directories become concept nodes. One tree for FILE and FOLDER together.</p>
         </div>
         <div class="card" style="text-align:center">
           <div style="width:48px;height:48px;border-radius:50%;background:var(--brand-primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;margin:0 auto var(--space-md);">3</div>
@@ -152,15 +152,15 @@
         </div>
         <div class="card">
           <h3 style="margin-top:0;">OKF conformance met</h3>
-          <p>OKF v0.1 requires: (1) parseable YAML frontmatter on every non-reserved <code>.md</code> file, (2) a non-empty <code>type</code> field, (3) reserved filenames following OKF conventions. FORMAT meets all three: every <code>_FORMAT.md</code> has frontmatter, the level+template system provides type semantics, and <code>index.md</code> follows the same progressive-disclosure convention.</p>
+          <p>OKF v0.1 requires: (1) parseable YAML frontmatter on every non-reserved <code>.md</code> file, (2) a non-empty <code>type</code> field, (3) reserved filenames following OKF conventions. FORMAT meets all three: every <code>_F.md</code> has frontmatter, the level+template system provides type semantics, and <code>index.md</code> follows the same progressive-disclosure convention.</p>
         </div>
         <div class="card">
           <h3 style="margin-top:0;">Extensions tolerated</h3>
-          <p>OKF explicitly states: <em>"consumers MUST NOT reject a bundle because of unknown additional frontmatter keys, unknown <code>type</code> values, or missing optional fields."</em> FORMAT adds <code>specification_version</code>, <code>level</code>, <code>parent</code>, <code>concepts</code>, <code>markers</code>, <code>matrices</code> — all tolerated by OKF consumers.</p>
+          <p>OKF explicitly states: <em>"consumers MUST NOT reject a bundle because of unknown additional frontmatter keys, unknown <code>type</code> values, or missing optional fields."</em> FORMAT adds <code>spec_version</code>, <code>level</code>, <code>parent</code>, <code>concepts</code>, <code>markers</code>, <code>matrices</code> — all tolerated by OKF consumers.</p>
         </div>
         <div class="card">
           <h3 style="margin-top:0;">FOLDER mode = OKF Bundle</h3>
-          <p>FORMAT's FOLDER mode produces exactly the directory-of-Markdown-files structure that OKF defines as a <em>knowledge bundle</em>. Each <code>_FORMAT.md</code> maps to an OKF <em>concept document</em>. Wikilinks <code>[[target]]</code> and standard Markdown links coexist for cross-linking between concepts.</p>
+          <p>FORMAT's FOLDER mode produces exactly the directory-of-Markdown-files structure that OKF defines as a <em>knowledge bundle</em>. Each <code>_F.md</code> maps to an OKF <em>concept document</em>. Wikilinks <code>[[target]]</code> and standard Markdown links coexist for cross-linking between concepts.</p>
         </div>
       </div>
       <div style="text-align:center;margin-top:var(--space-lg);">
@@ -200,28 +200,28 @@
         <div class="card">
           <span class="card-tag" style="background:var(--accent-green, #2e7d32);color:#fff;">business &bull; FILE mode</span>
           <h3 style="margin-top:var(--space-sm);">Ghostbusters</h3>
-          <p>A complete business model for a fictional ghost-catching franchise. Covers analysis (SWOT, risks, assumptions), business idea, objectives, market segments, finance, legal, and operations. Single-file <code>_FORMAT.md</code> with the full <code>_F index</code> tree.</p>
-          <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_FORMAT.md</p>
+          <p>A complete business model for a fictional ghost-catching franchise. Covers analysis (SWOT, risks, assumptions), business idea, objectives, market segments, finance, legal, and operations. Single-file <code>_F.md</code> with the full <code>_F index</code> tree.</p>
+          <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_F.md</p>
         </div>
 
         <div class="card">
           <span class="card-tag" style="background:var(--accent-blue, #1565c0);color:#fff;">catalog &bull; FOLDER mode</span>
           <h3 style="margin-top:var(--space-sm);">Music History</h3>
-          <p>Multi-directory catalog with 4 genres (Rock, Pop, Jazz, Electronic), 6 artists (The Beatles, Queen, Michael Jackson, Miles Davis, Kraftwerk), and 5 albums — each node is a folder with its own <code>_FORMAT.md</code>. Demonstrates the full FOLDER-mode tree structure with nested concepts.</p>
+          <p>Multi-directory catalog with 4 genres (Rock, Pop, Jazz, Electronic), 6 artists (The Beatles, Queen, Michael Jackson, Miles Davis, Kraftwerk), and 5 albums — each node is a folder with its own <code>_F.md</code>. Demonstrates the full FOLDER-mode tree structure with nested concepts.</p>
           <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">specs/catalog_V_0-1-2/samples/Music_History_V_1-0-0_catalog/</p>
         </div>
 
         <div class="card">
           <span class="card-tag" style="background:var(--accent-orange, #e65100);color:#fff;">procedures &bull; FILE mode</span>
           <h3 style="margin-top:var(--space-sm);">Code Review Process</h3>
-          <p>Structured procedure document for PR-based code reviews. Defines roles (Author, Reviewer, Maintainer), step-by-step workflow with tool bindings, artifacts (checklist, report), and an expedited hotfix path. Single <code>_FORMAT.md</code> with <code>_F Procedure</code>, <code>_F Roles</code>, and <code>_F Work</code> sections.</p>
-          <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">specs/procedures_V_0-1-1/samples/CodeReviewProcess_V_1-0-0_procedures_FORMAT.md</p>
+          <p>Structured procedure document for PR-based code reviews. Defines roles (Author, Reviewer, Maintainer), step-by-step workflow with tool bindings, artifacts (checklist, report), and an expedited hotfix path. Single <code>_F.md</code> with <code>_F Procedure</code>, <code>_F Roles</code>, and <code>_F Work</code> sections.</p>
+          <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">specs/procedures_V_0-1-1/samples/CodeReviewProcess_V_1-0-0_procedures_F.md</p>
         </div>
 
         <div class="card">
           <span class="card-tag" style="background:var(--accent-purple, #6a1b9a);color:#fff;">kb &bull; FOLDER mode</span>
           <h3 style="margin-top:var(--space-sm);">Team Knowledge Base</h3>
-          <p>FOLDER-mode knowledge base model. A TeamKB root node ready to be populated with Persona, Topic, and Reference concept folders — each a directory with metadata and physical assets. The starting point for building a team-wide documentation base using the KB template.</p>
+          <p>FOLDER-mode knowledge base model. A TeamKB root node ready to be populated with Persona, Topic, and Reference concept folders — each a directory with <code>_F.md</code> metadata and physical assets. The starting point for building a team-wide documentation base using the KB template.</p>
           <p style="font-family:var(--mono);font-size:13px;color:var(--ink-muted);word-break:break-all;">archive/2026-07-02/models/TeamKB_V_0-1-1_kb/</p>
         </div>
 

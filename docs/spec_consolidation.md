@@ -43,14 +43,14 @@ NIVEL 3:  Modelos — Ghostbusters, Onboarding, KnowledgeBase, VideoAd...
 Cada archivo conoce su lugar en la jerarquía mediante `level` y `parent` en el frontmatter. La cadena se resuelve ascendiendo:
 
 ```
-Ghostbusters_V_0-3-0_business_FORMAT.md  (level 3)
-  └── parent: "business_V_1-0-0" → business_V_1-0-0_FORMAT.md  (level 2)
-        └── parent: "FORMAT_V_0-2-0" → FORMAT_V_0-2-0_FORMAT.md   (level 1)
-              └── parent: "defiNNe_V_0-2-0" → defiNNe_V_0-2-0_FORMAT.md  (level 0)
+Ghostbusters_V_0-3-0_business_F.md  (level 3)
+  └── parent: "business_V_1-0-0" → business_V_1-0-0_F.md  (level 2)
+        └── parent: "FORMAT_V_0-2-0" → FORMAT_V_0-2-0_F.md   (level 1)
+              └── parent: "defiNNe_V_0-2-0" → defiNNe_V_0-2-0_F.md  (level 0)
 ```
 
 **Para la especificación completa** (frontmatter canónico, modos FILE/FOLDER, body sections, tipos de relación), consultar:
-- [`specs/FORMAT_V_0-1-3_FORMAT.md`](../specs/FORMAT_V_0-1-3_FORMAT.md) — especificación actual
+- [`specs/FORMAT_V_0-1-5_F.md`](../specs/FORMAT_V_0-1-5_F.md) — especificación actual
 - [`specs/CHANGELOG.md`](../specs/CHANGELOG.md) — cambios entre versiones
 
 ---
@@ -61,7 +61,7 @@ Ghostbusters_V_0-3-0_business_FORMAT.md  (level 3)
 
 En lugar de tener FORMAT e iNNfo como dos especificaciones hermanas, se unifican bajo FORMAT con dos modos de representación. Esto elimina la duplicación de conceptos y permite que una misma aplicación procese ambos modos con el mismo código.
 
-**Rationale**: ambos modos modelan los mismos concepts, elements, fields, markers. Lo que cambia es la representación física (FILE = un solo archivo, FOLDER = carpeta con `_FORMAT.md` por nodo). Unificar evita tener dos parsers, dos validadores, dos modelos de datos.
+**Rationale**: ambos modos modelan los mismos concepts, elements, fields, markers. Lo que cambia es la representación física (FILE = un solo archivo, FOLDER = carpeta con `_F.md` por nodo). Unificar evita tener dos parsers, dos validadores, dos modelos de datos.
 
 ### 2.2. Meta-sistema de tipos de relación
 
@@ -74,19 +74,19 @@ FORMAT define un sistema polimórfico de relaciones donde cada tipo tiene una re
 | graph_edge | Frontmatter `graph_edges` array | Frontmatter `graph_edges` |
 | sequence | Concept type steps/sequence | Concept type steps/sequence |
 
-Ver la spec en [`specs/FORMAT_V_0-1-3_FORMAT.md`](../specs/FORMAT_V_0-1-3_FORMAT.md) para definiciones completas.
+Ver la spec en [`specs/FORMAT_V_0-1-5_F.md`](../specs/FORMAT_V_0-1-5_F.md) para definiciones completas.
 
 ### 2.3. Decisiones adicionales
 
 | Decisión | Valor |
 |---|---|
-| `parent` | Objeto con `name` + `url`. `name` es el filename sin `_FORMAT.md`. `url` es un tag de git inmutable |
+| `parent` | Objeto con `name` + `url`. `name` es el filename sin `_F.md`. `url` es un tag de git inmutable |
 | Modelos (level 3) | **Lightweight** — NO llevan template inline. Solo `parent` + datos |
 | Templates (level 2) | **Rich** — Philosophy, Objectives, Specification, Template, Examples en el body |
 | FORMAT (level 1) | **Rich** — Philosophy, Objectives, Specification, Template, Examples |
 | defiNNe (level 0) | **Rich** — Philosophy, Objectives, Specification, Template, Examples |
 | Spec resolver | La app descarga la cadena de parents al cargar un modelo y lo cachea en `specs/` |
-| Cache | `specs/<parent.name>_FORMAT.md` por cada nivel. En cargas sucesivas, usa el cache |
+| Cache | `specs/<parent.name>_F.md` por cada nivel. En cargas sucesivas, usa el cache |
 | Skills | NO son especificaciones. Referencian specs por URL, nunca duplican contenido |
 
 ### 2.4. Persistencia de URLs
@@ -94,7 +94,7 @@ Ver la spec en [`specs/FORMAT_V_0-1-3_FORMAT.md`](../specs/FORMAT_V_0-1-3_FORMAT
 Cada versión de cada especificación DEBE tener una URL que nunca cambie:
 
 ```
-specification_url: "https://raw.githubusercontent.com/innV0/defiNNe/v0.2.0/defiNNe_V_0-2-0_FORMAT.md"
+spec_url: "https://raw.githubusercontent.com/innV0/defiNNe/v0.2.0/defiNNe_V_0-2-0_F.md"
 ```
 
 Estrategia primaria: **tag releases en GitHub** (gits tags inmutables). Opción de respaldo: repositorio único `innV0/specs/` como mirror inmutable.
@@ -141,7 +141,7 @@ El `public/defiNNe/` actual en innV0.com debe reemplazarse por un redirect al ra
 
 ### Fase 1: Repositorios (PENDIENTE)
 
-5. Crear repo `innV0/defiNNe` con `defiNNe_V_0-2-0_FORMAT.md`.
+5. Crear repo `innV0/defiNNe` con `defiNNe_V_0-2-0_F.md`.
 6. Actualizar spec FORMAT a `V_0-2-0` con modos, relaciones, RFC 2119.
 7. Actualizar templates existentes con `level: 2`, `parent: "FORMAT_V_0-2-0"`.
 8. Tag `v0.2.0` en git.
@@ -223,4 +223,4 @@ No se fusionan las UIs. En su lugar se crea una **librería TypeScript pura** qu
 
 ---
 
-*Este documento es un artefacto de trabajo vivo. Para la especificación completa, ver [`specs/FORMAT_V_0-1-3_FORMAT.md`](../specs/FORMAT_V_0-1-3_FORMAT.md).*
+*Este documento es un artefacto de trabajo vivo. Para la especificación completa, ver [`specs/FORMAT_V_0-1-5_F.md`](../specs/FORMAT_V_0-1-5_F.md).*
