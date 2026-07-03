@@ -35,7 +35,6 @@ const FORMAT_VERSION_RE = /V_\d+-\d+-\d+/g;
 
 function collectFiles(dir, includeArchives) {
   const files = [];
-  const baseName = relative(ROOT, dir) || '.';
   const topLevel = dir === ROOT;
 
   try {
@@ -67,8 +66,6 @@ function collectFiles(dir, includeArchives) {
 // ── Classification ──────────────────────────────────────────────────
 
 function classifyFile(relPath) {
-  const parts = relPath.replace(/\\/g, '/').split('/');
-
   const isFormatFile = relPath.endsWith('_FORMAT.md') || relPath.endsWith('_F.md');
 
   if (relPath.startsWith('specs') && isFormatFile && !relPath.includes('/samples/')) {

@@ -8,6 +8,7 @@
     "dev": "vite",
     "prebuild": "npm --prefix ../../packages/innfo-core run build",
     "build": "vue-tsc --noEmit && vite build",
+    "typecheck": "vue-tsc --noEmit",
     "preview": "vite preview",
     "pretest": "npm --prefix ../../packages/innfo-core run build",
     "test": "vitest run",
