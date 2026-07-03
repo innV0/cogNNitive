@@ -2,7 +2,7 @@
 specification_version: "V_0-1-1"
 specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/procedures_V_0-1-1_FORMAT.md"
 level: 2
-parent:
+parent_spec:
   name: "FORMAT_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-1_FORMAT.md"
 title: "Procedures Template"
@@ -179,7 +179,7 @@ To create a procedures model, create a level 3 FILE mode document with:
 specification_version: "V_0-1-1"
 specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-1_FORMAT.md"
 level: 3
-parent:
+parent_spec:
   name: "procedures_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/procedures_V_0-1-1_FORMAT.md"
 model_version: "V_x-y-z"
@@ -244,17 +244,17 @@ When `specs/procedures_V_0-1-1/samples/CodeReviewProcess_V_1-0-0_procedures_FORM
 
 ```yaml
 # From the CodeReviewProcess sample:
-parent:
+parent_spec:
   name: "procedures_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/procedures_V_0-1-1_FORMAT.md"
 
 # This template's parent:
-parent:
+parent_spec:
   name: "FORMAT_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-1_FORMAT.md"
 
 # FORMAT's parent:
-parent:
+parent_spec:
   name: "defiNNe_V_0-1-0"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.0/specs/defiNNe_V_0-1-0_FORMAT.md"
 ```

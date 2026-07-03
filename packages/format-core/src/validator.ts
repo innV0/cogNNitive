@@ -24,8 +24,8 @@ export function validateModel(
   if (fm.level !== 3) {
     errors.push({ path: 'frontmatter.level', message: `Expected level 3 for model, got ${fm.level}`, severity: 'error' });
   }
-  if (!fm.parent) {
-    errors.push({ path: 'frontmatter.parent', message: 'Missing parent', severity: 'error' });
+  if (!fm.parent_spec) {
+    errors.push({ path: 'frontmatter.parent_spec', message: 'Missing parent_spec', severity: 'error' });
   }
   if (!fm.model_version) {
     errors.push({ path: 'frontmatter.model_version', message: 'Missing model_version', severity: 'error' });
@@ -163,19 +163,19 @@ export function validateFormatContent(
       : `Expected level 3, got ${fm.level}`,
   })
 
-  // 2. parent
-  const parentOk = !!(fm.parent && typeof fm.parent === 'object' && fm.parent.name && fm.parent.url)
+  // 2. parent_spec
+  const parentOk = !!(fm.parent_spec && typeof fm.parent_spec === 'object' && fm.parent_spec.name && fm.parent_spec.url)
   checks.push({
     id: 'fm-parent',
-    label: 'Parent reference (name + URL)',
-    description: 'Every model must declare its parent template with a name and immutable URL',
+    label: 'Parent spec reference (name + URL)',
+    description: 'Every model must declare its parent_spec with a name and immutable URL',
     category: 'frontmatter',
     severity: 'error',
     passed: parentOk,
     message: parentOk ? undefined
-      : !fm.parent ? 'Missing parent field'
-      : !fm.parent.name ? 'Parent missing name'
-      : 'Parent missing url',
+      : !fm.parent_spec ? 'Missing parent_spec field'
+      : !fm.parent_spec.name ? 'Parent_spec missing name'
+      : 'Parent_spec missing url',
   })
 
   // 3. model_version present

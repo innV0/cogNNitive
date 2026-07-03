@@ -146,7 +146,13 @@ function parseYamlValue(v: string): string | number | boolean | null | unknown[]
 export function parseFrontmatter(content: string): SpecFrontmatter | null {
   const match = normalizeLineEndings(content).match(YAML_BLOCK_RE);
   if (!match) return null;
-  return parseYaml(match[1]) as SpecFrontmatter;
+  const parsed = parseYaml(match[1]);
+  // Normalize legacy parent → parent_spec (defiNNe V_0-1-0 era)
+  if ((parsed as any).parent && !(parsed as any).parent_spec) {
+    (parsed as any).parent_spec = (parsed as any).parent;
+    delete (parsed as any).parent;
+  }
+  return parsed as SpecFrontmatter;
 }
 
 export function parseMarkdownTable(md: string): Record<string, string>[] {
@@ -415,10 +421,10 @@ export function serializeModel(model: ParsedModel): string {
   lines.push(`spec_version: "${fm.spec_version || 'V_0-2-0'}"`);
   if (fm.spec_url) lines.push(`spec_url: "${fm.spec_url}"`);
   if (fm.level !== undefined) lines.push(`level: ${fm.level}`);
-  if (fm.parent) {
-    lines.push('parent:');
-    lines.push(`  name: "${fm.parent.name}"`);
-    lines.push(`  url: "${fm.parent.url}"`);
+  if (fm.parent_spec) {
+    lines.push('parent_spec:');
+    lines.push(`  name: "${fm.parent_spec.name}"`);
+    lines.push(`  url: "${fm.parent_spec.url}"`);
   }
   if (fm.model_version) lines.push(`model_version: "${fm.model_version}"`);
   if (fm.title) lines.push(`title: "${fm.title}"`);

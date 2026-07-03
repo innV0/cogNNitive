@@ -2,7 +2,7 @@
 specification_version: "V_0-1-1"
 specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 level: 2
-parent:
+parent_spec:
   name: "FORMAT_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-1_FORMAT.md"
 title: "Business Template"
@@ -646,7 +646,7 @@ To create a business model, create a level 3 FILE mode document with:
 specification_version: "V_0-1-1"
 specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-1_FORMAT.md"
 level: 3
-parent:
+parent_spec:
   name: "business_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 model_version: "V_x-y-z"
@@ -678,7 +678,7 @@ Your business summary here.
 | Problem 1 | Max | High |
 ```
 
-The application will resolve the `parent` URL, download this template, and use its concepts/markers/matrices to validate and render your model.
+The application will resolve the `parent_spec` URL, download this template, and use its concepts/markers/matrices to validate and render your model.
 
 ## Examples
 
@@ -694,26 +694,26 @@ When the sample `specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_FO
 📁 Ghostbusters_V_0-1-2_business/
   📄 Ghostbusters_V_0-1-2_business_FORMAT.md
   📁 specs/
-    📄 business_V_0-1-1_FORMAT.md     ← this file (downloaded from parent.url)
-    📄 FORMAT_V_0-1-2_FORMAT.md        ← downloaded from this file's parent.url
-    📄 defiNNe_V_0-1-0_FORMAT.md       ← downloaded from FORMAT's parent.url
+    📄 business_V_0-1-1_FORMAT.md     ← this file (downloaded from parent_spec.url)
+    📄 FORMAT_V_0-1-2_FORMAT.md        ← downloaded from this file's parent_spec.url
+    📄 defiNNe_V_0-1-0_FORMAT.md       ← downloaded from FORMAT's parent_spec.url
 ```
 
 ### Parent Chain
 
 ```yaml
 # From the Ghostbusters sample:
-parent:
+parent_spec:
   name: "business_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 
 # This template's parent:
-parent:
+parent_spec:
   name: "FORMAT_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/FORMAT_V_0-1-1_FORMAT.md"
 
 # FORMAT's parent:
-parent:
+parent_spec:
   name: "defiNNe_V_0-1-0"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.0/specs/defiNNe_V_0-1-0_FORMAT.md"
 ```

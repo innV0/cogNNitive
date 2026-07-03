@@ -2,7 +2,7 @@
 spec_version: "V_0-1-5"
 spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
 level: 1
-parent:
+parent_spec:
   name: "defiNNe_V_0-1-0"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/defiNNe_V_0-1-0_FORMAT.md"
 title: "FORMAT Specification"
@@ -64,16 +64,16 @@ FORMAT is designed around five principles:
 
 ### 1. Parent Chain
 
-FORMAT is a level 1 specification. Its `parent` points to defiNNe:
+FORMAT is a level 1 specification. Its `parent_spec` points to defiNNe:
 
 ```yaml
-parent:
+parent_spec:
   name: "defiNNe_V_0-1-0"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/defiNNe_V_0-1-0_FORMAT.md"
 ```
 
-All templates (level 2) MUST declare `parent` pointing to FORMAT.
-All models (level 3) MUST declare `parent` pointing to their template.
+All templates (level 2) MUST declare `parent_spec` pointing to FORMAT.
+All models (level 3) MUST declare `parent_spec` pointing to their template.
 
 Resolution follows the spec resolver protocol defined in defiNNe (§3).
 
@@ -87,7 +87,7 @@ The model frontmatter is limited to:
 spec_version: "V_0-1-5"
 spec_url: "<immutable-url>"
 level: 3
-parent:
+parent_spec:
   name: "<template>_V_x-y-z"
   url: "<immutable-url>"
 model_version: "V_x-y-z"
@@ -323,7 +323,7 @@ See individual template specifications for valid `type` values per concept.
 
 ### 6. Self-Description
 
-This document (`FORMAT_V_0-1-5_F.md`) is itself a level 1 specification following defiNNe. It declares `parent: { name: "defiNNe_V_0-1-0", url: "..." }` and includes the required body sections.
+This document (`FORMAT_V_0-1-5_F.md`) is itself a level 1 specification following defiNNe. It declares `parent_spec: { name: "defiNNe_V_0-1-0", url: "..." }` and includes the required body sections.
 
 ## Template
 
@@ -334,7 +334,7 @@ This document (`FORMAT_V_0-1-5_F.md`) is itself a level 1 specification followin
 spec_version: "V_0-1-5"
 spec_url: "<immutable-url>"
 level: 2
-parent:
+parent_spec:
   name: "FORMAT_V_0-1-5"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs/FORMAT_V_0-1-5_F.md"
 title: "<Template Name>"
@@ -369,7 +369,7 @@ relationship_declarations: {...}
 spec_version: "V_0-1-5"
 spec_url: "<immutable-url>"
 level: 3
-parent:
+parent_spec:
   name: "<template>_V_x-y-z"
   url: "<immutable-url>"
 model_version: "V_x-y-z"
@@ -403,7 +403,7 @@ Every template defined in this repo has a canonical sample under `samples/`:
 From `specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_FORMAT.md`:
 
 ```yaml
-parent:
+parent_spec:
   name: "business_V_0-1-1"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/business_V_0-1-1_FORMAT.md"
 ```

@@ -30,6 +30,11 @@ relationship_types:
 ---
 
 > [!NOTE]
+> **This specification version is superseded.**
+> The latest version is **[FORMAT_V_0-1-5_F.md](./FORMAT_V_0-1-5_F.md)**.
+> It remains frozen and immutable as published. New models SHOULD target V_0-1-5.
+
+> [!NOTE]
 > This is a **FORMAT document** — a plain-text Markdown file that carries its own schema in the YAML frontmatter.
 
 # FORMAT Specification

@@ -25,7 +25,7 @@ describe('defiNNe (level 0)', () => {
     expect(fm.level).toBe(0);
     // Frozen spec (defiNNe_V_0-1-0_FORMAT.md) still uses old frontmatter key
     expect((fm as any)['specification_version']).toBe('V_0-1-0');
-    expect(fm.parent).toBeUndefined();
+    expect(fm.parent_spec).toBeUndefined();
     expect(fm.title).toContain('defiNNe');
   });
 });
@@ -36,8 +36,8 @@ describe('FORMAT (level 1)', () => {
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(1);
-    expect(fm.parent).toBeDefined();
-    expect(fm.parent!.name).toBe('defiNNe_V_0-1-0');
+    expect(fm.parent_spec).toBeDefined();
+    expect(fm.parent_spec!.name).toBe('defiNNe_V_0-1-0');
     expect(fm.modes).toEqual(['FILE', 'FOLDER']);
     expect(fm.relationship_types).toHaveLength(4);
   });
@@ -49,7 +49,7 @@ describe('business template (level 2)', () => {
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(2);
-    expect(fm.parent!.name).toBe('FORMAT_V_0-1-1');
+    expect(fm.parent_spec!.name).toBe('FORMAT_V_0-1-1');
     expect(fm.mode).toBe('FILE');
     expect(fm.concepts).toBeDefined();
     expect(fm.concepts!.length).toBeGreaterThan(60);
@@ -73,7 +73,7 @@ describe('Ghostbusters model (level 3)', () => {
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(3);
-    expect(fm.parent!.name).toBe('business_V_0-1-1');
+    expect(fm.parent_spec!.name).toBe('business_V_0-1-1');
     expect(fm.model_version).toBe('V_0-1-2');
     expect(fm.mode).toBe('FILE');
   });
@@ -162,7 +162,7 @@ describe('procedures template (level 2)', () => {
 
   it('parses frontmatter', () => {
     expect(fm.level).toBe(2);
-    expect(fm.parent!.name).toBe('FORMAT_V_0-1-1');
+    expect(fm.parent_spec!.name).toBe('FORMAT_V_0-1-1');
     expect(fm.mode).toBe('FILE');
     expect(fm.concepts).toHaveLength(7);
     expect(fm.markers).toHaveLength(1);
@@ -344,7 +344,7 @@ describe('element slug derivation (FR-002)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       '---',
@@ -369,7 +369,7 @@ describe('element slug derivation (FR-002)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       '---',
@@ -431,7 +431,7 @@ describe('element slug derivation (FR-002)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       '---',
@@ -481,7 +481,7 @@ describe('element slug derivation (FR-002)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       '---',
@@ -531,7 +531,7 @@ describe('ConceptField.type with asset types (FR-003)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       'concepts:',
@@ -586,7 +586,7 @@ describe('asset_mode (FR-004)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Mode Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       '---',
@@ -613,7 +613,7 @@ describe('asset_mode (FR-004)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Mode Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       'asset_mode: centralized',
@@ -640,7 +640,7 @@ describe('asset_mode (FR-004)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Mode Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       'asset_mode: per-element',
@@ -686,7 +686,7 @@ describe('asset_mode (FR-004)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Asset Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       'asset_mode: centralized',
@@ -750,7 +750,7 @@ describe('FOLDER mode rejection (FR-007)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       'mode: FOLDER',
@@ -779,7 +779,7 @@ describe('FOLDER mode rejection (FR-007)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       'mode: FOLDER',
@@ -810,7 +810,7 @@ describe('FOLDER mode rejection (FR-007)', () => {
       'level: 3',
       'model_version: "V_0-0-1"',
       'title: "Test"',
-      'parent:',
+      'parent_spec:',
       '  name: "test_V_0-1-1"',
       '  url: "https://example.com/test"',
       'mode: FOLDER',

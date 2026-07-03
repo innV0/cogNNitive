@@ -51,6 +51,29 @@ export function getHexColorMedium(hex: string): string {
   return hex + '30' // 19% alpha
 }
 
+// ── YIQ Luminance & Contrast ───────────────────────────────────
+
+/**
+ * YIQ-based perceived luminance for a hex color.
+ * Strips any alpha suffix (e.g., #a855f718 → #a855f7).
+ * Returns a value between 0 (dark) and 1 (light).
+ */
+export function yiqLuminance(hex: string): number {
+  const clean = hex.length > 7 ? hex.slice(0, 7) : hex
+  const r = parseInt(clean.slice(1, 3), 16) / 255
+  const g = parseInt(clean.slice(3, 5), 16) / 255
+  const b = parseInt(clean.slice(5, 7), 16) / 255
+  return 0.299 * r + 0.587 * g + 0.114 * b
+}
+
+/**
+ * Returns a text color (dark or white) based on YIQ luminance of the background.
+ * Threshold: 0.55 — above → dark text (#1e293b), below → white (#ffffff).
+ */
+export function textColor(hex: string): string {
+  return yiqLuminance(hex) > 0.55 ? '#1e293b' : '#ffffff'
+}
+
 // ── Peer template cache (session-scoped, survives reactivity) ──
 
 const _peerCache = new Map<string, string | null>()
@@ -70,7 +93,7 @@ function findTemplatePeer(
 
   // Parse frontmatter to extract parent.name (the template name)
   const fm = parseFrontmatter(root.rawContent)
-  const parentName: string | undefined = (fm as any)?.parent?.name
+  const parentName: string | undefined = (fm as any)?.parent_spec?.name
   if (!parentName) {
     _peerCache.set(rootId, null)
     return null

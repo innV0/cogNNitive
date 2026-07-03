@@ -54,7 +54,7 @@ export interface SpecFrontmatter {
   spec_version: string;
   spec_url: string;
   level: SpecLevel;
-  parent?: ParentRef;
+  parent_spec?: ParentRef;
   title?: string;
   description?: string;
   author?: string;
