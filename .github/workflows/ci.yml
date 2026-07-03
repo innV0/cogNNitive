@@ -43,7 +43,7 @@ jobs:
           fi
 
       - name: Typecheck (app)
-        run: npm --prefix apps/innfo-editor exec -- vue-tsc --noEmit
+        run: npm --prefix apps/innfo-editor run typecheck
 
       - name: Unit tests (core)
         run: npm --prefix packages/innfo-core test
