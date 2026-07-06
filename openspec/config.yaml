@@ -1,0 +1,36 @@
+schema: spec-driven
+context: |
+  Project: cogNNitive
+  Type: Monorepo with npm workspaces (packages/*, apps/*)
+
+  Stack & Architecture:
+  - packages/innfo-core: Core parser, model, IO drivers, and validator. Runs on Node.js/Browser (ESM). Built using `tsc`.
+  - packages/innfo-mcp: Model Context Protocol (MCP) server wrapping @innv0/innfo-core. Built using `tsup`.
+  - apps/innfo-editor: Frontend Vue 3 application, Vite, Tailwind CSS, Pinia. Built using `vite`.
+
+  Testing & Verification:
+  - Unit/Integration: Vitest (`npm run test` executes tests in packages/innfo-core and apps/innfo-editor).
+  - End-to-End: Playwright (`npm run test:e2e` in apps/innfo-editor).
+  - Strict TDD: Enabled by default since test runners are active. All changes must be backed by tests.
+
+  Quality Gates:
+  - Linter: ESLint with flat config (`eslint.config.mjs`). Formatting rules are delegated to Prettier, focusing ESLint on correctness. Run via `npm run lint`.
+  - Formatting: Prettier (`.prettierrc.json` and `.prettierignore`). Run via `npm run format`.
+  - Typecheck: TypeScript compiler (`tsc` for packages, `vue-tsc --noEmit` for apps/innfo-editor). Run via `npm run typecheck`.
+
+  Conventions:
+  - ESLint warnings are tolerated for legacy debt (such as unused variables prefixed with `_`, explicit `any`, or direct prop mutations in Vue SFCs), but new code must not introduce errors or new un-prefixed warnings.
+  - Component names in apps/innfo-editor are single-word where appropriate (e.g. Header, Badge).
+rules:
+  proposal:
+    - Describe the problem clearly, referencing any relevant iNNfo specifications or version bounds.
+    - List target packages or apps affected.
+  specs:
+    - Describe functional scenarios clearly, specifying expected inputs and outputs.
+    - Keep test cases aligned with Vitest/Playwright capabilities.
+  design:
+    - Detail workspace organization changes if packages or apps are added.
+    - Specify code structure modifications, exports/imports in ESM, and build configurations if packages are updated.
+  tasks:
+    - Break down tasks by package/app (e.g., packages/innfo-core first, then apps/innfo-editor).
+    - Include lint, typecheck, format, and test verification tasks at each step.
