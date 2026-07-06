@@ -42,10 +42,7 @@ describe('metamodelStore: taxonomy perspectives (Phase H)', () => {
   describe('taxonomyEdges', () => {
     it('parses taxonomy from root node frontmatter into PerspectiveEdge[]', () => {
       const modelStore = useModelStore()
-      modelStore.setGraph(
-        { Root: makeNode('Root', { rawContent: TAXONOMY_FM }) },
-        ['Root'],
-      )
+      modelStore.setGraph({ Root: makeNode('Root', { rawContent: TAXONOMY_FM }) }, ['Root'])
 
       const store = useMetamodelStore()
 
@@ -99,9 +96,7 @@ taxonomy:
       )
 
       const store = useMetamodelStore()
-      expect(store.taxonomyEdges).toEqual([
-        { parent: 'Good', child: 'Valid' },
-      ])
+      expect(store.taxonomyEdges).toEqual([{ parent: 'Good', child: 'Valid' }])
     })
   })
 
@@ -110,10 +105,7 @@ taxonomy:
   describe('conceptTree', () => {
     it('builds hierarchical tree from three-level taxonomy', () => {
       const modelStore = useModelStore()
-      modelStore.setGraph(
-        { Root: makeNode('Root', { rawContent: TAXONOMY_FM }) },
-        ['Root'],
-      )
+      modelStore.setGraph({ Root: makeNode('Root', { rawContent: TAXONOMY_FM }) }, ['Root'])
 
       const store = useMetamodelStore()
 
@@ -187,9 +179,7 @@ taxonomy:
 
       const store = useMetamodelStore()
 
-      expect(store.conceptTree).toEqual([
-        { name: 'A', children: [{ name: 'B', children: [] }] },
-      ])
+      expect(store.conceptTree).toEqual([{ name: 'A', children: [{ name: 'B', children: [] }] }])
     })
   })
 
@@ -231,10 +221,7 @@ taxonomy:
 
     it('defaults icon to "layers" when concept is not in resolved metamodel', () => {
       const modelStore = useModelStore()
-      modelStore.setGraph(
-        { Root: makeNode('Root', { rawContent: TAXONOMY_FM }) },
-        ['Root'],
-      )
+      modelStore.setGraph({ Root: makeNode('Root', { rawContent: TAXONOMY_FM }) }, ['Root'])
 
       const store = useMetamodelStore()
       const result = store.getNeighborhood('Unknown')

@@ -26,6 +26,8 @@
         :node-id="nodeId"
         :name="node?.name ?? '(unknown)'"
         :kind="isConceptLike ? 'concept' : 'instance'"
+        :concept-type="node?.type"
+        :selected="isSelected"
         :block-id="nodeId"
         :description="description"
         :fields="fields"
@@ -131,7 +133,10 @@
 import { ref, computed, watch } from 'vue'
 import { ChevronDown, ChevronUp } from 'lucide-vue-next'
 import { useModelStore } from '../../stores/modelStore'
-import { useConceptVisuals, getHexColorMedium, getHexColorLight } from '../../composables/useConceptVisuals'
+import {
+  useConceptVisuals,
+  getHexColorMedium,
+} from '../../composables/useConceptVisuals'
 import BlockPill from '../editor/BlockPill.vue'
 import VirtualGroupNode from './VirtualGroupNode.vue'
 import type { ModelNode } from '../../model/types'
@@ -206,7 +211,8 @@ const isGhost = computed(() => {
   if (!n) return false
   const hasDesc = !!n.rawContent && n.rawContent.trim().length > 0
   const hasFields = Object.values(n.fields).some(
-    (f: any) => f?.value !== undefined && f?.value !== null && f?.value !== '' && f?.value !== false
+    (f: any) =>
+      f?.value !== undefined && f?.value !== null && f?.value !== '' && f?.value !== false,
   )
   return !hasDesc && !hasFields && children.value.length === 0
 })
@@ -245,9 +251,7 @@ const groupedChildren = computed<RenderItem[]>(() => {
   }
 
   // Sort groups by name (alphabetically)
-  const sortedGroups = [...groups.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0]),
-  )
+  const sortedGroups = [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]))
 
   const result: RenderItem[] = []
 
@@ -319,5 +323,4 @@ const rowStyle = computed(() => {
 
   return style
 })
-
 </script>

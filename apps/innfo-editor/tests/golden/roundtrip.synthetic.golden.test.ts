@@ -47,10 +47,18 @@ function structureOf(nodes: Record<string, ModelNode>, rootIds: string[]) {
       fieldKeys: Object.keys(n.fields).sort(),
       childCount: n.childIds.length,
     }))
-  return { rootIds: [...rootIds].sort(), nodeCount: Object.keys(nodes).length, nodes: nodeSummaries }
+  return {
+    rootIds: [...rootIds].sort(),
+    nodeCount: Object.keys(nodes).length,
+    nodes: nodeSummaries,
+  }
 }
 
-async function assertRoundTripStable(index: string, modelFile: string, modelContent: string): Promise<void> {
+async function assertRoundTripStable(
+  index: string,
+  modelFile: string,
+  modelContent: string,
+): Promise<void> {
   const tree = { 'index.md': index, [modelFile]: modelContent }
   const root = buildFakeTree('workspace', tree)
   const firstParse = await recursiveParse(root)
@@ -58,7 +66,9 @@ async function assertRoundTripStable(index: string, modelFile: string, modelCont
 
   let capturedContent: string | null = null
   const capturingDriver: ModelDriver = {
-    readModel: async () => { throw new Error('not expected') },
+    readModel: async () => {
+      throw new Error('not expected')
+    },
     writeModel: async (_uri: string, model: ParsedModel) => {
       capturedContent = model.rawContent
     },

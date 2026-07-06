@@ -15,20 +15,56 @@ const { toasts, dismiss } = useToast()
         @click="dismiss(t.id)"
       >
         <span class="toast__icon">
-          <svg v-if="t.type === 'error'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>
+          <svg
+            v-if="t.type === 'error'"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M15 9l-6 6M9 9l6 6" />
           </svg>
-          <svg v-else-if="t.type === 'warning'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2L2 19h20L12 2z"/><path d="M12 9v4"/><path d="M12 17v.01"/>
+          <svg
+            v-else-if="t.type === 'warning'"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 2L2 19h20L12 2z" />
+            <path d="M12 9v4" />
+            <path d="M12 17v.01" />
           </svg>
-          <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+          <svg
+            v-else
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
           </svg>
         </span>
         <span class="toast__message">{{ t.message }}</span>
         <button class="toast__close" @click.stop="dismiss(t.id)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12"/>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
           </svg>
         </button>
       </div>
@@ -63,7 +99,7 @@ const { toasts, dismiss } = useToast()
   line-height: 1.4;
   cursor: pointer;
   pointer-events: auto;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   animation: toast-in 0.25s ease-out;
   transition: opacity 0.2s;
 }
@@ -73,17 +109,17 @@ const { toasts, dismiss } = useToast()
 }
 
 .toast--error {
-  background: #C62828;
+  background: #c62828;
   color: #fff;
 }
 
 .toast--warning {
-  background: #8D6E00;
+  background: #8d6e00;
   color: #fff;
 }
 
 .toast--success {
-  background: #2E7D32;
+  background: #2e7d32;
   color: #fff;
 }
 

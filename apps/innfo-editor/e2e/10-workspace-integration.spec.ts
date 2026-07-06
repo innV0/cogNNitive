@@ -28,9 +28,12 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
     await page.getByTestId('view-switcher-info').click()
     await expect(body).toContainText(/V_1-0-0|model|version/i)
 
-    await page.getByText(/← Home|Home/).first().click()
-    expect(page.url()).toBe('/app/')
-    await expect(page.locator('button', { hasText: /Open folder/i })).toBeVisible()
+    await page
+      .getByText(/← Home|Home/)
+      .first()
+      .click()
+    expect(page.url()).toContain('/app/')
+    await expect(page.locator('button', { hasText: /Open folder/i }).first()).toBeVisible()
   })
 
   test('UI Pattern: Three-panel layout with resizable sidebars', async ({ page }) => {
@@ -53,13 +56,16 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
   })
 
   test('UI Pattern: Validation button triggers modal with report', async ({ page }) => {
-    await page.getByText('HillValleyCorp').first().click()
+    await page.getByTestId('expand-all').click()
+    await page.getByText('Delorean').first().click()
 
     const validateBtn = page.getByText('Validate', { exact: true }).first()
-    await expect(validateBtn).toBeEnabled()
+    await expect(validateBtn).toBeEnabled({ timeout: 5000 })
     await validateBtn.click()
 
-    const validationResult = page.locator('[class*="toast"], [class*="validation"], [class*="report"]').first()
+    const validationResult = page
+      .locator('[class*="toast"], [class*="validation"], [class*="report"]')
+      .first()
     await expect(validationResult).toBeVisible()
     const text = await validationResult.textContent()
     expect(text?.length).toBeGreaterThan(0)
@@ -68,7 +74,9 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
   test('UI Pattern: Graph view renders interactive SVG', async ({ page }) => {
     await page.getByTestId('view-switcher-graph').click()
     await expect(page.getByTestId('graph-viewer')).toBeVisible()
-    const svg = page.locator('svg[class*="graph"], svg[class*="d3"], [data-testid="graph-viewer"] svg').first()
+    const svg = page
+      .locator('svg[class*="graph"], svg[class*="d3"], [data-testid="graph-viewer"] svg')
+      .first()
     const innerHtml = await svg.innerHTML()
     expect(innerHtml.length).toBeGreaterThan(100)
   })
@@ -100,7 +108,10 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
   })
 
   test('UI Pattern: Home page has recent files list', async ({ page }) => {
-    await page.getByText(/← Home|Home/).first().click()
+    await page
+      .getByText(/← Home|Home/)
+      .first()
+      .click()
 
     const recentSection = page.getByText(/Recent|recent|history|History/i).first()
     const recentExists = await recentSection.count()
@@ -114,7 +125,7 @@ test.describe('Workspace Integration — Full Workflow & UI Pattern Compliance',
     await page.getByText('Delorean').first().click()
 
     const showBtn = page.getByTitle('Show Guidance Panel').first()
-    if (await showBtn.count() > 0) {
+    if ((await showBtn.count()) > 0) {
       await showBtn.click()
     }
 

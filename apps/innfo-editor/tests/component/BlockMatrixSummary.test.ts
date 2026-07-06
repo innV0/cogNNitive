@@ -24,7 +24,7 @@ concepts:
     type: phase
     color: green
 matrices:
-${matrices.map(m => `  - name: ${m.name}\n    source: ${m.source}\n    target: ${m.target}`).join('\n')}
+${matrices.map((m) => `  - name: ${m.name}\n    source: ${m.source}\n    target: ${m.target}`).join('\n')}
 ---
 `
 
@@ -37,7 +37,13 @@ ${matrices.map(m => `  - name: ${m.name}\n    source: ${m.source}\n    target: $
     fields: Object.fromEntries(
       Object.entries(cellFields).map(([key, val]) => [
         key,
-        { value: val.value, provenance: { author: { kind: 'system', id: 'test' }, timestamp: '2024-01-01T00:00:00.000Z' } },
+        {
+          value: val.value,
+          provenance: {
+            author: { kind: 'system', id: 'test' },
+            timestamp: '2024-01-01T00:00:00.000Z',
+          },
+        },
       ]),
     ),
     markers: {},
@@ -70,10 +76,9 @@ describe('BlockMatrixSummary.vue — R-SC-04', () => {
 
   it('renders a chip when the node participates as a row in a matrix', () => {
     const modelStore = useModelStore()
-    const root = makeRootNode(
-      [{ name: 'M1', source: 'Task', target: 'Phase' }],
-      { 'M1||MyTask||Phase1': { value: 'active' } },
-    )
+    const root = makeRootNode([{ name: 'M1', source: 'Task', target: 'Phase' }], {
+      'M1||MyTask||Phase1': { value: 'active' },
+    })
     const element = makeElementNode('Root/MyTask', 'MyTask', 'Task')
     modelStore.setGraph({ Root: root, 'Root/MyTask': element }, ['Root'])
 
@@ -92,10 +97,9 @@ describe('BlockMatrixSummary.vue — R-SC-04', () => {
 
   it('renders a chip when the node participates as a column in a matrix', () => {
     const modelStore = useModelStore()
-    const root = makeRootNode(
-      [{ name: 'M1', source: 'Task', target: 'Phase' }],
-      { 'M1||SomeTask||MyPhase': { value: 'done' } },
-    )
+    const root = makeRootNode([{ name: 'M1', source: 'Task', target: 'Phase' }], {
+      'M1||SomeTask||MyPhase': { value: 'done' },
+    })
     const element = makeElementNode('Root/MyPhase', 'MyPhase', 'Phase')
     modelStore.setGraph({ Root: root, 'Root/MyPhase': element }, ['Root'])
 
@@ -114,14 +118,11 @@ describe('BlockMatrixSummary.vue — R-SC-04', () => {
 
   it('counts cells with non-dash/empty values only', () => {
     const modelStore = useModelStore()
-    const root = makeRootNode(
-      [{ name: 'M1', source: 'Task', target: 'Phase' }],
-      {
-        'M1||MyTask||P1': { value: 'active' },
-        'M1||MyTask||P2': { value: '-' },
-        'M1||MyTask||P3': { value: '' },
-      },
-    )
+    const root = makeRootNode([{ name: 'M1', source: 'Task', target: 'Phase' }], {
+      'M1||MyTask||P1': { value: 'active' },
+      'M1||MyTask||P2': { value: '-' },
+      'M1||MyTask||P3': { value: '' },
+    })
     const element = makeElementNode('Root/MyTask', 'MyTask', 'Task')
     modelStore.setGraph({ Root: root, 'Root/MyTask': element }, ['Root'])
 

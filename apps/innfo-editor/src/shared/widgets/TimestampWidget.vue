@@ -104,7 +104,7 @@ function onInput(e: Event): void {
 }
 .widget-timestamp-input:focus {
   outline: none;
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
   box-shadow: 0 0 0 2px rgba(77, 14, 78, 0.1);
 }
 .widget-timestamp-read {

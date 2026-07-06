@@ -9,7 +9,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useWorkspaceStore } from '../../src/stores/workspaceStore'
 import { useModelStore } from '../../src/stores/modelStore'
-import { isFileSystemAccessSupported, scanDirectory, readFileContent, connectDirectory } from '../../src/composables/useFileSystem'
+import {
+  isFileSystemAccessSupported,
+  scanDirectory,
+  readFileContent,
+  connectDirectory,
+} from '../../src/composables/useFileSystem'
 import { useUrlDocLoader } from '../../src/composables/useUrlDocLoader'
 import { buildFakeTree } from '../helpers/fakeFs'
 
@@ -61,8 +66,8 @@ describe('scanDirectory()', () => {
 
     expect(result.errors).toEqual([])
     expect(result.files).toHaveLength(2)
-    expect(result.files.map(f => f.name)).toEqual(['file1.md', 'file2.md'])
-    expect(result.files.every(f => f.kind === 'file')).toBe(true)
+    expect(result.files.map((f) => f.name)).toEqual(['file1.md', 'file2.md'])
+    expect(result.files.every((f) => f.kind === 'file')).toBe(true)
   })
 
   it('scans nested directories recursively', async () => {
@@ -81,7 +86,7 @@ describe('scanDirectory()', () => {
     expect(result.errors).toEqual([])
     // Returns both files AND directory entries
     expect(result.files.length).toBeGreaterThanOrEqual(3)
-    const names = result.files.map(f => f.name)
+    const names = result.files.map((f) => f.name)
     expect(names).toContain('doc.md')
     expect(names).toContain('nested.md')
     expect(names).toContain('deep.md')
@@ -185,7 +190,9 @@ describe('useUrlDocLoader.fetch()', () => {
     expect(result.nodes[rootId]).toBeDefined()
     expect(result.nodes[rootId].kind).toBe('root')
     expect(result.nodes[rootId].name).toBe('Test Model')
-    expect(result.nodes[rootId].source.path).toBe('https://example.com/TestModel_V_1-0-0_business_NN.md')
+    expect(result.nodes[rootId].source.path).toBe(
+      'https://example.com/TestModel_V_1-0-0_business_NN.md',
+    )
   })
 
   it('loadIntoStore populates modelStore', async () => {
@@ -196,7 +203,9 @@ describe('useUrlDocLoader.fetch()', () => {
     } as Response)
 
     const loader = useUrlDocLoader()
-    const result = await loader.loadIntoStore('https://example.com/TestModel_V_1-0-0_business_NN.md')
+    const result = await loader.loadIntoStore(
+      'https://example.com/TestModel_V_1-0-0_business_NN.md',
+    )
 
     expect(result.error).toBeNull()
 
@@ -253,7 +262,9 @@ describe('workspaceStore.loadFromUrl()', () => {
     vi.spyOn(window, 'fetch').mockRejectedValue(new Error('Network failure'))
 
     const store = useWorkspaceStore()
-    await expect(store.loadFromUrl('https://example.com/model.md')).rejects.toThrow('Network failure')
+    await expect(store.loadFromUrl('https://example.com/model.md')).rejects.toThrow(
+      'Network failure',
+    )
     expect(store.error).toContain('Network failure')
   })
 })

@@ -6,7 +6,7 @@
  * Uses v-model contract: modelValue / update:modelValue.
  * Registered as 'mermaid' in the unified widget registry.
  */
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import mermaid from 'mermaid'
 
 const props = withDefaults(
@@ -41,12 +41,15 @@ onMounted(() => {
   }
 })
 
-watch(() => props.modelValue, (val) => {
-  editText.value = val ?? ''
-  if (props.readonly && val) {
-    renderDiagram(val)
-  }
-})
+watch(
+  () => props.modelValue,
+  (val) => {
+    editText.value = val ?? ''
+    if (props.readonly && val) {
+      renderDiagram(val)
+    }
+  },
+)
 
 function onInput(e: Event): void {
   const target = e.target as HTMLTextAreaElement
@@ -129,7 +132,7 @@ async function renderDiagram(source: string): Promise<void> {
   tab-size: 2;
 }
 .widget-mermaid-textarea:focus {
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
   box-shadow: 0 0 0 2px rgba(77, 14, 78, 0.1);
   background: #fff;
 }

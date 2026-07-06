@@ -23,7 +23,9 @@ describe('ToggleGroupWidget (C.8)', () => {
   const fieldDef = { name: 'priority', type: 'togglegroup', options: ['low', 'medium', 'high'] }
 
   it('renders all options as segment buttons', () => {
-    const wrapper = mount(ToggleGroupWidget, { props: { modelValue: 'medium', fieldDefinition: fieldDef } })
+    const wrapper = mount(ToggleGroupWidget, {
+      props: { modelValue: 'medium', fieldDefinition: fieldDef },
+    })
     const btns = wrapper.findAll('button')
     expect(btns).toHaveLength(3)
     expect(btns[0].text()).toBe('low')
@@ -32,20 +34,26 @@ describe('ToggleGroupWidget (C.8)', () => {
   })
 
   it('highlights the active segment', () => {
-    const wrapper = mount(ToggleGroupWidget, { props: { modelValue: 'medium', fieldDefinition: fieldDef } })
+    const wrapper = mount(ToggleGroupWidget, {
+      props: { modelValue: 'medium', fieldDefinition: fieldDef },
+    })
     const btns = wrapper.findAll('button')
     expect(btns[1].classes()).toContain('widget-togglegroup-btn--active')
     expect(btns[0].classes()).not.toContain('widget-togglegroup-btn--active')
   })
 
   it('emits update:modelValue on click', async () => {
-    const wrapper = mount(ToggleGroupWidget, { props: { modelValue: 'medium', fieldDefinition: fieldDef } })
+    const wrapper = mount(ToggleGroupWidget, {
+      props: { modelValue: 'medium', fieldDefinition: fieldDef },
+    })
     await wrapper.findAll('button')[2].trigger('click')
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['high'])
   })
 
   it('does not emit on click in readonly mode', async () => {
-    const wrapper = mount(ToggleGroupWidget, { props: { modelValue: 'medium', fieldDefinition: fieldDef, readonly: true } })
+    const wrapper = mount(ToggleGroupWidget, {
+      props: { modelValue: 'medium', fieldDefinition: fieldDef, readonly: true },
+    })
     await wrapper.findAll('button')[0].trigger('click')
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
@@ -61,24 +69,45 @@ describe('ToggleGroupWidget (C.8)', () => {
 // ---------------------------------------------------------------------------
 describe('CycleWidget (C.9)', () => {
   it('renders current value as a pill', () => {
-    const wrapper = mount(CycleWidget, { props: { modelValue: 'draft', fieldDefinition: { name: 'status', type: 'cycle', options: ['draft', 'review', 'final'] } } })
+    const wrapper = mount(CycleWidget, {
+      props: {
+        modelValue: 'draft',
+        fieldDefinition: { name: 'status', type: 'cycle', options: ['draft', 'review', 'final'] },
+      },
+    })
     expect(wrapper.find('button').text()).toBe('draft')
   })
 
   it('advances to next option on click', async () => {
-    const wrapper = mount(CycleWidget, { props: { modelValue: 'draft', fieldDefinition: { name: 'status', type: 'cycle', options: ['draft', 'review', 'final'] } } })
+    const wrapper = mount(CycleWidget, {
+      props: {
+        modelValue: 'draft',
+        fieldDefinition: { name: 'status', type: 'cycle', options: ['draft', 'review', 'final'] },
+      },
+    })
     await wrapper.find('button').trigger('click')
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['review'])
   })
 
   it('wraps around after last option', async () => {
-    const wrapper = mount(CycleWidget, { props: { modelValue: 'final', fieldDefinition: { name: 'status', type: 'cycle', options: ['draft', 'review', 'final'] } } })
+    const wrapper = mount(CycleWidget, {
+      props: {
+        modelValue: 'final',
+        fieldDefinition: { name: 'status', type: 'cycle', options: ['draft', 'review', 'final'] },
+      },
+    })
     await wrapper.find('button').trigger('click')
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['draft'])
   })
 
   it('does not advance in readonly mode', async () => {
-    const wrapper = mount(CycleWidget, { props: { modelValue: 'draft', fieldDefinition: { name: 'status', type: 'cycle', options: ['draft', 'review', 'final'] }, readonly: true } })
+    const wrapper = mount(CycleWidget, {
+      props: {
+        modelValue: 'draft',
+        fieldDefinition: { name: 'status', type: 'cycle', options: ['draft', 'review', 'final'] },
+        readonly: true,
+      },
+    })
     await wrapper.find('button').trigger('click')
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
@@ -94,13 +123,25 @@ describe('CycleWidget (C.9)', () => {
 // ---------------------------------------------------------------------------
 describe('CodeWidget (C.10)', () => {
   it('renders code in a <pre><code> block in read mode', () => {
-    const wrapper = mount(CodeWidget, { props: { modelValue: '{"key": "value"}', readonly: true, fieldDefinition: { name: 'config', type: 'json' } } })
+    const wrapper = mount(CodeWidget, {
+      props: {
+        modelValue: '{"key": "value"}',
+        readonly: true,
+        fieldDefinition: { name: 'config', type: 'json' },
+      },
+    })
     expect(wrapper.find('pre').exists()).toBe(true)
     expect(wrapper.find('code').text()).toBe('{"key": "value"}')
   })
 
   it('shows language badge in read mode', () => {
-    const wrapper = mount(CodeWidget, { props: { modelValue: '{"key": "value"}', readonly: true, fieldDefinition: { name: 'config', type: 'json' } } })
+    const wrapper = mount(CodeWidget, {
+      props: {
+        modelValue: '{"key": "value"}',
+        readonly: true,
+        fieldDefinition: { name: 'config', type: 'json' },
+      },
+    })
     const badge = wrapper.find('.widget-code-lang-badge')
     expect(badge.exists()).toBe(true)
     expect(badge.text()).toBe('json')
@@ -156,7 +197,9 @@ describe('MermaidWidget (C.11)', () => {
   })
 
   it('renders a diagram container in read mode with value', () => {
-    const wrapper = mount(MermaidWidget, { props: { modelValue: 'graph TD; A-->B;', readonly: true } })
+    const wrapper = mount(MermaidWidget, {
+      props: { modelValue: 'graph TD; A-->B;', readonly: true },
+    })
     expect(wrapper.find('.widget-mermaid-display').exists()).toBe(true)
   })
 })
@@ -166,7 +209,9 @@ describe('MermaidWidget (C.11)', () => {
 // ---------------------------------------------------------------------------
 describe('DiagramWidget (C.12)', () => {
   it('renders inline SVG from DSL in read mode', () => {
-    const wrapper = mount(DiagramWidget, { props: { modelValue: 'Plan > Execute > Review', readonly: true } })
+    const wrapper = mount(DiagramWidget, {
+      props: { modelValue: 'Plan > Execute > Review', readonly: true },
+    })
     const svg = wrapper.find('svg')
     expect(svg.exists()).toBe(true)
     // SVG should contain text elements for each box
@@ -204,7 +249,9 @@ describe('DiagramWidget (C.12)', () => {
 // ---------------------------------------------------------------------------
 describe('TimestampWidget (C.13)', () => {
   it('renders locale-formatted datetime in read mode', () => {
-    const wrapper = mount(TimestampWidget, { props: { modelValue: '2025-06-15T14:30:00Z', readonly: true } })
+    const wrapper = mount(TimestampWidget, {
+      props: { modelValue: '2025-06-15T14:30:00Z', readonly: true },
+    })
     expect(wrapper.text()).toContain('Jun 15, 2025')
     expect(wrapper.text()).toContain('2025')
   })
@@ -239,7 +286,9 @@ describe('TimestampWidget (C.13)', () => {
 // ---------------------------------------------------------------------------
 describe('MarkdownWidget (C.14)', () => {
   it('renders markdown via marked in read mode', () => {
-    const wrapper = mount(MarkdownWidget, { props: { modelValue: '**bold** and *italic*', readonly: true } })
+    const wrapper = mount(MarkdownWidget, {
+      props: { modelValue: '**bold** and *italic*', readonly: true },
+    })
     expect(wrapper.html()).toContain('<strong>bold</strong>')
     expect(wrapper.html()).toContain('<em>italic</em>')
   })
@@ -299,7 +348,9 @@ describe('DateWidget (C.1)', () => {
 // ---------------------------------------------------------------------------
 describe('UrlWidget (C.2)', () => {
   it('renders clickable link in read mode', () => {
-    const wrapper = mount(UrlWidget, { props: { modelValue: 'https://example.com', readonly: true } })
+    const wrapper = mount(UrlWidget, {
+      props: { modelValue: 'https://example.com', readonly: true },
+    })
     const link = wrapper.find('a')
     expect(link.exists()).toBe(true)
     expect(link.attributes('href')).toBe('https://example.com')
@@ -349,21 +400,27 @@ describe('MultiSelectWidget (C.4)', () => {
   const fieldDef = { name: 'langs', type: 'multiselect', options: ['js', 'ts', 'py', 'go'] }
 
   it('renders selected chips in read mode', () => {
-    const wrapper = mount(MultiSelectWidget, { props: { modelValue: ['js', 'ts'], fieldDefinition: fieldDef, readonly: true } })
+    const wrapper = mount(MultiSelectWidget, {
+      props: { modelValue: ['js', 'ts'], fieldDefinition: fieldDef, readonly: true },
+    })
     expect(wrapper.text()).toContain('js')
     expect(wrapper.text()).toContain('ts')
     expect(wrapper.text()).not.toContain('py')
   })
 
   it('renders removable chips with unselected dropdown in edit mode', () => {
-    const wrapper = mount(MultiSelectWidget, { props: { modelValue: ['js', 'ts'], fieldDefinition: fieldDef } })
+    const wrapper = mount(MultiSelectWidget, {
+      props: { modelValue: ['js', 'ts'], fieldDefinition: fieldDef },
+    })
     const removeBtns = wrapper.findAll('.widget-multiselect-chip-remove')
     expect(removeBtns).toHaveLength(2)
     expect(wrapper.find('.widget-multiselect-trigger').exists()).toBe(true)
   })
 
   it('emits update:modelValue when removing a chip', async () => {
-    const wrapper = mount(MultiSelectWidget, { props: { modelValue: ['js', 'ts'], fieldDefinition: fieldDef } })
+    const wrapper = mount(MultiSelectWidget, {
+      props: { modelValue: ['js', 'ts'], fieldDefinition: fieldDef },
+    })
     await wrapper.findAll('.widget-multiselect-chip-remove')[0].trigger('click')
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['ts']])
   })
@@ -374,7 +431,9 @@ describe('MultiSelectWidget (C.4)', () => {
 // ---------------------------------------------------------------------------
 describe('TagsWidget (C.5)', () => {
   it('renders tags as chips in read mode', () => {
-    const wrapper = mount(TagsWidget, { props: { modelValue: ['frontend', 'vue'], readonly: true } })
+    const wrapper = mount(TagsWidget, {
+      props: { modelValue: ['frontend', 'vue'], readonly: true },
+    })
     expect(wrapper.text()).toContain('frontend')
     expect(wrapper.text()).toContain('vue')
   })
@@ -441,7 +500,12 @@ describe('ScaleWidget (C.7)', () => {
   })
 
   it('respects custom range from fieldDefinition.options', () => {
-    const wrapper = mount(ScaleWidget, { props: { modelValue: 2, fieldDefinition: { name: 'score', type: 'scale', options: ['1', '2', '3', '4', '5'] } } })
+    const wrapper = mount(ScaleWidget, {
+      props: {
+        modelValue: 2,
+        fieldDefinition: { name: 'score', type: 'scale', options: ['1', '2', '3', '4', '5'] },
+      },
+    })
     expect(wrapper.findAll('.widget-scale-step')).toHaveLength(5)
   })
 })

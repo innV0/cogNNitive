@@ -1,46 +1,62 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import Header from '../components/layout/Header.vue'
 import LeftSidebar from '../components/layout/LeftSidebar.vue'
 import RightGuidanceSidebar from '../components/layout/RightGuidanceSidebar.vue'
-import BlockFeed from '../components/editor/BlockFeed.vue'
-import TextEditor from '../components/editor/TextEditor.vue'
-import TreeEditor from '../components/editor/TreeEditor.vue'
-import GraphViewer from '../components/editor/GraphViewer.vue'
-import MatricesGrid from '../components/editor/MatricesGrid.vue'
-import MetamatrixConfig from '../components/editor/MetamatrixConfig.vue'
-import ModelInfoPanel from '../components/editor/ModelInfoPanel.vue'
 import ValidationReport from '../components/ValidationReport.vue'
 import ToastMessage from '../components/ToastMessage.vue'
 import { useWorkspaceStore } from '../stores/workspaceStore'
 import { useModelStore } from '../stores/modelStore'
 import { useUiStore, type ActiveView } from '../stores/uiStore'
-import { validateFormatContent } from '../shared/validator'
 import type { ValidationReport as ValidationReportType } from '../shared/validation-types'
 import { useToast } from '../shared/useToast'
 import { useHashSync } from '../composables/useHashSync'
 import { AlertTriangle, X } from 'lucide-vue-next'
+import { ValidationService } from '../services/ValidationService'
+
+// Dynamic sub-editors
+const BlockFeed = defineAsyncComponent(() => import('../components/editor/BlockFeed.vue'))
+const TextEditor = defineAsyncComponent(() => import('../components/editor/TextEditor.vue'))
+const TreeEditor = defineAsyncComponent(() => import('../components/editor/TreeEditor.vue'))
+const GraphViewer = defineAsyncComponent(() => import('../components/editor/GraphViewer.vue'))
+const MatricesGrid = defineAsyncComponent(() => import('../components/editor/MatricesGrid.vue'))
+const MetamatrixConfig = defineAsyncComponent(
+  () => import('../components/editor/MetamatrixConfig.vue'),
+)
+const ModelInfoPanel = defineAsyncComponent(() => import('../components/editor/ModelInfoPanel.vue'))
 
 const router = useRouter()
 const workspaceStore = useWorkspaceStore()
 const modelStore = useModelStore()
 const uiStore = useUiStore()
 const { show } = useToast()
+const validationService = new ValidationService(modelStore, show)
 
 // ── Hash sync ──
 // Syncs uiStore.selectedNodeId with the URL hash (#conceptName.elementName)
 useHashSync()
 
 // ── Toolbar / validation state ──
-const validationReport = ref<ValidationReportType | null>(null)
+const validationReport = computed(() => modelStore.validationReport)
 const validating = ref(false)
+
+// Watch validation report to automatically show the report if errors are present on load
+watch(
+  () => modelStore.validationReport,
+  (newReport) => {
+    if (newReport && newReport.summary.errors > 0) {
+      uiStore.setShowValidationReport(true)
+    }
+  },
+  { immediate: true }
+)
 
 // ── Derived ──
 const selectedNodeId = computed(() => uiStore.selectedNodeId)
 
 const selectedNode = computed(() =>
-  selectedNodeId.value ? modelStore.getNode(selectedNodeId.value) : null
+  selectedNodeId.value ? modelStore.getNode(selectedNodeId.value) : null,
 )
 
 const selectedNodeName = computed(() => selectedNode.value?.name ?? '')
@@ -64,16 +80,78 @@ const editorView = computed<'text' | 'tree' | 'sheet'>(() => {
   return 'sheet'
 })
 
+const activeConceptFields = computed(() => {
+  const node = selectedNode.value
+  if (!node?.fields) return []
+  return Object.keys(node.fields).map((key) => {
+    const val = node.fields[key].value
+    const rawType = typeof val
+    let type = rawType === 'boolean' ? 'boolean' : 'string'
+    if (rawType === 'number') {
+      type = Number.isInteger(val) && val >= 1 && val <= 5 ? 'rating' : 'number'
+    } else if (rawType === 'string') {
+      if (/^#[0-9a-fA-F]{6}$/.test(val)) type = 'color'
+      else if (/^https?:\/\//.test(val)) type = 'url'
+      else if (/^\d{4}-\d{2}-\d{2}$/.test(val)) type = 'date'
+    }
+    return { name: key, type }
+  })
+})
+
 const conceptBlock = computed(() => {
   const node = selectedNode.value
   if (!node) return { id: '', name: '', description: '' }
   return {
     id: node.id,
     name: node.name,
-    description: '',
-    fields: Object.fromEntries(
-      Object.entries(node.fields).map(([k, fv]) => [k, fv.value])
-    ),
+    description: node.rawSections?.description || '',
+    fields: Object.fromEntries(Object.entries(node.fields).map(([k, fv]) => [k, fv.value])),
+  }
+})
+
+const activeEditorComponent = computed(() => {
+  if (editorView.value === 'text') return TextEditor
+  if (editorView.value === 'tree') return TreeEditor
+  return BlockFeed
+})
+
+const activeEditorProps = computed(() => {
+  if (editorView.value === 'text') {
+    return {
+      nodeId: selectedNodeId.value,
+      conceptName: selectedNodeName.value,
+      conceptType: selectedNodeType.value,
+    }
+  }
+  if (editorView.value === 'tree') {
+    return {
+      nodeId: selectedNodeId.value,
+      conceptName: selectedNodeName.value,
+    }
+  }
+  return {
+    conceptName: selectedNodeName.value,
+    conceptType: selectedNodeType.value,
+    conceptBlock: conceptBlock.value,
+    conceptFields: activeConceptFields.value,
+    items: [],
+    isListConcept: false,
+  }
+})
+
+const activeEditorEvents = computed(() => {
+  if (editorView.value === 'text') {
+    return {
+      change: onEditorChange,
+    }
+  }
+  if (editorView.value === 'tree') {
+    return {
+      'navigate-to-node': onNavigateToNode,
+    }
+  }
+  return {
+    'change-concept': onEditorChange,
   }
 })
 
@@ -106,6 +184,17 @@ function onNavigateToNode(nodeId: string): void {
 /** Switches the active view (editor / graph / matrices / info). */
 function setActiveView(view: ActiveView): void {
   uiStore.setActiveView(view)
+  if (view === 'matrices' && uiStore.activeMatrixIndex < 0) {
+    for (const id of modelStore.rootIds) {
+      const root = modelStore.getNode(id)
+      if (!root) continue
+      const defs = root.fields?.__matrix_defs?.value ?? root.fields?.matrices?.value
+      if (Array.isArray(defs) && defs.length > 0) {
+        uiStore.setActiveMatrixIndex(0)
+        break
+      }
+    }
+  }
 }
 
 function onSelectMatrix(idx: number): void {
@@ -126,33 +215,12 @@ async function runValidation(): Promise<void> {
   if (!selectedNodeId.value) return
 
   validating.value = true
-  validationReport.value = null
 
   try {
-    const node = modelStore.getNode(selectedNodeId.value)
-    if (!node) {
-      show('Selected node not found in model store.', 'error')
-      return
-    }
-
-    const rawContent = node.rawContent
-    if (!rawContent) {
-      show('No raw content available for this node (it may be a nested element without its own file).', 'warning')
-      return
-    }
-
-    const fileName = node.source.path.split('/').pop() || node.source.path
-
-    const report = validateFormatContent(rawContent, fileName)
-    validationReport.value = report
-
-    const { errors, warnings, total, passed } = report.summary
-    if (errors === 0 && warnings === 0) {
-      show(`Validation passed (${passed}/${total} checks).`, 'success')
-    } else if (errors > 0) {
-      show(`Validation found ${errors} error(s), ${warnings} warning(s).`, 'error')
-    } else {
-      show(`Validation passed with ${warnings} warning(s).`, 'warning')
+    const report = await validationService.runValidation(selectedNodeId.value)
+    modelStore.validationReport = report
+    if (report) {
+      uiStore.setShowValidationReport(true)
     }
   } catch (err) {
     show(err instanceof Error ? err.message : 'Validation failed', 'error')
@@ -171,14 +239,17 @@ function closeWorkspace(): void {
 
 // ── Keyboard shortcuts ──
 
-function onKeydown(e: KeyboardEvent): void {
-  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-    e.preventDefault()
-    workspaceStore.saveActiveFile().catch(() => {
-      show('Save failed.', 'error')
-    })
+  async function onKeydown(e: KeyboardEvent): Promise<void> {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault()
+      try {
+        await workspaceStore.saveActiveFile()
+        show('Saved successfully.', 'success')
+      } catch {
+        show('Save failed.', 'error')
+      }
+    }
   }
-}
 
 onMounted(() => {
   window.addEventListener('keydown', onKeydown)
@@ -204,7 +275,9 @@ onUnmounted(() => {
 
       <main class="flex-1 flex flex-col overflow-y-auto min-w-0">
         <!-- Toolbar -->
-        <div class="flex items-center gap-2 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/60">
+        <div
+          class="flex items-center gap-2 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/60"
+        >
           <button
             class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer"
             @click="closeWorkspace"
@@ -215,13 +288,15 @@ onUnmounted(() => {
           <!-- View switcher -->
           <div class="flex items-center gap-1 px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800">
             <button
-              v-for="view in (['editor', 'graph', 'matrices', 'info'] as const)"
+              v-for="view in ['editor', 'graph', 'matrices', 'info'] as const"
               :key="view"
               :data-testid="'view-switcher-' + view"
               class="px-2.5 py-1 text-xs font-medium rounded transition-all cursor-pointer capitalize"
-              :class="uiStore.activeView === view
-                ? 'bg-white dark:bg-slate-700 text-primary shadow-xs'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+              :class="
+                uiStore.activeView === view
+                  ? 'bg-white dark:bg-slate-700 text-primary shadow-xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+              "
               @click="setActiveView(view)"
             >
               {{ view }}
@@ -237,78 +312,30 @@ onUnmounted(() => {
           </button>
 
           <span class="text-xs text-slate-400 dark:text-slate-500 ml-auto">
-            {{ selectedNodeId ? `Selected: ${modelStore.getNode(selectedNodeId)?.name ?? selectedNodeId}` : 'No node selected' }}
+            {{
+              selectedNodeId
+                ? `Selected: ${modelStore.getNode(selectedNodeId)?.name ?? selectedNodeId}`
+                : 'No node selected'
+            }}
           </span>
-        </div>
-
-        <!-- ── Parse Issues Banner ── -->
-        <div
-          v-if="modelStore.parseIssues.length > 0"
-          class="flex items-start gap-3 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800"
-        >
-          <AlertTriangle class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-semibold text-amber-800 dark:text-amber-300 mb-1">
-              Workspace loaded with issues
-            </p>
-            <ul class="space-y-0.5">
-              <li
-                v-for="(issue, i) in modelStore.parseIssues"
-                :key="i"
-                class="text-xs text-amber-700 dark:text-amber-400"
-              >
-                <span class="font-mono text-[10px] opacity-70">{{ issue.path }}:</span>
-                {{ issue.message }}
-              </li>
-            </ul>
-          </div>
-          <button
-            class="shrink-0 p-1 rounded hover:bg-amber-100 dark:hover:bg-amber-800/50 text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 transition-colors cursor-pointer"
-            @click="modelStore.clearParseIssues()"
-            title="Dismiss"
-          >
-            <X class="w-4 h-4" />
-          </button>
         </div>
 
         <!-- ── Editor View ── -->
         <template v-if="uiStore.activeView === 'editor'">
-          <div v-if="selectedNodeId && !validationReport" class="flex-1 p-4 overflow-y-auto">
-            <!-- Text content node → TextEditor -->
-            <TextEditor
-              v-if="editorView === 'text'"
-              :node-id="selectedNodeId"
-              :concept-name="selectedNodeName"
-              :concept-type="selectedNodeType"
-              @change="onEditorChange"
-            />
-
-            <!-- Structural node with children → TreeEditor -->
-            <TreeEditor
-              v-else-if="editorView === 'tree'"
-              :node-id="selectedNodeId"
-              :concept-name="selectedNodeName"
-              @navigate-to-node="onNavigateToNode"
-            />
-
-            <!-- Concept/simple node → BlockFeed with BlockSheet -->
-            <BlockFeed
-              v-else
-              :concept-name="selectedNodeName"
-              :concept-type="selectedNodeType"
-              :concept-block="conceptBlock"
-              :items="[]"
-              :is-list-concept="false"
-              @change-concept="onEditorChange"
+          <div v-if="selectedNodeId && !uiStore.showValidationReport" class="flex-1 p-4 overflow-y-auto">
+            <component
+              :is="activeEditorComponent"
+              v-bind="activeEditorProps"
+              v-on="activeEditorEvents"
             />
           </div>
 
-          <div v-else-if="validationReport" class="flex-1 p-4 overflow-y-auto">
+          <div v-else-if="uiStore.showValidationReport && validationReport" class="flex-1 p-4 overflow-y-auto">
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-sm font-semibold">Validation Report</h3>
               <button
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer"
-                @click="validationReport = null"
+                @click="uiStore.setShowValidationReport(false)"
               >
                 Back to editor
               </button>
@@ -349,10 +376,7 @@ onUnmounted(() => {
         <!-- ── Info View ── -->
         <template v-else-if="uiStore.activeView === 'info'">
           <div class="flex-1 p-4 overflow-y-auto">
-            <ModelInfoPanel
-              v-if="rootNode"
-              :root-node-id="rootNode.id"
-            />
+            <ModelInfoPanel v-if="rootNode" :root-node-id="rootNode.id" />
             <p
               v-else
               class="flex items-center justify-center h-full text-sm text-slate-400 dark:text-slate-500"

@@ -44,7 +44,10 @@ function addTag(raw: string): void {
 }
 
 function removeTag(tag: string): void {
-  emit('update:modelValue', currentTags().filter((t) => t !== tag))
+  emit(
+    'update:modelValue',
+    currentTags().filter((t) => t !== tag),
+  )
 }
 
 function onKeydown(e: KeyboardEvent): void {
@@ -63,18 +66,16 @@ function onBlur(): void {
 
 <template>
   <div class="widget-tags">
-    <span
-      v-for="tag in currentTags()"
-      :key="tag"
-      class="widget-tags-chip"
-    >
+    <span v-for="tag in currentTags()" :key="tag" class="widget-tags-chip">
       {{ tag }}
       <button
         v-if="!readonly"
         class="widget-tags-chip-remove"
         @click="removeTag(tag)"
         :aria-label="'Remove ' + tag"
-      >×</button>
+      >
+        ×
+      </button>
     </span>
     <input
       v-if="!readonly"
@@ -131,7 +132,7 @@ function onBlur(): void {
   outline: none;
 }
 .widget-tags-input:focus {
-  border-bottom-color: #4D0E4E;
+  border-bottom-color: #4d0e4e;
 }
 .widget-tags-input::placeholder {
   color: #94a3b8;

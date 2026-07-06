@@ -1,9 +1,6 @@
 <template>
   <div class="space-y-2">
-    <div
-      v-if="!neighborhood"
-      class="text-muted-foreground text-xs italic text-center p-4"
-    >
+    <div v-if="!neighborhood" class="text-muted-foreground text-xs italic text-center p-4">
       This concept is not part of any perspective.
     </div>
 
@@ -14,12 +11,11 @@
       No taxonomy neighbors for this concept.
     </div>
 
-    <div
-      v-else
-      class="rounded-lg border border-border bg-background/60 p-2.5 space-y-1.5"
-    >
+    <div v-else class="rounded-lg border border-border bg-background/60 p-2.5 space-y-1.5">
       <!-- Perspective header -->
-      <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+      <div
+        class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground"
+      >
         <IconRenderer :icon="neighborhood.perspective.icon" custom-class="w-3 h-3 text-primary" />
         <span>{{ neighborhood.perspective.name }}</span>
       </div>
@@ -35,7 +31,10 @@
             class="perspective-chip"
             @click="selectConcept(p)"
           >
-            <IconRenderer :icon="iconFor(p)" custom-class="w-3 h-3 shrink-0 text-muted-foreground" />
+            <IconRenderer
+              :icon="iconFor(p)"
+              custom-class="w-3 h-3 shrink-0 text-muted-foreground"
+            />
             <span class="truncate">{{ p }}</span>
           </button>
         </div>
@@ -66,17 +65,17 @@
             class="perspective-chip"
             @click="selectConcept(c)"
           >
-            <IconRenderer :icon="iconFor(c)" custom-class="w-3 h-3 shrink-0 text-muted-foreground" />
+            <IconRenderer
+              :icon="iconFor(c)"
+              custom-class="w-3 h-3 shrink-0 text-muted-foreground"
+            />
             <span class="truncate">{{ c }}</span>
           </button>
         </div>
       </div>
 
       <!-- Sibling count -->
-      <div
-        v-if="siblingCount > 0"
-        class="text-xs text-muted-foreground pt-1 text-right"
-      >
+      <div v-if="siblingCount > 0" class="text-xs text-muted-foreground pt-1 text-right">
         {{ siblingCount }} sibling{{ siblingCount !== 1 ? 's' : '' }}
       </div>
     </div>
@@ -84,52 +83,50 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useMetamodelStore } from '../../stores/metamodelStore';
-import { useUiStore } from '../../stores/uiStore';
-import IconRenderer from './IconRenderer.vue';
+import { computed } from 'vue'
+import { useMetamodelStore } from '../../stores/metamodelStore'
+import { useUiStore } from '../../stores/uiStore'
+import IconRenderer from './IconRenderer.vue'
 
 const props = defineProps<{
-  conceptName: string;
-}>();
+  conceptName: string
+}>()
 
 const emit = defineEmits<{
-  (e: 'select', name: string): void;
-}>();
+  (e: 'select', name: string): void
+}>()
 
-const metamodelStore = useMetamodelStore();
-const uiStore = useUiStore();
+const metamodelStore = useMetamodelStore()
+const uiStore = useUiStore()
 
 const neighborhood = computed(() => {
-  if (!props.conceptName) return null;
-  return metamodelStore.getNeighborhood(props.conceptName);
-});
+  if (!props.conceptName) return null
+  return metamodelStore.getNeighborhood(props.conceptName)
+})
 
 const siblingCount = computed(() => {
-  if (!props.conceptName) return 0;
-  const edges = metamodelStore.taxonomyEdges;
+  if (!props.conceptName) return 0
+  const edges = metamodelStore.taxonomyEdges
   // Find parent concepts of the current concept
-  const parentNames = edges
-    .filter((e) => e.child === props.conceptName)
-    .map((e) => e.parent);
-  if (parentNames.length === 0) return 0;
+  const parentNames = edges.filter((e) => e.child === props.conceptName).map((e) => e.parent)
+  if (parentNames.length === 0) return 0
   // Count other children of those parents
   const siblingNames = new Set(
     edges
       .filter((e) => parentNames.includes(e.parent) && e.child !== props.conceptName)
       .map((e) => e.child),
-  );
-  return siblingNames.size;
-});
+  )
+  return siblingNames.size
+})
 
 function iconFor(name: string): string {
-  const concept = metamodelStore.getConceptByName(name);
-  return concept?.icon || '';
+  const concept = metamodelStore.getConceptByName(name)
+  return concept?.icon || ''
 }
 
 function selectConcept(name: string): void {
-  uiStore.setActivePerspective(`taxonomy-${name}`);
-  emit('select', name);
+  uiStore.setActivePerspective(`taxonomy-${name}`)
+  emit('select', name)
 }
 </script>
 
@@ -175,7 +172,9 @@ function selectConcept(name: string): void {
   background: var(--background);
   color: var(--foreground);
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 .perspective-chip:hover {
   background: var(--accent);

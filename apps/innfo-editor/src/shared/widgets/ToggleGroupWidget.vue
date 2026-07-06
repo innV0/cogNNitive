@@ -78,10 +78,10 @@ function select(val: string): void {
 }
 .widget-togglegroup-btn:hover:not(:disabled) {
   background: #f8fafc;
-  color: #4D0E4E;
+  color: #4d0e4e;
 }
 .widget-togglegroup-btn--active {
-  background: #4D0E4E;
+  background: #4d0e4e;
   color: #fff;
 }
 .widget-togglegroup-btn--active:hover:not(:disabled) {

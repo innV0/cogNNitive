@@ -6,7 +6,7 @@ test.describe('Session Persistence — IndexedDB Save/Restore', () => {
     await injectMockFileSystem(page, context)
   })
 
-  test('R-SP-01: IndexedDB initializes on workspace load', async ({ page, context }) => {
+  test('R-SP-01: IndexedDB initializes on workspace load', async ({ page }) => {
     await loadHomePage(page)
     await openMockFolder(page)
 
@@ -25,20 +25,23 @@ test.describe('Session Persistence — IndexedDB Save/Restore', () => {
     expect(hasDB).toBe(true)
   })
 
-  test('R-SP-02: Session state persists across reload', async ({ page, context }) => {
+  test('R-SP-02: Session state persists across reload', async ({ page }) => {
     await loadHomePage(page)
     await openMockFolder(page)
 
     await page.reload()
     await page.waitForLoadState('networkidle')
 
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     await expect(page.getByText('BTTFKB')).toBeVisible()
   })
 
-  test('R-SP-03: Sidebar widths persist via IndexedDB', async ({ page, context }) => {
+  test('R-SP-03: Sidebar widths persist via IndexedDB', async ({ page }) => {
     await loadHomePage(page)
     await openMockFolder(page)
 
@@ -56,7 +59,10 @@ test.describe('Session Persistence — IndexedDB Save/Restore', () => {
             db.close()
             resolve(getReq.result ?? null)
           }
-          getReq.onerror = () => { db.close(); resolve(null) }
+          getReq.onerror = () => {
+            db.close()
+            resolve(null)
+          }
         }
         req.onerror = () => resolve(null)
       })

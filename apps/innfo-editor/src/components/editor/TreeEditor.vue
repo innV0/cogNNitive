@@ -28,14 +28,16 @@
 
       <!-- No node selected: show all child nodes as collapsed BlockSheets -->
       <template v-else-if="childNodes.length > 0">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700 shrink-0 mb-3">
+        <div
+          class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700 shrink-0 mb-3"
+        >
           <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             {{ conceptName }} ({{ childNodes.length }})
           </h4>
         </div>
         <div class="space-y-2">
           <BlockSheet
-            v-for="(child, idx) in childNodes"
+            v-for="(child) in childNodes"
             :key="child.id"
             :block="blockFromNode(child)"
             :kind="'instance'"
@@ -57,7 +59,10 @@
       </template>
 
       <!-- Fallback when no node is selected and no children -->
-      <div v-else class="text-slate-400 dark:text-slate-500 text-xs italic text-center my-auto flex flex-col items-center justify-center gap-2.5">
+      <div
+        v-else
+        class="text-slate-400 dark:text-slate-500 text-xs italic text-center my-auto flex flex-col items-center justify-center gap-2.5"
+      >
         <FolderOpen class="w-8 h-8 text-slate-300 dark:text-slate-600" />
         <span>No elements yet. Select a node from the left panel to edit.</span>
       </div>
@@ -66,95 +71,103 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { FolderOpen } from 'lucide-vue-next';
-import { useModelStore } from '../../stores/modelStore';
-import BlockSheet from './BlockSheet.vue';
-import type { ModelNode } from '../../model/types';
+import { ref, computed, watch } from 'vue'
+import { FolderOpen } from 'lucide-vue-next'
+import { useModelStore } from '../../stores/modelStore'
+import BlockSheet from './BlockSheet.vue'
+import type { ModelNode } from '../../model/types'
 
 const props = defineProps<{
-  nodeId: string | null;
-  conceptName: string;
-}>();
+  nodeId: string | null
+  conceptName: string
+}>()
 
-const emit = defineEmits<{
-  'navigate-to-node': [nodeId: string];
-}>();
+const _emit = defineEmits<{
+  'navigate-to-node': [nodeId: string]
+}>()
 
-const modelStore = useModelStore();
+const modelStore = useModelStore()
 
-const isCollapsed = ref(false);
-const isEditing = ref(false);
-const editingInstanceId = ref<string | null>(null);
+const isCollapsed = ref(false)
+const isEditing = ref(false)
+const editingInstanceId = ref<string | null>(null)
 
 // Reset edit state when selected node changes
-watch(() => props.nodeId, () => {
-  isEditing.value = false;
-  isCollapsed.value = false;
-  editingInstanceId.value = null;
-}, { immediate: true });
+watch(
+  () => props.nodeId,
+  () => {
+    isEditing.value = false
+    isCollapsed.value = false
+    editingInstanceId.value = null
+  },
+  { immediate: true },
+)
 
 const selectedNode = computed(() => {
-  if (!props.nodeId) return null;
-  return modelStore.getNode(props.nodeId) ?? null;
-});
+  if (!props.nodeId) return null
+  return modelStore.getNode(props.nodeId) ?? null
+})
 
 const selectedNodeConceptType = computed(() => {
-  return selectedNode.value?.type ?? null;
-});
+  return selectedNode.value?.type ?? null
+})
 
-const selectedNodeColor = computed(() => '');
-const selectedNodeIcon = computed(() => '');
+const selectedNodeColor = computed(() => '')
+const selectedNodeIcon = computed(() => '')
 
 // Children of the current node (or roots if no node selected)
 const childNodes = computed(() => {
   if (props.nodeId) {
-    return modelStore.getChildren(props.nodeId);
+    return modelStore.getChildren(props.nodeId)
   }
-  return modelStore.getRoots();
-});
+  return modelStore.getRoots()
+})
 
 // Active concept type for metadata
 const activeConceptType = computed(() => {
   if (childNodes.value.length > 0) {
-    return childNodes.value[0].type || 'text';
+    return childNodes.value[0].type || 'text'
   }
-  return 'text';
-});
+  return 'text'
+})
 
 const activeConceptFields = computed(() => {
-  // In Phase 3, field definitions come from the metamodel
-  // For now return empty array — Phase 6 wires the metamodel adapter
-  return [];
-});
+  const node = selectedNode.value
+  if (!node?.fields) return []
+  return Object.keys(node.fields).map((key) => ({
+    name: key,
+    type: typeof node.fields[key].value === 'boolean' ? 'boolean' : 'string',
+  }))
+})
 
 // Build a BlockData-compatible object from a ModelNode
-const blockFromNode = (node: ModelNode) => ({
-  id: node.id,
-  name: node.name,
-  description: '',
-  fields: Object.fromEntries(
-    Object.entries(node.fields).map(([k, fv]) => [k, fv.value])
-  ),
-});
+const blockFromNode = (node: ModelNode) => {
+  console.log('[DEBUG] blockFromNode node:', JSON.stringify(node))
+  return {
+    id: node.id,
+    name: node.name,
+    description: node.rawSections?.description || '',
+    fields: Object.fromEntries(Object.entries(node.fields).map(([k, fv]) => [k, fv.value])),
+  }
+}
 
-const childIcon = (_child: ModelNode) => '';
-const childColor = (_child: ModelNode) => '';
+const childIcon = (_child: ModelNode) => ''
+const childColor = (_child: ModelNode) => ''
 
 const handleDelete = () => {
-  if (!props.nodeId) return;
-  modelStore.removeNodeTree(props.nodeId);
-};
+  if (!props.nodeId) return
+  modelStore.removeNodeTree(props.nodeId)
+}
 
 const handleChildDelete = (childId: string) => {
-  modelStore.removeNodeTree(childId);
-};
+  modelStore.removeNodeTree(childId)
+}
 
 const handleChange = () => {
   // Changes are already tracked via provenance — nothing extra needed
-};
+}
 
 const toggleEditInstance = (id: string) => {
-  editingInstanceId.value = editingInstanceId.value === id ? null : id;
-};
+  editingInstanceId.value = editingInstanceId.value === id ? null : id
+}
 </script>

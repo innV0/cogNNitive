@@ -36,7 +36,10 @@ const unselected = computed(() => {
 })
 
 function remove(opt: string): void {
-  emit('update:modelValue', selected.value.filter((s) => s !== opt))
+  emit(
+    'update:modelValue',
+    selected.value.filter((s) => s !== opt),
+  )
 }
 
 function add(opt: string): void {
@@ -52,38 +55,30 @@ function toggleDropdown(): void {
 <template>
   <div class="widget-multiselect">
     <div class="widget-multiselect-chips">
-      <span
-        v-for="item in selected"
-        :key="item"
-        class="widget-multiselect-chip"
-      >
+      <span v-for="item in selected" :key="item" class="widget-multiselect-chip">
         {{ item }}
         <button
           v-if="!readonly"
           class="widget-multiselect-chip-remove"
           @click="remove(item)"
           :aria-label="'Remove ' + item"
-        >×</button>
+        >
+          ×
+        </button>
       </span>
       <span v-if="selected.length === 0" class="widget-multiselect-empty">—</span>
     </div>
-    <div
-      v-if="!readonly && unselected.length > 0"
-      class="widget-multiselect-dropdown-wrap"
-    >
-      <button
-        class="widget-multiselect-trigger"
-        @click="toggleDropdown"
-      >
-        + Add
-      </button>
+    <div v-if="!readonly && unselected.length > 0" class="widget-multiselect-dropdown-wrap">
+      <button class="widget-multiselect-trigger" @click="toggleDropdown">+ Add</button>
       <div v-if="dropdownOpen" class="widget-multiselect-dropdown">
         <button
           v-for="opt in unselected"
           :key="opt"
           class="widget-multiselect-option"
           @click="add(opt)"
-        >{{ opt }}</button>
+        >
+          {{ opt }}
+        </button>
       </div>
     </div>
   </div>
@@ -144,8 +139,8 @@ function toggleDropdown(): void {
   font-family: system-ui, sans-serif;
 }
 .widget-multiselect-trigger:hover {
-  border-color: #4D0E4E;
-  color: #4D0E4E;
+  border-color: #4d0e4e;
+  color: #4d0e4e;
 }
 .widget-multiselect-dropdown {
   position: absolute;
@@ -173,6 +168,6 @@ function toggleDropdown(): void {
 }
 .widget-multiselect-option:hover {
   background: #f8fafc;
-  color: #4D0E4E;
+  color: #4d0e4e;
 }
 </style>

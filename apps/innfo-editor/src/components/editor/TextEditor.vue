@@ -1,10 +1,14 @@
 <template>
   <div class="flex flex-col flex-1 gap-4 overflow-y-auto p-1">
     <!-- Toolbar: Save button -->
-    <div class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-700 shrink-0">
+    <div
+      class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-700 shrink-0"
+    >
       <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
         Raw Content
-        <span v-if="nodeId" class="font-normal normal-case ml-1 text-slate-400">— {{ nodeId }}</span>
+        <span v-if="nodeId" class="font-normal normal-case ml-1 text-slate-400"
+          >— {{ nodeId }}</span
+        >
       </h4>
       <div class="flex items-center gap-2">
         <span v-if="saved" class="text-xs text-emerald-600 font-semibold">Saved</span>
@@ -32,65 +36,68 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { Save } from 'lucide-vue-next';
-import { useModelStore } from '../../stores/modelStore';
-import { commitFieldValue } from '../../shared/provenance';
+import { ref, computed, watch } from 'vue'
+import { Save } from 'lucide-vue-next'
+import { useModelStore } from '../../stores/modelStore'
+import { commitFieldValue } from '../../shared/provenance'
 
 const props = defineProps<{
-  nodeId: string;
-  conceptName: string;
-  conceptType: string;
-}>();
+  nodeId: string
+  conceptName: string
+  conceptType: string
+}>()
 
 const emit = defineEmits<{
-  'change': [];
-}>();
+  change: []
+}>()
 
-const modelStore = useModelStore();
-const textareaRef = ref<HTMLTextAreaElement | null>(null);
-const saved = ref(false);
+const modelStore = useModelStore()
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const saved = ref(false)
 
 const rawContent = computed(() => {
-  const node = modelStore.getNode(props.nodeId);
-  return node?.rawContent ?? '';
-});
+  const node = modelStore.getNode(props.nodeId)
+  return node?.rawContent ?? ''
+})
 
-const localContent = ref<string | null>(null);
+const localContent = ref<string | null>(null)
 
 // Initialize local content when nodeId changes
-watch(() => props.nodeId, () => {
-  localContent.value = null;
-  saved.value = false;
-}, { immediate: true });
+watch(
+  () => props.nodeId,
+  () => {
+    localContent.value = null
+    saved.value = false
+  },
+  { immediate: true },
+)
 
 const onInput = (event: Event) => {
-  const textarea = event.target as HTMLTextAreaElement;
-  localContent.value = textarea.value;
-  saved.value = false;
-};
+  const textarea = event.target as HTMLTextAreaElement
+  localContent.value = textarea.value
+  saved.value = false
+}
 
 const saveContent = () => {
-  const content = localContent.value;
-  if (content === null) return;
+  const content = localContent.value
+  if (content === null) return
 
-  const node = modelStore.getNode(props.nodeId);
-  if (!node) return;
+  const node = modelStore.getNode(props.nodeId)
+  if (!node) return
 
   // Update the node's rawContent and stamp provenance
-  modelStore.upsertNode({ ...node, rawContent: content });
-  commitFieldValue(
-    modelStore,
-    props.nodeId,
-    '_rawContent',
-    content,
-    { kind: 'user', id: 'anonymous' },
-  );
-  localContent.value = null;
-  saved.value = true;
-  emit('change');
+  modelStore.upsertNode({ ...node, rawContent: content })
+  commitFieldValue(modelStore, props.nodeId, '_rawContent', content, {
+    kind: 'user',
+    id: 'anonymous',
+  })
+  localContent.value = null
+  saved.value = true
+  emit('change')
 
   // Reset saved indicator after 2s
-  setTimeout(() => { saved.value = false; }, 2000);
-};
+  setTimeout(() => {
+    saved.value = false
+  }, 2000)
+}
 </script>

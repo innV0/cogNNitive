@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { injectMockFileSystem, loadHomePage } from './helpers/setup'
+import { loadHomePage } from './helpers/setup'
 
 /**
  * Creates a mock tree matching Sandbox/mini test/ files
  * with correct _NN syntax for the parser.
  */
-const MOCK_MINI_TEST: Record<string, any> = {
+const _MOCK_MINI_TEST: Record<string, any> = {
   'index.md': '# _NN index\n\n* [[HolaMundo_V_0-0-1_business_NN.md]]\n',
   'HolaMundo_V_0-0-1_business_NN.md': `---
 spec_version: "V_0-1-5"
@@ -140,7 +140,8 @@ title: "Hola Mundo — CogNNitive Test"
       name: string
       private tree: Record<string, any>
       constructor(name: string, tree: Record<string, any>) {
-        this.name = name; this.tree = tree
+        this.name = name
+        this.tree = tree
       }
       async *entries(): AsyncIterableIterator<[string, any]> {
         for (const [entryName, value] of Object.entries(this.tree)) {
@@ -165,35 +166,52 @@ title: "Hola Mundo — CogNNitive Test"
       kind = 'file'
       name: string
       private content: string
-      constructor(name: string, content: string) { this.name = name; this.content = content }
-      async getFile() { return { text: () => this.content } }
+      constructor(name: string, content: string) {
+        this.name = name
+        this.content = content
+      }
+      async getFile() {
+        return { text: () => this.content }
+      }
       async createWritable() {
         const that = this
-        return { async write(data: string) { that.content = data }, async close() {} }
+        return {
+          async write(data: string) {
+            that.content = data
+          },
+          async close() {},
+        }
       }
     }
 
     const rootHandle = new MockDirectoryHandle('mini test', MOCK_TREE)
     ;(window as any).showDirectoryPicker = async () => rootHandle
     ;(window as any).showOpenFilePicker = async () => {
-      return [new MockFileHandle('HolaMundo_V_0-0-1_business_NN.md', MOCK_TREE['HolaMundo_V_0-0-1_business_NN.md'])]
+      return [
+        new MockFileHandle(
+          'HolaMundo_V_0-0-1_business_NN.md',
+          MOCK_TREE['HolaMundo_V_0-0-1_business_NN.md'],
+        ),
+      ]
     }
     ;(navigator as any).clipboard = { writeText: async () => {}, readText: async () => '' }
   })
 }
 
 test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () => {
-  let bugs: string[] = []
+  let _bugs: string[] = []
 
   test.beforeEach(async ({ page, context }) => {
-    bugs = []
+    _bugs = []
     await injectMiniTestMock(page, context)
     await loadHomePage(page)
   })
 
   test.afterEach(async ({ page }) => {
     // Take screenshot for debugging
-    await page.screenshot({ path: `e2e-fixtures/bug-report-${test.info().title.replace(/\s+/g, '-')}.png` }).catch(() => {})
+    await page
+      .screenshot({ path: `e2e-fixtures/bug-report-${test.info().title.replace(/\s+/g, '-')}.png` })
+      .catch(() => {})
   })
 
   test('B1: Home page loads and shows Open folder button', async ({ page }) => {
@@ -230,7 +248,10 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
   })
 
   test('B3: Model heading and concept nodes render correctly', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     // Try to expand all nodes
@@ -240,7 +261,10 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
     }
 
     // Check for HolaMundo name somewhere
-    const pageText = await page.locator('body').innerText().catch(() => '')
+    const pageText = await page
+      .locator('body')
+      .innerText()
+      .catch(() => '')
     console.log('B3 page text excerpt:', pageText.substring(0, 500))
 
     // Check for the "Model" heading (left sidebar)
@@ -257,20 +281,32 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
   })
 
   test('B4: Expand/Collapse controls exist in sidebar', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     const expandBtn = page.getByTitle('Expand All').or(page.getByTestId('expand-all'))
     const collapseBtn = page.getByTitle('Collapse All').or(page.getByTestId('collapse-all'))
 
-    const expandVisible = await expandBtn.first().isVisible().catch(() => false)
-    const collapseVisible = await collapseBtn.first().isVisible().catch(() => false)
+    const expandVisible = await expandBtn
+      .first()
+      .isVisible()
+      .catch(() => false)
+    const collapseVisible = await collapseBtn
+      .first()
+      .isVisible()
+      .catch(() => false)
 
     console.log('B4 findings:', JSON.stringify({ expandVisible, collapseVisible }))
   })
 
   test('B5: Toolbar shows view switcher and Validate button', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     // View switcher: editor / graph / matrices / info
@@ -291,24 +327,39 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
     const validateVisible = await validateBtn.isVisible().catch(() => false)
     const validateDisabled = await validateBtn.isDisabled().catch(() => false)
 
-    console.log('B5 findings:', JSON.stringify({
-      viewsVisible,
-      validateVisible,
-      validateDisabledWhenNoNode: validateDisabled,
-    }))
+    console.log(
+      'B5 findings:',
+      JSON.stringify({
+        viewsVisible,
+        validateVisible,
+        validateDisabledWhenNoNode: validateDisabled,
+      }),
+    )
   })
 
   test('B6: Select a tree node and see BlockSheet / editor', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     // Try clicking the first visible text that looks like a node
-    const possibleNodes = page.locator('[class*="tree"] span, [class*="node"] span, li span, div span')
+    const possibleNodes = page.locator(
+      '[class*="tree"] span, [class*="node"] span, li span, div span',
+    )
     const nodeCount = await possibleNodes.count()
     console.log('B6: possible node-like elements:', nodeCount)
 
     // Try clicking anything that says "Productos" or "Clientes"
-    for (const label of ['Productos', 'Clientes', 'CogNNitive', 'Innfo Editor', 'Desarrolladores', 'Arquitectos']) {
+    for (const label of [
+      'Productos',
+      'Clientes',
+      'CogNNitive',
+      'Innfo Editor',
+      'Desarrolladores',
+      'Arquitectos',
+    ]) {
       const el = page.getByText(label, { exact: true }).first()
       const visible = await el.isVisible().catch(() => false)
       if (visible) {
@@ -326,7 +377,10 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
   })
 
   test('B7: View switcher tabs (graph, matrices, info) render content', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     // Graph view
@@ -344,7 +398,10 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
     if (await infoTab.isVisible().catch(() => false)) {
       await infoTab.click()
       await page.waitForTimeout(500)
-      const infoText = await page.locator('body').innerText().catch(() => '')
+      const infoText = await page
+        .locator('body')
+        .innerText()
+        .catch(() => '')
       console.log('B7: info view text:', infoText.substring(0, 200))
     }
 
@@ -353,14 +410,20 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
     if (await matricesTab.isVisible().catch(() => false)) {
       await matricesTab.click()
       await page.waitForTimeout(500)
-      const matricesText = await page.locator('body').innerText().catch(() => '')
+      const matricesText = await page
+        .locator('body')
+        .innerText()
+        .catch(() => '')
       const hasMatrixTable = matricesText.includes('Producto') || matricesText.includes('Cliente')
       console.log('B7: matrices view shows matrix:', hasMatrixTable)
     }
   })
 
   test('B8: Validate button works on selected node', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     // Expand all to reveal nodes
@@ -382,7 +445,10 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
         if (!isDisabled) {
           await validateBtn.click()
           await page.waitForTimeout(2000)
-          const bodyText = await page.locator('body').innerText().catch(() => '')
+          const bodyText = await page
+            .locator('body')
+            .innerText()
+            .catch(() => '')
           console.log(`B8: after Validate on "${label}":`, bodyText.substring(0, 300))
         } else {
           console.log(`B8: Validate button is disabled for "${label}"`)
@@ -394,11 +460,14 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
 
   test('B9: Console errors during full workflow', async ({ page }) => {
     const errors: string[] = []
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') errors.push(msg.text())
     })
 
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
     await page.waitForTimeout(1000)
 
@@ -418,11 +487,14 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
     }
 
     console.log('B9: console errors:', JSON.stringify(errors))
-    expect(errors.filter(e => !e.includes('favicon.ico'))).toEqual([])
+    expect(errors.filter((e) => !e.includes('favicon.ico'))).toEqual([])
   })
 
   test('B10: Parse issues — check if index.md parsing caused errors', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     const parseBanner = page.locator('text=Workspace loaded with issues')
@@ -430,13 +502,19 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
     let issuesDetail = ''
     if (hasBanner) {
       // Read the issues
-      const listItems = page.locator('text=Workspace loaded with issues').locator('..').locator('li')
+      const listItems = page
+        .locator('text=Workspace loaded with issues')
+        .locator('..')
+        .locator('li')
       const count = await listItems.count()
       for (let i = 0; i < count; i++) {
-        issuesDetail += await listItems.nth(i).innerText() + '\n'
+        issuesDetail += (await listItems.nth(i).innerText()) + '\n'
       }
     }
-    console.log('B10: parse issues:', JSON.stringify({ hasBanner, count: issuesDetail.length, detail: issuesDetail }))
+    console.log(
+      'B10: parse issues:',
+      JSON.stringify({ hasBanner, count: issuesDetail.length, detail: issuesDetail }),
+    )
   })
 
   test('B11: Full snapshot — visual regression check', async ({ page }) => {
@@ -445,7 +523,10 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
     await page.screenshot({ path: 'e2e-fixtures/01-home.png' }).catch(() => {})
 
     // Workspace
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
     await page.waitForTimeout(1000)
     await page.screenshot({ path: 'e2e-fixtures/02-workspace.png' }).catch(() => {})
@@ -468,12 +549,18 @@ test.describe('BUG REPORT: Mini Test Workspace — Full Functional Audit', () =>
   })
 
   test('B12: Check that the _NN index wikilinks resolved correctly', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     // The parser should have followed [[HolaMundo_V_0-0-1_business_NN.md]]
     // from index.md. Check if model name or concepts visible.
-    const bodyText = await page.locator('body').innerText().catch(() => '')
+    const bodyText = await page
+      .locator('body')
+      .innerText()
+      .catch(() => '')
     console.log('B12 all body text:', bodyText)
 
     const checks = {

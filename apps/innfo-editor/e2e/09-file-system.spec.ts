@@ -16,9 +16,12 @@ test.describe('File System Operations — Directory Picker, URL Loading, Backup'
     await expect(samples).toBeVisible()
   })
 
-  test('R-FS-02: Open folder loads workspace and shows tree', async ({ page, context }) => {
+  test('R-FS-02: Open folder loads workspace and shows tree', async ({ page }) => {
     await loadHomePage(page)
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     expect(page.url()).toContain('/workspace')
@@ -28,17 +31,19 @@ test.describe('File System Operations — Directory Picker, URL Loading, Backup'
     await expect(page.getByText('TimeTravelProtocol').first()).toBeVisible()
   })
 
-  test('R-FS-03: Load from URL', async ({ page, context }) => {
+  test('R-FS-03: Load from URL', async ({ page }) => {
     await loadHomePage(page)
 
-    const urlInput = page.locator('input[type="url"], input[placeholder*="url" i], input[placeholder*="http" i]').first()
+    const urlInput = page
+      .locator('input[type="url"], input[placeholder*="url" i], input[placeholder*="http" i]')
+      .first()
     await expect(urlInput).toBeVisible()
     await urlInput.fill('http://localhost:8000/Sandbox/HillValleyTimeTravel_V_1-0-0_business_F.md')
     const loadBtn = page.getByText(/Load|Fetch|Open/i).first()
     await expect(loadBtn).toBeEnabled()
   })
 
-  test('R-FS-05: Auto-backup runs before save', async ({ page, context }) => {
+  test('R-FS-05: Auto-backup runs before save', async ({ page }) => {
     await loadHomePage(page)
     await openMockFolder(page)
 

@@ -91,12 +91,12 @@ function select(val: number): void {
   transition: all 0.1s ease;
 }
 .widget-scale-step:hover:not(:disabled) {
-  border-color: #4D0E4E;
-  color: #4D0E4E;
+  border-color: #4d0e4e;
+  color: #4d0e4e;
 }
 .widget-scale-step--active {
-  background: #4D0E4E;
-  border-color: #4D0E4E;
+  background: #4d0e4e;
+  border-color: #4d0e4e;
   color: #fff;
 }
 .widget-scale-step--active:hover:not(:disabled) {

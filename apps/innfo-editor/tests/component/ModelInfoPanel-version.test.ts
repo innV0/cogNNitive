@@ -69,10 +69,9 @@ describe('ModelInfoPanel.vue — Version Management (R-VM-01, R-VM-06)', () => {
 
     // The header should show "V_1-2-3" in the collapsible header
     // First click to expand the version panel
-    const header = wrapper.find('h3')
     const versionHeaders = wrapper.findAll('h3')
     // Find the Version Management header
-    const versionHeader = versionHeaders.find(h3 => h3.text().includes('Version Management'))
+    const versionHeader = versionHeaders.find((h3) => h3.text().includes('Version Management'))
     expect(versionHeader).toBeDefined()
 
     // Click to expand
@@ -144,7 +143,7 @@ describe('ModelInfoPanel.vue — Version Management (R-VM-01, R-VM-06)', () => {
     expect(buttons).toHaveLength(3)
 
     // Button text should contain bump level names
-    const buttonText = buttons.map(b => b.text())
+    const buttonText = buttons.map((b) => b.text())
     const allText = buttonText.join(' ')
     expect(allText).toContain('Major')
     expect(allText).toContain('Minor')
@@ -184,7 +183,7 @@ describe('ModelInfoPanel.vue — Version Management (R-VM-01, R-VM-06)', () => {
     expect(buttons.length).toBeGreaterThanOrEqual(3)
 
     // Check title attributes for version preview format "V_1-2-3 → V_X-Y-Z"
-    const titles = buttons.map(b => b.attributes('title'))
+    const titles = buttons.map((b) => b.attributes('title'))
     expect(titles[0]).toContain('→')
     expect(titles[0]).toContain('V_1-2-3')
   })
@@ -212,7 +211,7 @@ describe('ModelInfoPanel.vue — Version Management (R-VM-01, R-VM-06)', () => {
       await collapsibleDiv.trigger('click')
 
       const buttons = wrapper.findAll('.grid-cols-3 button')
-      buttons.forEach(btn => {
+      buttons.forEach((btn) => {
         expect(btn.attributes('disabled')).toBeDefined()
         // Should have opacity class
         expect(btn.classes()).toContain('opacity-50')
@@ -271,7 +270,7 @@ describe('ModelInfoPanel.vue — Version Management (R-VM-01, R-VM-06)', () => {
       await collapsibleDiv.trigger('click')
 
       const buttons = wrapper.findAll('.grid-cols-3 button')
-      buttons.forEach(btn => {
+      buttons.forEach((btn) => {
         expect(btn.attributes('disabled')).toBeDefined()
       })
     })
@@ -290,7 +289,7 @@ describe('ModelInfoPanel.vue — Version Management (R-VM-01, R-VM-06)', () => {
       await collapsibleDiv.trigger('click')
 
       const buttons = wrapper.findAll('.grid-cols-3 button')
-      buttons.forEach(btn => {
+      buttons.forEach((btn) => {
         expect(btn.attributes('disabled')).toBeDefined()
       })
     })

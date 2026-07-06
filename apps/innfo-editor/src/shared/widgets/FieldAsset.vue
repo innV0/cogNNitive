@@ -75,24 +75,14 @@ function onInput(e: Event): void {
 
     <!-- Video player -->
     <div v-else-if="isVideo && assetPath" class="field-asset__preview">
-      <video
-        :src="assetPath"
-        controls
-        class="field-asset__video"
-        preload="metadata"
-      >
+      <video :src="assetPath" controls class="field-asset__video" preload="metadata">
         Your browser does not support the video element.
       </video>
     </div>
 
     <!-- Audio player -->
     <div v-else-if="isAudio && assetPath" class="field-asset__preview">
-      <audio
-        :src="assetPath"
-        controls
-        class="field-asset__audio"
-        preload="metadata"
-      >
+      <audio :src="assetPath" controls class="field-asset__audio" preload="metadata">
         Your browser does not support the audio element.
       </audio>
     </div>
@@ -118,7 +108,8 @@ function onInput(e: Event): void {
     <!-- Missing file warning (placeholder) -->
     <div v-if="assetPath" class="field-asset__warning">
       <span class="field-asset__warning-icon">⚠️</span>
-      Asset path validation is not yet implemented. Verify the file exists at: <code>{{ assetPath }}</code>
+      Asset path validation is not yet implemented. Verify the file exists at:
+      <code>{{ assetPath }}</code>
     </div>
   </div>
 </template>
@@ -195,7 +186,7 @@ function onInput(e: Event): void {
 
 .field-asset__input:focus {
   outline: none;
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
   box-shadow: 0 0 0 2px rgba(77, 14, 78, 0.1);
 }
 

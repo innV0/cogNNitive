@@ -1,12 +1,10 @@
 <template>
   <div data-testid="field-viewer" class="field-viewer space-y-3">
-    <div
-      v-for="entry in fieldEntries"
-      :key="entry.def.name"
-      class="flex flex-col gap-1"
-    >
-      <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-        {{ entry.def.name.replace(/_/g, ' ') }}
+    <div v-for="entry in fieldEntries" :key="entry.def.name" class="flex flex-col gap-1">
+      <label
+        class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide"
+      >
+        {{ entry.def.name.replace(/_/g, ' ').toUpperCase() }}
       </label>
 
       <!-- Edit mode: use WidgetField for interactive editing -->
@@ -32,12 +30,20 @@
             </span>
           </template>
           <template v-else-if="entry.def.type === 'reference'">
-            <span class="text-indigo-600 dark:text-indigo-400 underline decoration-dotted cursor-default">
+            <span
+              class="text-indigo-600 dark:text-indigo-400 underline decoration-dotted cursor-default"
+            >
               [[{{ entry.displayValue }}]]
             </span>
           </template>
           <template v-else-if="entry.def.type === 'boolean'">
-            <span :class="entry.displayValue ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'">
+            <span
+              :class="
+                entry.displayValue
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-slate-400 dark:text-slate-500'
+              "
+            >
               {{ entry.displayValue ? 'Yes' : 'No' }}
             </span>
           </template>
@@ -50,7 +56,10 @@
     </div>
 
     <!-- Empty state -->
-    <p v-if="fieldDefinitions.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic">
+    <p
+      v-if="fieldDefinitions.length === 0"
+      class="text-xs text-slate-400 dark:text-slate-500 italic"
+    >
       No fields defined for this concept.
     </p>
   </div>
@@ -79,18 +88,21 @@ interface FieldEntry {
  * In edit mode, fields render as interactive WidgetField instances
  * backed by the widget registry.
  */
-const props = withDefaults(defineProps<{
-  nodeId: string
-  fieldDefinitions: Array<{
-    name: string
-    type: string
-    options?: string[]
-    target_concepts?: string[]
-  }>
-  readonly?: boolean
-}>(), {
-  readonly: true,
-})
+const props = withDefaults(
+  defineProps<{
+    nodeId: string
+    fieldDefinitions: Array<{
+      name: string
+      type: string
+      options?: string[]
+      target_concepts?: string[]
+    }>
+    readonly?: boolean
+  }>(),
+  {
+    readonly: true,
+  },
+)
 
 const modelStore = useModelStore()
 
@@ -101,7 +113,7 @@ const modelStore = useModelStore()
 const fieldEntries = computed<FieldEntry[]>(() => {
   const node = modelStore.getNode(props.nodeId)
 
-  return props.fieldDefinitions.map(def => {
+  return props.fieldDefinitions.map((def) => {
     const fv = node?.fields?.[def.name]
     const rawValue = fv?.value ?? fv ?? undefined
     const hasValue = rawValue !== undefined && rawValue !== null && rawValue !== ''

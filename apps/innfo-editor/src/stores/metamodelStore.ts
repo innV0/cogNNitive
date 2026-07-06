@@ -9,7 +9,7 @@ import { parseFrontmatter } from '@innv0/innfo-core'
 import type { MetamodelConcept, MetamodelMarker } from '../model/types'
 import type { DocumentationEntry } from '../utils/documentationParser'
 import type { DirectoryHandleLike } from './workspaceStore'
-import type { Perspective, PerspectiveEdge, PerspectiveNeighborhood } from './types'
+import type { PerspectiveEdge, PerspectiveNeighborhood } from './types'
 
 /**
  * A single node in the taxonomy concept tree.
@@ -175,11 +175,10 @@ export const useMetamodelStore = defineStore('metamodel', () => {
     return getConceptGuidance(conceptName)?.prompts ?? []
   }
 
-  function getMatrixGuidance(matrixDef: {
-    name: string
-    source: string
-    target: string
-  }): { sourceEntry: DocumentationEntry | null; targetEntry: DocumentationEntry | null } {
+  function getMatrixGuidance(matrixDef: { name: string; source: string; target: string }): {
+    sourceEntry: DocumentationEntry | null
+    targetEntry: DocumentationEntry | null
+  } {
     return {
       sourceEntry: getConceptGuidance(matrixDef.source),
       targetEntry: getConceptGuidance(matrixDef.target),

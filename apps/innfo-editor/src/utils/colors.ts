@@ -1,23 +1,23 @@
 export interface ColorPalette {
   /** Soft tinted background (used as the pill/instance fill) */
-  bg: string;
+  bg: string
   /** Foreground text color in the tinted family */
-  text: string;
+  text: string
   /** Border in the tinted family */
-  border: string;
+  border: string
   /** Strong accent color (icons, dots, left bars) */
-  accent: string;
+  accent: string
   /** Left accent bar color (border-l-*) */
-  borderLeft: string;
-  hoverBg: string;
-  hoverText: string;
-  hoverBorder: string;
+  borderLeft: string
+  hoverBg: string
+  hoverText: string
+  hoverBorder: string
   /** Gradient start for accordion headers (from-{color}-50/50) */
-  gradient: string;
+  gradient: string
   /** Ring color for markers and focus states (ring-{color}-100) */
-  ring: string;
+  ring: string
   /** Solid background for selected concept pills (dark enough for white text) */
-  selectedBg: string;
+  selectedBg: string
 }
 
 /**
@@ -28,71 +28,125 @@ export interface ColorPalette {
  */
 const PALETTES: Record<string, ColorPalette> = {
   blue: {
-    bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200',
-    accent: 'text-blue-600', borderLeft: 'border-l-blue-600',
-    hoverBg: 'hover:bg-blue-50', hoverText: 'hover:text-blue-700', hoverBorder: 'hover:border-blue-200',
-    gradient: 'from-blue-50/50', ring: 'ring-blue-100',
-    selectedBg: 'bg-blue-600'
+    bg: 'bg-blue-50',
+    text: 'text-blue-700',
+    border: 'border-blue-200',
+    accent: 'text-blue-600',
+    borderLeft: 'border-l-blue-600',
+    hoverBg: 'hover:bg-blue-50',
+    hoverText: 'hover:text-blue-700',
+    hoverBorder: 'hover:border-blue-200',
+    gradient: 'from-blue-50/50',
+    ring: 'ring-blue-100',
+    selectedBg: 'bg-blue-600',
   },
   green: {
-    bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200',
-    accent: 'text-emerald-600', borderLeft: 'border-l-emerald-600',
-    hoverBg: 'hover:bg-emerald-50', hoverText: 'hover:text-emerald-700', hoverBorder: 'hover:border-emerald-200',
-    gradient: 'from-emerald-50/50', ring: 'ring-emerald-100',
-    selectedBg: 'bg-emerald-600'
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-700',
+    border: 'border-emerald-200',
+    accent: 'text-emerald-600',
+    borderLeft: 'border-l-emerald-600',
+    hoverBg: 'hover:bg-emerald-50',
+    hoverText: 'hover:text-emerald-700',
+    hoverBorder: 'hover:border-emerald-200',
+    gradient: 'from-emerald-50/50',
+    ring: 'ring-emerald-100',
+    selectedBg: 'bg-emerald-600',
   },
   indigo: {
-    bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200',
-    accent: 'text-indigo-600', borderLeft: 'border-l-indigo-600',
-    hoverBg: 'hover:bg-indigo-50', hoverText: 'hover:text-indigo-700', hoverBorder: 'hover:border-indigo-200',
-    gradient: 'from-indigo-50/50', ring: 'ring-indigo-100',
-    selectedBg: 'bg-indigo-600'
+    bg: 'bg-indigo-50',
+    text: 'text-indigo-700',
+    border: 'border-indigo-200',
+    accent: 'text-indigo-600',
+    borderLeft: 'border-l-indigo-600',
+    hoverBg: 'hover:bg-indigo-50',
+    hoverText: 'hover:text-indigo-700',
+    hoverBorder: 'hover:border-indigo-200',
+    gradient: 'from-indigo-50/50',
+    ring: 'ring-indigo-100',
+    selectedBg: 'bg-indigo-600',
   },
   orange: {
-    bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200',
-    accent: 'text-orange-600', borderLeft: 'border-l-orange-600',
-    hoverBg: 'hover:bg-orange-50', hoverText: 'hover:text-orange-700', hoverBorder: 'hover:border-orange-200',
-    gradient: 'from-orange-50/50', ring: 'ring-orange-100',
-    selectedBg: 'bg-orange-600'
+    bg: 'bg-orange-50',
+    text: 'text-orange-700',
+    border: 'border-orange-200',
+    accent: 'text-orange-600',
+    borderLeft: 'border-l-orange-600',
+    hoverBg: 'hover:bg-orange-50',
+    hoverText: 'hover:text-orange-700',
+    hoverBorder: 'hover:border-orange-200',
+    gradient: 'from-orange-50/50',
+    ring: 'ring-orange-100',
+    selectedBg: 'bg-orange-600',
   },
   red: {
-    bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200',
-    accent: 'text-rose-600', borderLeft: 'border-l-rose-600',
-    hoverBg: 'hover:bg-rose-50', hoverText: 'hover:text-rose-700', hoverBorder: 'hover:border-rose-200',
-    gradient: 'from-rose-50/50', ring: 'ring-rose-100',
-    selectedBg: 'bg-rose-600'
+    bg: 'bg-rose-50',
+    text: 'text-rose-700',
+    border: 'border-rose-200',
+    accent: 'text-rose-600',
+    borderLeft: 'border-l-rose-600',
+    hoverBg: 'hover:bg-rose-50',
+    hoverText: 'hover:text-rose-700',
+    hoverBorder: 'hover:border-rose-200',
+    gradient: 'from-rose-50/50',
+    ring: 'ring-rose-100',
+    selectedBg: 'bg-rose-600',
   },
   violet: {
-    bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200',
-    accent: 'text-violet-600', borderLeft: 'border-l-violet-600',
-    hoverBg: 'hover:bg-violet-50', hoverText: 'hover:text-violet-700', hoverBorder: 'hover:border-violet-200',
-    gradient: 'from-violet-50/50', ring: 'ring-violet-100',
-    selectedBg: 'bg-violet-600'
+    bg: 'bg-violet-50',
+    text: 'text-violet-700',
+    border: 'border-violet-200',
+    accent: 'text-violet-600',
+    borderLeft: 'border-l-violet-600',
+    hoverBg: 'hover:bg-violet-50',
+    hoverText: 'hover:text-violet-700',
+    hoverBorder: 'hover:border-violet-200',
+    gradient: 'from-violet-50/50',
+    ring: 'ring-violet-100',
+    selectedBg: 'bg-violet-600',
   },
   amber: {
-    bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200',
-    accent: 'text-amber-600', borderLeft: 'border-l-amber-600',
-    hoverBg: 'hover:bg-amber-50', hoverText: 'hover:text-amber-700', hoverBorder: 'hover:border-amber-200',
-    gradient: 'from-amber-50/50', ring: 'ring-amber-100',
-    selectedBg: 'bg-amber-600'
+    bg: 'bg-amber-50',
+    text: 'text-amber-700',
+    border: 'border-amber-200',
+    accent: 'text-amber-600',
+    borderLeft: 'border-l-amber-600',
+    hoverBg: 'hover:bg-amber-50',
+    hoverText: 'hover:text-amber-700',
+    hoverBorder: 'hover:border-amber-200',
+    gradient: 'from-amber-50/50',
+    ring: 'ring-amber-100',
+    selectedBg: 'bg-amber-600',
   },
   yellow: {
-    bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200',
-    accent: 'text-yellow-600', borderLeft: 'border-l-yellow-600',
-    hoverBg: 'hover:bg-yellow-50', hoverText: 'hover:text-yellow-700', hoverBorder: 'hover:border-yellow-200',
-    gradient: 'from-yellow-50/50', ring: 'ring-yellow-100',
-    selectedBg: 'bg-yellow-600'
-  }
-};
+    bg: 'bg-yellow-50',
+    text: 'text-yellow-700',
+    border: 'border-yellow-200',
+    accent: 'text-yellow-600',
+    borderLeft: 'border-l-yellow-600',
+    hoverBg: 'hover:bg-yellow-50',
+    hoverText: 'hover:text-yellow-700',
+    hoverBorder: 'hover:border-yellow-200',
+    gradient: 'from-yellow-50/50',
+    ring: 'ring-yellow-100',
+    selectedBg: 'bg-yellow-600',
+  },
+}
 
 const FALLBACK: ColorPalette = {
-  bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200',
-  accent: 'text-slate-600', borderLeft: 'border-l-slate-500',
-  hoverBg: 'hover:bg-slate-50', hoverText: 'hover:text-slate-700', hoverBorder: 'hover:border-slate-200',
-  gradient: 'from-slate-50/50', ring: 'ring-slate-100',
-  selectedBg: 'bg-slate-600'
-};
+  bg: 'bg-slate-50',
+  text: 'text-slate-700',
+  border: 'border-slate-200',
+  accent: 'text-slate-600',
+  borderLeft: 'border-l-slate-500',
+  hoverBg: 'hover:bg-slate-50',
+  hoverText: 'hover:text-slate-700',
+  hoverBorder: 'hover:border-slate-200',
+  gradient: 'from-slate-50/50',
+  ring: 'ring-slate-100',
+  selectedBg: 'bg-slate-600',
+}
 
 export const getColorClasses = (colorName: string | null | undefined): ColorPalette => {
-  return PALETTES[(colorName || '').toLowerCase()] || FALLBACK;
-};
+  return PALETTES[(colorName || '').toLowerCase()] || FALLBACK
+}

@@ -50,11 +50,7 @@ export async function scanDirectory(
       result.files.push({ name, kind: entry.kind, handle: entry })
 
       if (entry.kind === 'directory') {
-        const sub = await scanDirectory(
-          entry as DirectoryHandleLike,
-          maxDepth,
-          currentDepth + 1,
-        )
+        const sub = await scanDirectory(entry as DirectoryHandleLike, maxDepth, currentDepth + 1)
         result.files.push(...sub.files)
         result.errors.push(...sub.errors)
       }

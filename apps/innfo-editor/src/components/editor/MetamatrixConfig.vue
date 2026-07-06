@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-4">
-    <div class="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
-      <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Dynamic Relational Matrices Definitions</h3>
+    <div
+      class="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700"
+    >
+      <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        Dynamic Relational Matrices Definitions
+      </h3>
       <button
         @click="addMatrixRow"
         class="bg-primary hover:bg-primary/90 text-white text-xs px-2.5 py-1.5 rounded font-semibold cursor-pointer"
@@ -11,17 +15,47 @@
     </div>
 
     <!-- Table definition matrix -->
-    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden shadow-2xs">
+    <div
+      class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden shadow-2xs"
+    >
       <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
         <thead class="bg-slate-50 dark:bg-slate-900/60">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Matrix Name</th>
-            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Source</th>
-            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Target</th>
-            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Label (relaci&oacute;n)</th>
-            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Widget</th>
-            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Parameters</th>
-            <th class="px-4 py-3 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+            <th
+              class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Matrix Name
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Source
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Target
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Label (relaci&oacute;n)
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Widget
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Parameters
+            </th>
+            <th
+              class="px-4 py-3 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-700">
@@ -31,7 +65,7 @@
                 v-model="row.name"
                 @input="saveDefs"
                 class="border border-slate-200 dark:border-slate-600 rounded px-2 py-1 text-xs w-full outline-none focus:ring-1 focus:ring-primary bg-white dark:bg-slate-800 dark:text-slate-300"
-              >
+              />
             </td>
             <td class="px-4 py-2.5">
               <select
@@ -57,7 +91,7 @@
                 @input="saveDefs"
                 placeholder="e.g. impacts, belongs to"
                 class="border border-slate-200 dark:border-slate-600 rounded px-2 py-1 text-xs w-full outline-none focus:ring-1 focus:ring-primary bg-white dark:bg-slate-800 dark:text-slate-300"
-              >
+              />
             </td>
             <td class="px-4 py-2.5">
               <select
@@ -78,7 +112,7 @@
                 @input="saveDefs"
                 placeholder="e.g. min:1;max:5 or Low;Medium;High"
                 class="border border-slate-200 dark:border-slate-600 rounded px-2 py-1 text-xs w-full outline-none focus:ring-1 focus:ring-primary bg-white dark:bg-slate-800 dark:text-slate-300"
-              >
+              />
             </td>
             <td class="px-4 py-2.5 text-right">
               <button
@@ -91,7 +125,10 @@
             </td>
           </tr>
           <tr v-if="!matrixDefs.length">
-            <td colspan="7" class="text-center text-slate-400 dark:text-slate-500 text-xs italic py-6">
+            <td
+              colspan="7"
+              class="text-center text-slate-400 dark:text-slate-500 text-xs italic py-6"
+            >
               No relational matrices configured. Click "+ Add New Matrix Config" to define one.
             </td>
           </tr>
@@ -102,68 +139,68 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Trash2 } from 'lucide-vue-next';
-import { useModelStore } from '../../stores/modelStore';
-import { commitFieldValue } from '../../shared/provenance';
+import { computed } from 'vue'
+import { Trash2 } from 'lucide-vue-next'
+import { useModelStore } from '../../stores/modelStore'
+import { commitFieldValue } from '../../shared/provenance'
 
-const modelStore = useModelStore();
-const MATRIX_DEFS_KEY = '__matrix_defs';
+const modelStore = useModelStore()
+const MATRIX_DEFS_KEY = '__matrix_defs'
 
 interface MatrixDef {
-  name: string;
-  source: string;
-  target: string;
-  widgetType: 'boolean' | 'cycle' | 'scale' | 'set' | 'text';
-  params: string;
-  min_color?: string;
-  max_color?: string;
-  label?: string;
+  name: string
+  source: string
+  target: string
+  widgetType: 'boolean' | 'cycle' | 'scale' | 'set' | 'text'
+  params: string
+  min_color?: string
+  max_color?: string
+  label?: string
 }
 
 const rootNode = computed(() => {
-  if (modelStore.rootIds.length === 0) return null;
-  return modelStore.getNode(modelStore.rootIds[0]);
-});
+  if (modelStore.rootIds.length === 0) return null
+  return modelStore.getNode(modelStore.rootIds[0])
+})
 
 const matrixDefs = computed<MatrixDef[]>({
   get() {
-    const root = rootNode.value;
-    if (!root) return [];
-    const defsField = root.fields[MATRIX_DEFS_KEY];
-    if (!defsField || !defsField.value) return [];
-    return defsField.value as MatrixDef[];
+    const root = rootNode.value
+    if (!root) return []
+    const defsField = root.fields[MATRIX_DEFS_KEY]
+    if (!defsField || !defsField.value) return []
+    return defsField.value as MatrixDef[]
   },
   set(_val) {
     // Write-through via saveDefs()
   },
-});
+})
 
 // Derive concept types from actual nodes
 const allTypes = computed(() => {
-  const types = new Set<string>();
+  const types = new Set<string>()
   for (const node of Object.values(modelStore.nodes)) {
-    if (node.type) types.add(node.type);
+    if (node.type) types.add(node.type)
   }
-  return [...types].sort();
-});
+  return [...types].sort()
+})
 
-const instantiableTypes = computed(() => allTypes.value);
+const instantiableTypes = computed(() => allTypes.value)
 
 function saveDefs() {
-  const rootId = modelStore.rootIds[0];
-  if (!rootId) return;
+  const rootId = modelStore.rootIds[0]
+  if (!rootId) return
   // Read current defs from the reactive computed
-  const raw = rootNode.value?.fields[MATRIX_DEFS_KEY]?.value;
+  const raw = rootNode.value?.fields[MATRIX_DEFS_KEY]?.value
   if (raw) {
-    commitFieldValue(modelStore, rootId, MATRIX_DEFS_KEY, raw, { kind: 'user', id: 'anonymous' });
+    commitFieldValue(modelStore, rootId, MATRIX_DEFS_KEY, raw, { kind: 'user', id: 'anonymous' })
   }
 }
 
 function addMatrixRow() {
-  const rootId = modelStore.rootIds[0];
-  if (!rootId) return;
-  const current = matrixDefs.value ? [...matrixDefs.value] : [];
+  const rootId = modelStore.rootIds[0]
+  if (!rootId) return
+  const current = matrixDefs.value ? [...matrixDefs.value] : []
   const newDef: MatrixDef = {
     name: `New Matrix ${current.length + 1}`,
     source: instantiableTypes.value[0] || '',
@@ -171,16 +208,16 @@ function addMatrixRow() {
     widgetType: 'boolean',
     params: '',
     label: '',
-  };
-  current.push(newDef);
-  commitFieldValue(modelStore, rootId, MATRIX_DEFS_KEY, current, { kind: 'user', id: 'anonymous' });
+  }
+  current.push(newDef)
+  commitFieldValue(modelStore, rootId, MATRIX_DEFS_KEY, current, { kind: 'user', id: 'anonymous' })
 }
 
 function removeMatrixRow(index: number) {
-  const rootId = modelStore.rootIds[0];
-  if (!rootId) return;
-  const current = matrixDefs.value ? [...matrixDefs.value] : [];
-  current.splice(index, 1);
-  commitFieldValue(modelStore, rootId, MATRIX_DEFS_KEY, current, { kind: 'user', id: 'anonymous' });
+  const rootId = modelStore.rootIds[0]
+  if (!rootId) return
+  const current = matrixDefs.value ? [...matrixDefs.value] : []
+  current.splice(index, 1)
+  commitFieldValue(modelStore, rootId, MATRIX_DEFS_KEY, current, { kind: 'user', id: 'anonymous' })
 }
 </script>

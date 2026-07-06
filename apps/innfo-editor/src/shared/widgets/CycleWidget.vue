@@ -36,7 +36,18 @@ const displayValue = computed(() => {
 const color = computed(() => {
   if (!options.value.length) return '#64748b'
   const idx = options.value.indexOf(props.modelValue)
-  const colors = ['#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#14b8a6', '#0ea5e9', '#f59e0b', '#84cc16']
+  const colors = [
+    '#6366f1',
+    '#8b5cf6',
+    '#a855f7',
+    '#d946ef',
+    '#ec4899',
+    '#f43f5e',
+    '#14b8a6',
+    '#0ea5e9',
+    '#f59e0b',
+    '#84cc16',
+  ]
   return idx >= 0 ? colors[idx % colors.length] : '#64748b'
 })
 

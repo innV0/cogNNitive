@@ -24,7 +24,9 @@ test.describe('Tree Navigation — Colored Pills, Counters, Popups, Ghost States
     const kbNode = page.getByText('BTTFKB').first()
     await expect(kbNode).toBeVisible({ timeout: 10000 })
 
-    const counterBadge = kbNode.locator('..').locator('[class*="counter"], [class*="badge"]')
+    const counterBadge = kbNode
+      .locator('xpath=ancestor::div[@data-testid="concept-tree-node"]')
+      .locator('.tabular-nums')
     await expect(counterBadge.first()).toBeVisible()
   })
 
@@ -35,13 +37,14 @@ test.describe('Tree Navigation — Colored Pills, Counters, Popups, Ghost States
     await page.getByText('Delorean').first().click()
 
     const deloreanNode = page.getByText('Delorean').first()
-    await deloreanNode.hover()
+    const deloreanPill = deloreanNode.locator('xpath=ancestor::*[@data-testid="block-pill"]')
+    await deloreanPill.hover()
 
-    const infoIcon = page.locator('[class*="info"], [title*="info" i], [aria-label*="info" i]').first()
+    const infoIcon = deloreanPill.locator('svg').last()
     await expect(infoIcon).toBeVisible()
     await infoIcon.click()
 
-    const popup = page.locator('body > [class*="popup"], body > [class*="tooltip"], body > [role="dialog"]').first()
+    const popup = page.locator('body > div.fixed').first()
     await expect(popup).toBeVisible()
     await expect(popup).toContainText(/Delorean|category|technology/i)
   })
@@ -52,13 +55,23 @@ test.describe('Tree Navigation — Colored Pills, Counters, Popups, Ghost States
 
     if (ghostCount > 0) {
       const opacity = await ghostNode.getAttribute('style')
-      expect(opacity?.includes('opacity') || await ghostNode.locator('i, em, [class*="italic"]').count() > 0).toBeTruthy()
+      expect(
+        opacity?.includes('opacity') ||
+          (await ghostNode.locator('i, em, [class*="italic"]').count()) > 0,
+      ).toBeTruthy()
     }
   })
 
   test('R-TN-05: VirtualGroupNode header shows styled group with counter', async ({ page }) => {
+    await page.getByTestId('expand-all').click()
     await expect(page.getByTestId('virtual-group-node').first()).toBeVisible()
-    await expect(page.getByTestId('virtual-group-node').first().locator('[class*="chevron"], .collapse-icon, [class*="expand"]')).toBeVisible()
+    await expect(
+      page
+        .getByTestId('virtual-group-node')
+        .first()
+        .locator('[class*="chevron"], .collapse-icon, [class*="expand"]')
+        .first(),
+    ).toBeVisible()
   })
 
   test('R-TN-06: LeftSidebar has expand/collapse controls', async ({ page }) => {
@@ -72,7 +85,10 @@ test.describe('Tree Navigation — Colored Pills, Counters, Popups, Ghost States
     await page.reload()
     await page.waitForLoadState('networkidle')
 
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     await expect(page.getByText('BTTFKB')).toBeVisible()

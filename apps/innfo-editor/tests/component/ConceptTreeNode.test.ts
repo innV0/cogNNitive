@@ -5,10 +5,7 @@ import ConceptTreeNode from '../../src/components/layout/ConceptTreeNode.vue'
 import { useModelStore } from '../../src/stores/modelStore'
 import type { ModelNode } from '../../src/model/types'
 
-function makeNode(
-  id: string,
-  overrides: Partial<ModelNode> = {},
-): ModelNode {
+function makeNode(id: string, overrides: Partial<ModelNode> = {}): ModelNode {
   return {
     id,
     name: id,
@@ -34,7 +31,10 @@ describe('ConceptTreeNode.vue — Instance counter (R-TN-02)', () => {
     const modelStore = useModelStore()
     modelStore.setGraph(
       {
-        Root: makeNode('Root', { kind: 'concept', childIds: ['Root/Child1', 'Root/Child2', 'Root/Child3'] }),
+        Root: makeNode('Root', {
+          kind: 'concept',
+          childIds: ['Root/Child1', 'Root/Child2', 'Root/Child3'],
+        }),
         'Root/Child1': makeNode('Root/Child1', { parentId: 'Root', kind: 'element' }),
         'Root/Child2': makeNode('Root/Child2', { parentId: 'Root', kind: 'element' }),
         'Root/Child3': makeNode('Root/Child3', { parentId: 'Root', kind: 'element' }),

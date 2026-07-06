@@ -24,7 +24,9 @@
 
       <!-- Header with expand/collapse all -->
       <div class="flex items-center justify-between px-2">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Model</h2>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          Model
+        </h2>
         <div class="flex items-center gap-2">
           <button
             @click="expandAll"
@@ -60,7 +62,10 @@
           @move-down="(id: string) => $emit('move-down', id)"
         />
 
-        <p v-if="roots.length === 0" class="px-2 py-4 text-xs text-slate-400 dark:text-slate-500 italic text-center">
+        <p
+          v-if="roots.length === 0"
+          class="px-2 py-4 text-xs text-slate-400 dark:text-slate-500 italic text-center"
+        >
           No nodes loaded
         </p>
       </div>
@@ -72,9 +77,16 @@
           class="flex items-center justify-between px-2 py-1 rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <div class="flex items-center gap-2">
-            <ChevronRight class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-90': relationsOpen }" />
+            <ChevronRight
+              class="w-3.5 h-3.5 transition-transform duration-200"
+              :class="{ 'rotate-90': relationsOpen }"
+            />
             <Table2 class="w-3.5 h-3.5" />
-            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Relations</h2>
+            <h2
+              class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+            >
+              Relations
+            </h2>
           </div>
           <button
             @click.stop="navigateToConfig"
@@ -100,7 +112,10 @@
             as="button"
             @click="selectMatrix(idx)"
           />
-          <p v-if="matrixDefs.length === 0" class="px-3 py-2 text-xs text-slate-400 dark:text-slate-500 italic">
+          <p
+            v-if="matrixDefs.length === 0"
+            class="px-3 py-2 text-xs text-slate-400 dark:text-slate-500 italic"
+          >
             No relations defined.
           </p>
         </div>
@@ -110,24 +125,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { ChevronsDown, ChevronsUp, LayoutDashboard, ChevronRight, Table2, Settings } from 'lucide-vue-next';
-import { useModelStore } from '../../stores/modelStore';
-import { useUiStore } from '../../stores/uiStore';
-import { useResizablePanel } from '../../composables/useResizablePanel';
-import ConceptTreeNode from './ConceptTreeNode.vue';
-import MatrixPill from '../editor/MatrixPill.vue';
+import { ref, computed } from 'vue'
+import {
+  ChevronsDown,
+  ChevronsUp,
+  LayoutDashboard,
+  ChevronRight,
+  Table2,
+  Settings,
+} from 'lucide-vue-next'
+import { useModelStore } from '../../stores/modelStore'
+import { useUiStore } from '../../stores/uiStore'
+import { useResizablePanel } from '../../composables/useResizablePanel'
+import ConceptTreeNode from './ConceptTreeNode.vue'
+import MatrixPill from '../editor/MatrixPill.vue'
 
 const emit = defineEmits<{
-  'select-node': [nodeId: string];
-  'move-up': [nodeId: string];
-  'move-down': [nodeId: string];
-  'select-matrix': [idx: number];
-  'select-view': [view: string];
-}>();
+  'select-node': [nodeId: string]
+  'move-up': [nodeId: string]
+  'move-down': [nodeId: string]
+  'select-matrix': [idx: number]
+  'select-view': [view: string]
+}>()
 
-const modelStore = useModelStore();
-const uiStore = useUiStore();
+const modelStore = useModelStore()
+const uiStore = useUiStore()
 
 const { width, startResize } = useResizablePanel({
   storageKey: 'format.leftSidebarWidth',
@@ -135,43 +157,61 @@ const { width, startResize } = useResizablePanel({
   minWidth: 240,
   maxWidth: 640,
   side: 'right',
-});
+})
 
-const roots = computed(() => modelStore.getRoots());
+const roots = computed(() => modelStore.getRoots())
 
 // Expand/collapse all via generation counter
-const expandedGeneration = ref(-1);
+const expandedGeneration = ref(-1)
 
 function expandAll(): void {
-  expandedGeneration.value = Math.max(0, expandedGeneration.value) + 1;
+  expandedGeneration.value = Math.max(0, expandedGeneration.value) + 1
 }
 
 function collapseAll(): void {
-  expandedGeneration.value = Math.min(-1, expandedGeneration.value) - 1;
+  expandedGeneration.value = Math.min(-1, expandedGeneration.value) - 1
 }
 
 // Selected node for highlighting — driven by uiStore in Phase 6
-const selectedId = computed(() => uiStore.selectedNodeId);
+const selectedId = computed(() => uiStore.selectedNodeId)
 
 // Relations section
-const MATRIX_DEFS_KEY = '__matrix_defs';
-const relationsOpen = ref(true);
+const MATRIX_DEFS_KEY = '__matrix_defs'
+const relationsOpen = ref(true)
+
+function extractMatrixDefs(root: any): any[] {
+  const defs = root.fields?.[MATRIX_DEFS_KEY]?.value
+  if (Array.isArray(defs) && defs.length > 0) return defs
+  const raw = root.fields?.matrices?.value
+  if (Array.isArray(raw) && raw.length > 0) {
+    return raw.map((m: any) => ({
+      name: m.name,
+      source: m.source,
+      target: m.target,
+      widgetType: m.widgetType || 'text',
+      params: m.params || '',
+    }))
+  }
+  return []
+}
 
 const matrixDefs = computed(() => {
-  if (modelStore.rootIds.length === 0) return [];
-  const root = modelStore.getNode(modelStore.rootIds[0]);
-  if (!root) return [];
-  const field = root.fields[MATRIX_DEFS_KEY];
-  if (!field?.value) return [];
-  return field.value as any[];
-});
+  const rootIds = modelStore.rootIds
+  for (const id of rootIds) {
+    const root = modelStore.getNode(id)
+    if (!root) continue
+    const defs = extractMatrixDefs(root)
+    if (defs.length > 0) return defs
+  }
+  return []
+})
 
 function selectMatrix(idx: number): void {
-  emit('select-matrix', idx);
-  emit('select-view', 'matrices');
+  emit('select-matrix', idx)
+  emit('select-view', 'matrices')
 }
 
 function navigateToConfig(): void {
-  emit('select-view', 'metamatrix-config');
+  emit('select-view', 'metamatrix-config')
 }
 </script>

@@ -3,6 +3,7 @@ import { injectMockFileSystem, loadHomePage, openMockFolder, expandAllNodes } fr
 
 test.describe('BlockSheet — 4 Tabs, Markdown, Relationships, Matrix Summary, Media, Field Viewer, Compliance', () => {
   test.beforeEach(async ({ page, context }) => {
+    page.on('console', (msg) => console.log('BROWSER:', msg.text()))
     await injectMockFileSystem(page, context)
     await loadHomePage(page)
     await openMockFolder(page)
@@ -12,7 +13,9 @@ test.describe('BlockSheet — 4 Tabs, Markdown, Relationships, Matrix Summary, M
 
   test('R-SC-01: Full Markdown rendering in View tab', async ({ page }) => {
     await expect(page.getByTestId('block-sheet')).toBeVisible()
-    await expect(page.getByTestId('block-sheet')).toContainText(/Delorean|time machine|88 mph|DMC-12/i)
+    await expect(page.getByTestId('block-sheet')).toContainText(
+      /Delorean|time machine|88 mph|DMC-12/i,
+    )
 
     const codeBlock = page.locator('pre code, [class*="language-"]')
     await expect(codeBlock.first()).toBeVisible()
@@ -70,7 +73,7 @@ test.describe('BlockSheet — 4 Tabs, Markdown, Relationships, Matrix Summary, M
   test('R-SC-06: FieldViewer renders widgets in read mode', async ({ page }) => {
     await expect(page.getByTestId('field-viewer')).toBeVisible()
 
-    const editButton = page.getByText(/Edit|edit/i).first()
+    const editButton = page.getByLabel('Edit').first()
     await expect(editButton).toBeVisible()
     await editButton.click()
 
@@ -87,13 +90,21 @@ test.describe('BlockSheet — 4 Tabs, Markdown, Relationships, Matrix Summary, M
 
     const viewTab = page.getByRole('button', { name: 'View', exact: true })
     const isActive = await viewTab.getAttribute('class')
-    expect(isActive?.includes('active') || isActive?.includes('underline') || isActive?.includes('border-b')).toBeTruthy()
+    expect(
+      isActive?.includes('active') ||
+        isActive?.includes('underline') ||
+        isActive?.includes('border-b'),
+    ).toBeTruthy()
 
     const complianceTab = page.getByRole('button', { name: 'Compliance', exact: true })
     await complianceTab.click()
 
     const compActive = await complianceTab.getAttribute('class')
-    expect(compActive?.includes('active') || compActive?.includes('underline') || compActive?.includes('border-b')).toBeTruthy()
+    expect(
+      compActive?.includes('active') ||
+        compActive?.includes('underline') ||
+        compActive?.includes('border-b'),
+    ).toBeTruthy()
 
     const viewActive = await viewTab.getAttribute('class')
     expect(viewActive?.includes('active') || viewActive?.includes('underline')).toBeFalsy()

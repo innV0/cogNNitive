@@ -1,9 +1,16 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import {
-  dbGet, dbSet, dbDelete, dbGetAll, dbClear,
-  getSessionState, setSessionState,
-  getTreeState, setTreeState,
-  getSidebarWidth, setSidebarWidth,
+  dbGet,
+  dbSet,
+  dbDelete,
+  dbGetAll,
+  dbClear,
+  getSessionState,
+  setSessionState,
+  getTreeState,
+  setTreeState,
+  getSidebarWidth,
+  setSidebarWidth,
 } from '../../src/utils/db'
 
 describe('db.ts — Schema upgrade (R-SP-01)', () => {
@@ -91,8 +98,8 @@ describe('db.ts — Generic CRUD operations (R-SP-05)', () => {
     await dbSet('session', 'b', { key: 'b', value: 2 })
     const all = await dbGetAll<{ key: string; value: number }>('session')
     expect(all).toHaveLength(2)
-    expect(all.find(e => e.key === 'a')?.value).toBe(1)
-    expect(all.find(e => e.key === 'b')?.value).toBe(2)
+    expect(all.find((e) => e.key === 'a')?.value).toBe(1)
+    expect(all.find((e) => e.key === 'b')?.value).toBe(2)
   })
 
   it('dbDelete removes an entry', async () => {
@@ -174,9 +181,7 @@ describe('db.ts — Graceful degradation (R-SP-05)', () => {
   })
 
   it('dbSet on unknown store does not throw', async () => {
-    await expect(
-      dbSet('nonExistentStore' as any, 'key', 'value'),
-    ).resolves.toBeUndefined()
+    await expect(dbSet('nonExistentStore' as any, 'key', 'value')).resolves.toBeUndefined()
   })
 
   it('dbGetAll on unknown store returns empty array without throwing', async () => {
@@ -185,14 +190,10 @@ describe('db.ts — Graceful degradation (R-SP-05)', () => {
   })
 
   it('dbClear on unknown store does not throw', async () => {
-    await expect(
-      dbClear('nonExistentStore' as any),
-    ).resolves.toBeUndefined()
+    await expect(dbClear('nonExistentStore' as any)).resolves.toBeUndefined()
   })
 
   it('dbDelete on unknown store does not throw', async () => {
-    await expect(
-      dbDelete('nonExistentStore' as any, 'key'),
-    ).resolves.toBeUndefined()
+    await expect(dbDelete('nonExistentStore' as any, 'key')).resolves.toBeUndefined()
   })
 })

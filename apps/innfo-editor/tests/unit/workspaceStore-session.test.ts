@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useWorkspaceStore } from '../../src/stores/workspaceStore'
-import { useModelStore } from '../../src/stores/modelStore'
 import { useUiStore } from '../../src/stores/uiStore'
 import { buildFakeTree } from '../helpers/fakeFs'
 import { setSessionState, getSessionState, dbClear } from '../../src/utils/db'

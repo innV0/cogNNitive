@@ -6,7 +6,15 @@ const appRoot = join(import.meta.dirname!, '..', '..')
 
 describe('no ESLint FILE<->FOLDER import wall (R17)', () => {
   it('has no ESLint config file in apps/format-editor', () => {
-    const candidates = ['.eslintrc.js', '.eslintrc.cjs', '.eslintrc.json', '.eslintrc.yml', 'eslint.config.js', 'eslint.config.mjs', 'eslint.config.ts']
+    const candidates = [
+      '.eslintrc.js',
+      '.eslintrc.cjs',
+      '.eslintrc.json',
+      '.eslintrc.yml',
+      'eslint.config.js',
+      'eslint.config.mjs',
+      'eslint.config.ts',
+    ]
     const found = candidates.filter((f) => existsSync(join(appRoot, f)))
     expect(found).toEqual([])
   })
@@ -22,8 +30,14 @@ describe('no ESLint FILE<->FOLDER import wall (R17)', () => {
   it('shared/ and modelStore are already imported from components regardless of node storage mode (R17 "Cross-import allowed")', () => {
     // NodeForm.vue was deleted in Phase 6 (replaced by BlockSheet/BlockFeed).
     // Verify cross-import freedom using the current layout/editor components.
-    const conceptTreeNodeSrc = readFileSync(join(appRoot, 'src', 'components', 'layout', 'ConceptTreeNode.vue'), 'utf-8')
-    const widgetFieldSrc = readFileSync(join(appRoot, 'src', 'shared', 'widgets', 'WidgetField.vue'), 'utf-8')
+    const conceptTreeNodeSrc = readFileSync(
+      join(appRoot, 'src', 'components', 'layout', 'ConceptTreeNode.vue'),
+      'utf-8',
+    )
+    const widgetFieldSrc = readFileSync(
+      join(appRoot, 'src', 'shared', 'widgets', 'WidgetField.vue'),
+      'utf-8',
+    )
 
     // components/layout/ freely imports from stores/modelStore.
     expect(conceptTreeNodeSrc).toMatch(/from ['"]\.\.\/\.\.\/stores\/modelStore['"]/)

@@ -24,7 +24,7 @@ import type { MetamodelConcept, ModelNode } from '../model/types'
 
 // ── Color palette ──────────────────────────────────────────────
 
-const COLOR_HEX: Record<string, string> = {
+export const COLOR_HEX: Record<string, string> = {
   blue: '#3b82f6',
   green: '#22c55e',
   red: '#ef4444',
@@ -100,13 +100,15 @@ function findTemplatePeer(
   }
 
   // Search peer roots for matching name with concepts
+  // parent_spec.name (e.g. "business_V_0-1-1") may lack the _NN suffix
+  // that filename-derived node names carry (e.g. "business_V_0-1-1_NN").
+  const normalizedParent = parentName.replace(/_NN$/, '')
   for (const rid of rootIds) {
     if (rid === rootId) continue
     const candidate = nodes[rid]
-    if (
-      candidate?.name === parentName &&
-      candidate?.localMetamodel?.concepts?.length
-    ) {
+    if (!candidate?.localMetamodel?.concepts?.length) continue
+    const candidateName = candidate.name?.replace(/_NN$/, '')
+    if (candidateName === normalizedParent) {
       _peerCache.set(rootId, rid)
       return rid
     }
@@ -129,9 +131,7 @@ export function useConceptVisuals() {
    */
   function getConceptForNode(node: ModelNode): MetamodelConcept | undefined {
     const conceptName =
-      node.kind === 'element'
-        ? node.type
-        : node.conceptBinding?.name ?? node.name
+      node.kind === 'element' ? node.type : (node.conceptBinding?.name ?? node.name)
 
     if (!conceptName) return undefined
 
@@ -149,11 +149,7 @@ export function useConceptVisuals() {
       root = modelStore.nodes[root.parentId] ?? null
     }
     if (root) {
-      const peerId = findTemplatePeer(
-        root.id,
-        modelStore.rootIds,
-        modelStore.nodes,
-      )
+      const peerId = findTemplatePeer(root.id, modelStore.rootIds, modelStore.nodes)
       if (peerId) {
         const peerMeta = resolveEffectiveMetamodel(peerId, modelStore.nodes)
         match = peerMeta.concepts.find((c) => c.name === conceptName)

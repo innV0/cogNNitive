@@ -39,7 +39,10 @@ const currentValue = computed(() => modelStore.getNode(props.nodeId)?.fields[pro
 const widgetComponent = computed(() => resolveWidgetComponent(props.widgetType))
 
 function onCommit(value: unknown): void {
-  commitFieldValue(modelStore, props.nodeId, props.fieldKey, value, { kind: 'user', id: props.authorId })
+  commitFieldValue(modelStore, props.nodeId, props.fieldKey, value, {
+    kind: 'user',
+    id: props.authorId,
+  })
 }
 </script>
 

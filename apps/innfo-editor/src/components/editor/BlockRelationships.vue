@@ -6,7 +6,9 @@
         :key="rel.targetId"
         class="flex items-center gap-2 py-1.5 px-3 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
       >
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0">
+        <span
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0"
+        >
           {{ rel.label }}
         </span>
         <button

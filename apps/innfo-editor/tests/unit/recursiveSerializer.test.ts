@@ -68,7 +68,9 @@ describe('recursiveSerializer', () => {
 
     let writtenContent: string | null = null
     const mockDriver: ModelDriver = {
-      readModel: async (_uri: string) => { throw new Error('not expected') },
+      readModel: async (_uri: string) => {
+        throw new Error('not expected')
+      },
       writeModel: async (_uri: string, model: ParsedModel) => {
         writtenContent = model.rawContent
       },
@@ -108,7 +110,9 @@ describe('recursiveSerializer', () => {
     // Since we have no root handle in the serializer, round-trip through driver
     let roundtripContent: string | null = null
     const capturingDriver: ModelDriver = {
-      readModel: async (_uri: string) => { throw new Error('not expected') },
+      readModel: async (_uri: string) => {
+        throw new Error('not expected')
+      },
       writeModel: async (_uri: string, model: ParsedModel) => {
         roundtripContent = model.rawContent
       },

@@ -14,7 +14,10 @@ export interface WriteReport {
  * - 'exact': rawContent was preserved (no edit, byte-identical write)
  * - 'canonical': content was re-serialized through serializeModel (lossy path)
  */
-function serializeNodeContent(node: ModelNode): { content: string; fidelity: 'exact' | 'canonical' } {
+function serializeNodeContent(node: ModelNode): {
+  content: string
+  fidelity: 'exact' | 'canonical'
+} {
   if (node.rawContent === undefined) {
     throw new Error(`Node "${node.id}" has no rawContent to serialize from`)
   }

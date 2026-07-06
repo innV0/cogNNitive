@@ -77,7 +77,10 @@ export async function dbSet(storeName: string, key: IDBValidKey, value: unknown)
       } else {
         store.put(value, key)
       }
-      tx.oncomplete = () => { db.close(); resolve() }
+      tx.oncomplete = () => {
+        db.close()
+        resolve()
+      }
       tx.onerror = () => reject(tx.error)
     })
   } catch {
@@ -94,7 +97,10 @@ export async function dbDelete(storeName: string, key: IDBValidKey): Promise<voi
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction(storeName, 'readwrite')
       tx.objectStore(storeName).delete(key)
-      tx.oncomplete = () => { db.close(); resolve() }
+      tx.oncomplete = () => {
+        db.close()
+        resolve()
+      }
       tx.onerror = () => reject(tx.error)
     })
   } catch {
@@ -129,7 +135,10 @@ export async function dbClear(storeName: string): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction(storeName, 'readwrite')
       tx.objectStore(storeName).clear()
-      tx.oncomplete = () => { db.close(); resolve() }
+      tx.oncomplete = () => {
+        db.close()
+        resolve()
+      }
       tx.onerror = () => reject(tx.error)
     })
   } catch {
@@ -169,7 +178,10 @@ export async function setSessionState(key: string, value: unknown): Promise<void
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction('session', 'readwrite')
       tx.objectStore('session').put({ key, value } satisfies SessionEntry)
-      tx.oncomplete = () => { db.close(); resolve() }
+      tx.oncomplete = () => {
+        db.close()
+        resolve()
+      }
       tx.onerror = () => reject(tx.error)
     })
   } catch {
@@ -209,7 +221,10 @@ export async function setTreeState(nodeId: string, collapsed: boolean): Promise<
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction('treeState', 'readwrite')
       tx.objectStore('treeState').put({ nodeId, collapsed } satisfies TreeStateEntry)
-      tx.oncomplete = () => { db.close(); resolve() }
+      tx.oncomplete = () => {
+        db.close()
+        resolve()
+      }
       tx.onerror = () => reject(tx.error)
     })
   } catch {
@@ -246,7 +261,10 @@ export async function setSidebarWidth(panelId: string, width: number): Promise<v
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction('sidebarWidths', 'readwrite')
       tx.objectStore('sidebarWidths').put({ panelId, width } satisfies SidebarWidthEntry)
-      tx.oncomplete = () => { db.close(); resolve() }
+      tx.oncomplete = () => {
+        db.close()
+        resolve()
+      }
       tx.onerror = () => reject(tx.error)
     })
   } catch {

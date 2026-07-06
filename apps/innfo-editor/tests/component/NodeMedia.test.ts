@@ -65,9 +65,9 @@ describe('NodeMedia.vue — R-SC-05', () => {
 
     // Find all anchor elements (download links for non-image files)
     const links = wrapper.findAll('a')
-    const linkTexts = links.map(l => l.text())
-    expect(linkTexts.some(t => t.includes('report.pdf'))).toBe(true)
-    expect(linkTexts.some(t => t.includes('data.csv'))).toBe(true)
+    const linkTexts = links.map((l) => l.text())
+    expect(linkTexts.some((t) => t.includes('report.pdf'))).toBe(true)
+    expect(linkTexts.some((t) => t.includes('data.csv'))).toBe(true)
   })
 
   it('download links have target=_blank and rel=noopener noreferrer', () => {
@@ -89,8 +89,10 @@ describe('NodeMedia.vue — R-SC-05', () => {
 
     // Pure image assets should not have download anchor links
     const links = wrapper.findAll('a')
-    const linkTexts = links.map(l => l.text())
-    expect(linkTexts.every(t => !t.includes('.jpg') && !t.includes('.png') && !t.includes('.svg'))).toBe(true)
+    const linkTexts = links.map((l) => l.text())
+    expect(
+      linkTexts.every((t) => !t.includes('.jpg') && !t.includes('.png') && !t.includes('.svg')),
+    ).toBe(true)
   })
 
   it('shows empty state when no assets provided', () => {
@@ -113,9 +115,9 @@ describe('NodeMedia.vue — R-SC-05', () => {
 
     // Both non-images should appear as download links
     const links = wrapper.findAll('a')
-    const linkTexts = links.map(l => l.text())
-    expect(linkTexts.some(t => t.includes('archive.7z'))).toBe(true)
-    expect(linkTexts.some(t => t.includes('readme.md'))).toBe(true)
+    const linkTexts = links.map((l) => l.text())
+    expect(linkTexts.some((t) => t.includes('archive.7z'))).toBe(true)
+    expect(linkTexts.some((t) => t.includes('readme.md'))).toBe(true)
   })
 
   it('handles images with error loading gracefully', async () => {

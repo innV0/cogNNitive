@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { injectMockFileSystem, loadHomePage, openMockFolder } from './helpers/setup'
+import { injectMockFileSystem } from './helpers/setup'
+import { ModelerPage } from './helpers/ModelerPage'
 
 test.describe('Home Page — Landing & Workspace Entry', () => {
   test.beforeEach(async ({ page, context }) => {
@@ -7,40 +8,62 @@ test.describe('Home Page — Landing & Workspace Entry', () => {
   })
 
   test('R-TN-00: Home page loads with all entry points', async ({ page }) => {
-    await loadHomePage(page)
+    const modeler = new ModelerPage(page)
 
-    const title = page.getByRole('heading', { name: /format-editor|innfo/i })
-    await expect(title).toBeVisible()
+    await test.step('Dado que el usuario navega a la página de inicio', async () => {
+      await modeler.goto()
+    })
 
-    const openFolderBtn = page.locator('button', { hasText: /Open folder/i }).first()
-    await expect(openFolderBtn).toBeVisible({ timeout: 10000 })
-    await expect(openFolderBtn).toBeEnabled()
+    await test.step('Entonces se debe mostrar el título principal', async () => {
+      await expect(modeler.heading).toBeVisible()
+    })
 
-    await expect(page.getByText('Example models').or(page.getByText('Sample models'))).toBeVisible()
-    const sampleCards = page.locator('button').filter({ hasText: /items/i })
-    expect(await sampleCards.count()).toBeGreaterThanOrEqual(1)
+    await test.step('Y el botón para abrir carpeta local debe estar disponible', async () => {
+      await expect(modeler.openFolderButton).toBeVisible({ timeout: 10000 })
+      await expect(modeler.openFolderButton).toBeEnabled()
+    })
+
+    await test.step('Y se deben mostrar los modelos de ejemplo', async () => {
+      await expect(modeler.sampleModelsSection).toBeVisible()
+      expect(await modeler.sampleCards.count()).toBeGreaterThanOrEqual(1)
+    })
   })
 
-  test('Open folder loads workspace with tree', async ({ page, context }) => {
-    await injectMockFileSystem(page, context)
-    await loadHomePage(page)
+  test('Open folder loads workspace with tree', async ({ page }) => {
+    const modeler = new ModelerPage(page)
 
-    const folderBtn = page.locator('button', { hasText: /Open folder/i }).first()
-    await folderBtn.click()
+    await test.step('Dado que el usuario abrió la aplicación', async () => {
+      await modeler.goto()
+    })
 
-    await page.waitForURL('**/workspace', { timeout: 15000 })
-    await expect(page.getByText('BTTFKB')).toBeVisible({ timeout: 15000 })
+    await test.step('Cuando hace clic en "Open folder" para cargar el espacio de trabajo', async () => {
+      await modeler.openFolderButton.click()
+    })
 
-    await expect(page.getByText('← Home').or(page.getByText(/Home/i))).toBeVisible()
+    await test.step('Entonces es redirigido a la vista de workspace y se cargan los nodos del árbol', async () => {
+      await page.waitForURL('**/workspace', { timeout: 15000 })
+      await expect(modeler.treeRootNode.first()).toBeVisible({ timeout: 15000 })
+    })
+
+    await test.step('Y puede ver la opción de volver a Home', async () => {
+      await expect(modeler.homeButton).toBeVisible()
+    })
   })
 
-  test('Workspace layout shows panels', async ({ page, context }) => {
-    await injectMockFileSystem(page, context)
-    await loadHomePage(page)
-    await openMockFolder(page)
+  test('Workspace layout shows panels', async ({ page }) => {
+    const modeler = new ModelerPage(page)
 
-    await expect(page.getByRole('heading', { name: 'Model', exact: true })).toBeVisible()
+    await test.step('Dado que el usuario abrió la aplicación y cargó el espacio de trabajo de prueba', async () => {
+      await modeler.goto()
+      await modeler.openMockFolder()
+    })
 
-    await expect(page.getByTestId('view-switcher-editor')).toBeVisible()
+    await test.step('Entonces se debe visualizar el panel del Modelo', async () => {
+      await expect(modeler.modelHeading).toBeVisible()
+    })
+
+    await test.step('Y el selector de vistas del editor debe estar visible', async () => {
+      await expect(modeler.viewSwitcherEditor).toBeVisible()
+    })
   })
 })

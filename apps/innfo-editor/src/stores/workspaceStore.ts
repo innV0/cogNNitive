@@ -2,8 +2,14 @@ import { defineStore } from 'pinia'
 import { useModelStore } from './modelStore'
 import { useUiStore } from './uiStore'
 import { recursiveSerialize } from '../model/recursiveSerializer'
-import { parseFormatFilename, buildFormatFilename, bumpVersion, formatVersionString } from '../utils/version'
-import { setSessionState, getSessionState, setTreeState, getTreeState } from '../utils/db'
+import {
+  parseFormatFilename,
+  buildFormatFilename,
+  bumpVersion,
+  formatVersionString,
+} from '../utils/version'
+import { IndexedDbWorkspaceRepository } from '../repositories/IndexedDbWorkspaceRepository'
+import type { IWorkspaceRepository } from '../repositories/IWorkspaceRepository'
 import { useUrlDocLoader } from '../composables/useUrlDocLoader'
 import type { DirectoryHandleLike } from '../model/fs-types'
 import type { BumpLevel } from '../utils/version'
@@ -11,58 +17,6 @@ import type { ModelDriver } from '@innv0/innfo-core'
 import type { ActiveView } from './uiStore'
 
 export type { DirectoryHandleLike }
-
-const DB_NAME = 'format-editor'
-const DB_VERSION = 2
-const STORE_NAME = 'handles'
-const HANDLE_KEY = 'workspaceRoot'
-
-function openHandleDb(): Promise<IDBDatabase> {
-  return new Promise((resolveDb, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION)
-    req.onupgradeneeded = () => {
-      const db = req.result
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME)
-      }
-      // Create v2 stores if upgrading from v1 (backward-compatible)
-      if (!db.objectStoreNames.contains('session')) {
-        db.createObjectStore('session', { keyPath: 'key' })
-      }
-      if (!db.objectStoreNames.contains('treeState')) {
-        db.createObjectStore('treeState', { keyPath: 'nodeId' })
-      }
-      if (!db.objectStoreNames.contains('sidebarWidths')) {
-        db.createObjectStore('sidebarWidths', { keyPath: 'panelId' })
-      }
-    }
-    req.onsuccess = () => resolveDb(req.result)
-    req.onerror = () => reject(req.error)
-  })
-}
-
-async function storeHandle(handle: DirectoryHandleLike): Promise<void> {
-  const db = await openHandleDb()
-  await new Promise<void>((res, rej) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite')
-    tx.objectStore(STORE_NAME).put(handle, HANDLE_KEY)
-    tx.oncomplete = () => res()
-    tx.onerror = () => rej(tx.error)
-  })
-  db.close()
-}
-
-async function loadStoredHandle(): Promise<DirectoryHandleLike | null> {
-  const db = await openHandleDb()
-  const handle = await new Promise<DirectoryHandleLike | null>((res, rej) => {
-    const tx = db.transaction(STORE_NAME, 'readonly')
-    const req = tx.objectStore(STORE_NAME).get(HANDLE_KEY)
-    req.onsuccess = () => res((req.result as DirectoryHandleLike) ?? null)
-    req.onerror = () => rej(req.error)
-  })
-  db.close()
-  return handle
-}
 
 export interface WorkspaceState {
   handle: DirectoryHandleLike | null
@@ -77,6 +31,7 @@ export interface WorkspaceState {
   sourceUrl: string | null
   /** Whether auto-backup is enabled before saveActiveFile writes. Default true. */
   backupEnabled: boolean
+  repository: IWorkspaceRepository
 }
 
 /**
@@ -97,6 +52,7 @@ export const useWorkspaceStore = defineStore('workspace', {
     error: null,
     sourceUrl: null,
     backupEnabled: true,
+    repository: new IndexedDbWorkspaceRepository(),
   }),
   actions: {
     /**
@@ -118,7 +74,7 @@ export const useWorkspaceStore = defineStore('workspace', {
 
       this.isParsing = true
       try {
-        await storeHandle(handle)
+        await this.repository.storeHandle(handle)
         const modelStore = useModelStore()
         await modelStore.parseFromHandle(handle, this.driver ?? undefined)
         this.hasParsed = true
@@ -129,10 +85,10 @@ export const useWorkspaceStore = defineStore('workspace', {
         if (rootId) {
           const rootNode = modelStore.getNode(rootId)
           if (rootNode?.source.path) {
-            setSessionState('lastFile', rootNode.source.path).catch(() => {})
+            this.repository.setSessionState('lastFile', rootNode.source.path).catch(() => {})
           }
         }
-        setSessionState('lastOpenedAt', new Date().toISOString()).catch(() => {})
+        this.repository.setSessionState('lastOpenedAt', new Date().toISOString()).catch(() => {})
       } catch (err) {
         this.error = err instanceof Error ? err.message : String(err)
         throw err
@@ -191,14 +147,14 @@ export const useWorkspaceStore = defineStore('workspace', {
 
     /** Attempts to recover a previously granted handle from IndexedDB on boot. */
     async recoverHandle(): Promise<DirectoryHandleLike | null> {
-      const handle = await loadStoredHandle()
+      const handle = await this.repository.loadStoredHandle()
       if (handle) {
         this.handle = handle
         this.hasHandle = true
 
         // Restore uiStore state from persisted session
         try {
-          const session = await getSessionState()
+          const session = await this.repository.getSessionState()
           const uiStore = useUiStore()
           if (session.selectedNodeId && typeof session.selectedNodeId === 'string') {
             uiStore.selectNode(session.selectedNodeId)
@@ -217,7 +173,7 @@ export const useWorkspaceStore = defineStore('workspace', {
      * Persists a single tree node's expansion state to IndexedDB.
      */
     async persistTreeState(nodeId: string, collapsed: boolean): Promise<void> {
-      await setTreeState(nodeId, collapsed)
+      await this.repository.setTreeState(nodeId, collapsed)
     },
 
     /**
@@ -225,7 +181,7 @@ export const useWorkspaceStore = defineStore('workspace', {
      * Returns a Map<nodeId, collapsed> — nodes not present default to expanded.
      */
     async restoreTreeState(): Promise<Map<string, boolean>> {
-      return await getTreeState()
+      return await this.repository.getTreeState()
     },
 
     reset(): void {

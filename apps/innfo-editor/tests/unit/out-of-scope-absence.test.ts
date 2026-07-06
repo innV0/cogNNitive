@@ -40,10 +40,10 @@ describe('out-of-scope feature absence (R19)', () => {
       /[\/\\]components[\/\\]editor[\/\\]BlockRelationships\.vue$/,
       /[\/\\]components[\/\\]editor[\/\\]FieldViewer\.vue$/,
     ]
-    const codeFilesNoExcluded = codeFiles.filter(
-      (f) => !wikilinkExcluded.some((re) => re.test(f)),
+    const codeFilesNoExcluded = codeFiles.filter((f) => !wikilinkExcluded.some((re) => re.test(f)))
+    const offendingContent = codeFilesNoExcluded.filter((f) =>
+      /wikilink|\[\[.*\]\]/i.test(readFileSync(f, 'utf-8')),
     )
-    const offendingContent = codeFilesNoExcluded.filter((f) => /wikilink|\[\[.*\]\]/i.test(readFileSync(f, 'utf-8')))
     expect(offendingContent).toEqual([])
   })
 
@@ -65,7 +65,9 @@ describe('out-of-scope feature absence (R19)', () => {
 
     const offendingContent = codeFiles.filter((f) => {
       const content = readFileSync(f, 'utf-8')
-      return /from ['"](openai|anthropic|@anthropic-ai|@google\/generative-ai|langchain)/i.test(content)
+      return /from ['"](openai|anthropic|@anthropic-ai|@google\/generative-ai|langchain)/i.test(
+        content,
+      )
     })
     expect(offendingContent).toEqual([])
   })

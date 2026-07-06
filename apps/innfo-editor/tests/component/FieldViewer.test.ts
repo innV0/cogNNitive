@@ -15,7 +15,13 @@ function makeNode(id: string, fieldValues: Record<string, unknown>): ModelNode {
     fields: Object.fromEntries(
       Object.entries(fieldValues).map(([key, value]) => [
         key,
-        { value, provenance: { author: { kind: 'system', id: 'parser' }, timestamp: '2024-01-01T00:00:00.000Z' } },
+        {
+          value,
+          provenance: {
+            author: { kind: 'system', id: 'parser' },
+            timestamp: '2024-01-01T00:00:00.000Z',
+          },
+        },
       ]),
     ),
     markers: {},
@@ -40,7 +46,14 @@ describe('FieldViewer.vue — R-SC-06', () => {
   it('renders field labels and values in read mode', () => {
     const modelStore = useModelStore()
     modelStore.setGraph(
-      { Root: makeNode('Root', { status: 'active', summary: 'Hello world', count: 42, is_enabled: true }) },
+      {
+        Root: makeNode('Root', {
+          status: 'active',
+          summary: 'Hello world',
+          count: 42,
+          is_enabled: true,
+        }),
+      },
       ['Root'],
     )
 

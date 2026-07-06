@@ -12,11 +12,14 @@ import {
   getStoredHandle,
   formatTimestamp,
 } from '../stores/historyStore'
+import { useUrlDocLoader } from '../composables/useUrlDocLoader'
 
 const router = useRouter()
 const workspace = useWorkspaceStore()
 const error = ref<string | null>(null)
 const busy = ref(false)
+const urlInput = ref('')
+const urlBusy = ref(false)
 const history = ref<FolderHistoryEntry[]>([])
 const reopenBusy = ref<string | null>(null)
 
@@ -24,7 +27,8 @@ const samples: SampleFolder[] = [
   {
     id: 'sample-ghostbusters',
     name: 'Ghostbusters',
-    description: 'FILE-mode business model for a fictional ghost-catching franchise: SWOT, risks, market segments, finance, legal, and operations in a single _NN.md.',
+    description:
+      'FILE-mode business model for a fictional ghost-catching franchise: SWOT, risks, market segments, finance, legal, and operations in a single _NN.md.',
     mode: 'FILE',
     path: 'specs/business_V_0-1-1/samples/Ghostbusters_V_0-1-2_business_F.md',
     items: 1,
@@ -32,7 +36,8 @@ const samples: SampleFolder[] = [
   {
     id: 'sample-music-history',
     name: 'Music History',
-    description: 'FOLDER-mode catalog with 4 genres, 6 artists, and 5 albums — each node is a folder with its own _NN.md, demonstrating the full nested tree.',
+    description:
+      'FOLDER-mode catalog with 4 genres, 6 artists, and 5 albums — each node is a folder with its own _NN.md, demonstrating the full nested tree.',
     mode: 'FOLDER',
     path: 'specs/catalog_V_0-1-2/samples/Music_History_V_1-0-0_catalog/',
     items: 15,
@@ -40,7 +45,8 @@ const samples: SampleFolder[] = [
   {
     id: 'sample-code-review',
     name: 'Code Review Process',
-    description: 'FILE-mode procedure for PR-based code reviews: roles (Author, Reviewer, Maintainer), step-by-step workflow, tool bindings, and hotfix path.',
+    description:
+      'FILE-mode procedure for PR-based code reviews: roles (Author, Reviewer, Maintainer), step-by-step workflow, tool bindings, and hotfix path.',
     mode: 'FILE',
     path: 'specs/procedures_V_0-1-1/samples/CodeReviewProcess_V_1-0-0_procedures_F.md',
     items: 1,
@@ -48,7 +54,8 @@ const samples: SampleFolder[] = [
   {
     id: 'sample-teamkb',
     name: 'Team Knowledge Base',
-    description: 'FOLDER-mode KB root node ready for Persona, Topic, and Reference concept folders — the starting point for a team documentation base.',
+    description:
+      'FOLDER-mode KB root node ready for Persona, Topic, and Reference concept folders — the starting point for a team documentation base.',
     mode: 'FOLDER',
     path: 'archive/2026-07-02/models/TeamKB_V_0-1-1_kb/',
     items: 1,
@@ -82,9 +89,11 @@ async function onDrop(_e: DragEvent) {
  */
 async function openWorkspace(): Promise<void> {
   error.value = null
-  const picker = (window as unknown as {
-    showDirectoryPicker?: () => Promise<DirectoryHandleLike>
-  }).showDirectoryPicker
+  const picker = (
+    window as unknown as {
+      showDirectoryPicker?: () => Promise<DirectoryHandleLike>
+    }
+  ).showDirectoryPicker
   if (!picker) {
     error.value = 'This browser does not support the File System Access API. Use Chrome or Edge.'
     return
@@ -99,6 +108,65 @@ async function openWorkspace(): Promise<void> {
     router.push('/workspace')
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') return
+    error.value = err instanceof Error ? err.message : String(err)
+  } finally {
+    busy.value = false
+  }
+}
+
+/**
+ * Loads a model from a remote URL into a virtual workspace.
+ */
+async function loadFromUrl(): Promise<void> {
+  error.value = null
+  const url = urlInput.value.trim()
+  if (!url) {
+    error.value = 'Please enter a valid URL.'
+    return
+  }
+  try {
+    new URL(url)
+  } catch {
+    error.value = 'Invalid URL format.'
+    return
+  }
+  urlBusy.value = true
+  try {
+    await workspace.loadFromUrl(url)
+    await addToHistory(url, null as unknown as any)
+    history.value = await loadHistory()
+    router.push('/workspace')
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : String(err)
+  } finally {
+    urlBusy.value = false
+  }
+}
+
+/**
+ * Creates a new empty workspace from a default template and navigates to it.
+ */
+async function createFromTemplate(): Promise<void> {
+  error.value = null
+  busy.value = true
+  try {
+    const loader = useUrlDocLoader()
+    const frontmatter = {
+      spec_version: 'V_0-1-5',
+      model_version: 'V_1-0-0',
+      title: 'Untitled Model',
+      template: { name: 'business', version: 'V_1-0-0' },
+      concepts: [{ name: 'Topic', type: 'topic', icon: 'wrench', color: '#059669' }],
+      markers: [],
+    }
+    await loader.loadFromFrontmatter(frontmatter, 'Untitled_NN.md')
+    workspace.hasParsed = true
+    workspace.hasHandle = true
+    workspace.parseCount += 1
+    await addToHistory('Untitled', null as unknown as any)
+    history.value = await loadHistory()
+    router.push('/workspace')
+  } catch (err) {
     error.value = err instanceof Error ? err.message : String(err)
   } finally {
     busy.value = false
@@ -123,7 +191,9 @@ async function reopenFolder(entry: FolderHistoryEntry): Promise<void> {
     }
 
     // Verify permission; request it if needed
-    const perm = await (handle as unknown as { requestPermission?: (opts: { mode: string }) => Promise<string> }).requestPermission?.({ mode: 'read' })
+    const perm = await (
+      handle as unknown as { requestPermission?: (opts: { mode: string }) => Promise<string> }
+    ).requestPermission?.({ mode: 'read' })
     if (perm === 'denied' || perm === 'prompt') {
       // User has denied or we can't request — remove from history as stale
       await removeFromHistory(entry.handleKey)
@@ -196,9 +266,11 @@ async function clearAllHistory(): Promise<void> {
  */
 async function onSampleClick(sample: SampleFolder): Promise<void> {
   error.value = null
-  const picker = (window as unknown as {
-    showDirectoryPicker?: (opts?: { startIn?: FileSystemHandle }) => Promise<DirectoryHandleLike>
-  }).showDirectoryPicker
+  const picker = (
+    window as unknown as {
+      showDirectoryPicker?: (opts?: { startIn?: FileSystemHandle }) => Promise<DirectoryHandleLike>
+    }
+  ).showDirectoryPicker
   if (!picker) {
     error.value = 'This browser does not support the File System Access API. Use Chrome or Edge.'
     return
@@ -210,17 +282,12 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
     // FILE-mode: parent = directory that contains the file (what user selects)
     // FOLDER-mode: parent = directory that contains the sample folder
     const parentSegments = sample.path.replace(/\/+$/, '').split('/').slice(0, -1)
-    const ancestorHandle = parentSegments.length > 0
-      ? await resolveAncestorHandle(parentSegments)
-      : undefined
+    const ancestorHandle =
+      parentSegments.length > 0 ? await resolveAncestorHandle(parentSegments) : undefined
 
-    const pickerOpts = ancestorHandle
-      ? { startIn: ancestorHandle as FileSystemHandle }
-      : undefined
+    const pickerOpts = ancestorHandle ? { startIn: ancestorHandle as FileSystemHandle } : undefined
 
-    const dirHandle = pickerOpts
-      ? await picker.call(window, pickerOpts)
-      : await picker.call(window)
+    const dirHandle = pickerOpts ? await picker.call(window, pickerOpts) : await picker.call(window)
 
     await workspace.open(dirHandle)
     await addToHistory(dirHandle.name, dirHandle)
@@ -249,16 +316,41 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
       @drop="onDrop"
     >
       <div class="drop-zone__icon">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/>
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z" />
         </svg>
       </div>
-      <p class="drop-zone__text">
-        Drop a folder here, or click to browse
-      </p>
+      <p class="drop-zone__text">Drop a folder here, or click to browse</p>
       <div class="drop-zone__actions">
         <button class="home__open" :disabled="busy" @click="openWorkspace">
           {{ busy ? 'Opening\u2026' : 'Open folder\u2026' }}
+        </button>
+        <button class="home__template" :disabled="busy" @click="createFromTemplate">
+          New from template
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Load from URL ── -->
+    <div class="home-url">
+      <p class="home-url__label">Or load a model from URL:</p>
+      <div class="home-url__row">
+        <input
+          v-model="urlInput"
+          type="url"
+          placeholder="https://example.com/model_V_1-0-0_business_NN.md"
+          class="home-url__input"
+          @keydown.enter="loadFromUrl"
+        />
+        <button class="home-url__btn" :disabled="urlBusy || !urlInput.trim()" @click="loadFromUrl">
+          {{ urlBusy ? 'Loading\u2026' : 'Load' }}
         </button>
       </div>
     </div>
@@ -279,14 +371,38 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
           :disabled="reopenBusy === entry.handleKey"
           @click="reopenFolder(entry)"
         >
-          <svg class="recent__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/>
+          <svg
+            class="recent__icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"
+            />
           </svg>
           <span class="recent__name">{{ entry.name }}</span>
           <span class="recent__time">{{ formatTimestamp(entry.timestamp) }}</span>
-          <span class="recent__remove" role="button" tabindex="0" @click.stop="removeEntry(entry.handleKey)" @keydown.enter.prevent="removeEntry(entry.handleKey)" @keydown.space.prevent="removeEntry(entry.handleKey)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6L6 18M6 6l12 12"/>
+          <span
+            class="recent__remove"
+            role="button"
+            tabindex="0"
+            @click.stop="removeEntry(entry.handleKey)"
+            @keydown.enter.prevent="removeEntry(entry.handleKey)"
+            @keydown.space.prevent="removeEntry(entry.handleKey)"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </span>
         </button>
@@ -296,17 +412,24 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
     <!-- ── Sample models ── -->
     <section class="samples">
       <h3 class="samples__title">Example models</h3>
-      <p class="samples__sub">Open an iNNfo folder to explore, or try one of these samples from the repository.</p>
+      <p class="samples__sub">
+        Open an iNNfo folder to explore, or try one of these samples from the repository.
+      </p>
       <div class="samples__grid">
-        <button
-          v-for="s in samples"
-          :key="s.id"
-          class="sample-card"
-          @click="onSampleClick(s)"
-        >
+        <button v-for="s in samples" :key="s.id" class="sample-card" @click="onSampleClick(s)">
           <div class="sample-card__head">
-            <svg class="sample-card__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/>
+            <svg
+              class="sample-card__icon"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"
+              />
             </svg>
             <div class="sample-card__info">
               <span class="sample-card__name">{{ s.name }}</span>
@@ -351,12 +474,14 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
   border-radius: 12px;
   padding: 2rem 1rem;
   text-align: center;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .drop-zone--active {
-  border-color: #4D0E4E;
-  background: #F8F0F8;
+  border-color: #4d0e4e;
+  background: #f8f0f8;
 }
 
 .drop-zone__icon {
@@ -379,20 +504,41 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
   padding: 0.6rem 1.2rem;
   font-size: 1rem;
   cursor: pointer;
-  border: 2px solid #4D0E4E;
+  border: 2px solid #4d0e4e;
   border-radius: 6px;
   background: #fff;
-  color: #4D0E4E;
+  color: #4d0e4e;
   font-weight: 600;
   transition: all 0.15s;
 }
 
 .home__open:hover {
-  background: #4D0E4E;
+  background: #4d0e4e;
   color: #fff;
 }
 
 .home__open:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.home__template {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 2px solid #4d0e4e;
+  border-radius: 6px;
+  background: #4d0e4e;
+  color: #fff;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.home__template:hover {
+  background: #3a0b3b;
+}
+
+.home__template:disabled {
   opacity: 0.6;
   cursor: default;
 }
@@ -437,7 +583,7 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
 }
 
 .recent__clear:hover {
-  color: #4D0E4E;
+  color: #4d0e4e;
 }
 
 .recent__list {
@@ -463,7 +609,7 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
 }
 
 .recent__item:hover:not(:disabled) {
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
   box-shadow: 0 1px 4px rgba(77, 14, 78, 0.06);
 }
 
@@ -474,7 +620,7 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
 
 .recent__icon {
   flex-shrink: 0;
-  color: #4D0E4E;
+  color: #4d0e4e;
 }
 
 .recent__name {
@@ -510,8 +656,8 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
 }
 
 .recent__remove:hover {
-  color: #C62828;
-  background: #FFEBEE;
+  color: #c62828;
+  background: #ffebee;
 }
 
 /* ── Sample models ── */
@@ -565,7 +711,7 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
 }
 
 .sample-card:hover {
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
   box-shadow: 0 2px 8px rgba(77, 14, 78, 0.08);
 }
 
@@ -577,7 +723,7 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
 
 .sample-card__icon {
   flex-shrink: 0;
-  color: #4D0E4E;
+  color: #4d0e4e;
 }
 
 .sample-card__info {
@@ -608,8 +754,8 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
   letter-spacing: 0.06em;
   padding: 2px 8px;
   border-radius: 4px;
-  background: #F3E5F5;
-  color: #4D0E4E;
+  background: #f3e5f5;
+  color: #4d0e4e;
   flex-shrink: 0;
 }
 
@@ -623,6 +769,65 @@ async function onSampleClick(sample: SampleFolder): Promise<void> {
 .sample-card__action {
   font-size: 13px;
   font-weight: 600;
-  color: #4D0E4E;
+  color: #4d0e4e;
+}
+
+/* ── Load from URL ── */
+
+.home-url {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+}
+
+.home-url__label {
+  margin: 0 0 0.5rem;
+  font-size: 14px;
+  color: #888;
+}
+
+.home-url__row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.home-url__input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 14px;
+  font-family: system-ui, sans-serif;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.home-url__input:focus {
+  border-color: #4d0e4e;
+  box-shadow: 0 0 0 2px rgba(77, 14, 78, 0.1);
+}
+
+.home-url__btn {
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #4d0e4e;
+  color: #fff;
+  border: 1px solid #4d0e4e;
+  transition: all 0.15s;
+  font-family: system-ui, sans-serif;
+}
+
+.home-url__btn:hover:not(:disabled) {
+  background: #3a0b3b;
+}
+
+.home-url__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 </style>

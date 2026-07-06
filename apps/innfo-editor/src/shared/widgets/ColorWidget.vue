@@ -6,7 +6,7 @@
  * Registered as 'color' in the unified widget registry.
  */
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     modelValue: string
     fieldDefinition?: {

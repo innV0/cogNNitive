@@ -106,11 +106,85 @@ export function useUrlDocLoader() {
 
     if (!result.error && Object.keys(result.nodes).length > 0) {
       const modelStore = useModelStore()
+      await modelStore._resolveParentSpecs(result.nodes, result.rootIds)
       modelStore.setGraph(result.nodes, result.rootIds)
     }
 
     return result
   }
 
-  return { fetch, loadIntoStore }
+  /**
+   * Builds a model graph from a frontmatter object and raw markdown body,
+   * then populates modelStore. Used for creating new models from templates.
+   */
+  async function loadFromFrontmatter(
+    frontmatter: Record<string, unknown>,
+    filename: string,
+    body = '',
+  ): Promise<UrlDocLoaderResult> {
+    const result: UrlDocLoaderResult = {
+      nodes: {},
+      rootIds: [],
+      sourceUrl: filename,
+      error: null,
+    }
+
+    try {
+      const yaml = Object.entries(frontmatter)
+        .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
+        .join('\n')
+      const text = `---\n${yaml}\n---\n\n${body}`
+      const parsed = parseModel(text)
+
+      const rootId = filename.replace(/\.md$/i, '')
+      const rootNode: ModelNode = {
+        id: rootId,
+        name: (frontmatter.title as string) || 'Untitled',
+        parentId: null,
+        childIds: [],
+        type: 'document',
+        fields: {},
+        markers: {},
+        relationships: [],
+        rawSections: {},
+        rawContent: text,
+        source: { path: filename },
+        kind: 'root',
+      }
+
+      const nodes: Record<string, ModelNode> = { [rootId]: rootNode }
+
+      for (const [conceptName, elements] of parsed.elements.entries()) {
+        for (const el of elements) {
+          const nodeId = `${rootId}/${el.name}`
+          nodes[nodeId] = {
+            id: nodeId,
+            name: el.name,
+            parentId: rootId,
+            childIds: [],
+            type: conceptName,
+            fields: {},
+            markers: { ...el.markers },
+            relationships: [],
+            rawSections: {},
+            source: { path: filename },
+            kind: 'element',
+          }
+          rootNode.childIds.push(nodeId)
+        }
+      }
+
+      result.nodes = nodes
+      result.rootIds = [rootId]
+
+      const modelStore = useModelStore()
+      modelStore.setGraph(result.nodes, result.rootIds)
+    } catch (err) {
+      result.error = err instanceof Error ? err.message : String(err)
+    }
+
+    return result
+  }
+
+  return { fetch, loadIntoStore, loadFromFrontmatter }
 }

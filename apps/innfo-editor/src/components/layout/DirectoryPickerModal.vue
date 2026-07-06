@@ -15,9 +15,18 @@
  */
 import { ref, onMounted, computed } from 'vue'
 import { isFileSystemAccessSupported } from '../../composables/useFileSystem'
-import { loadHistory, removeFromHistory, formatTimestamp, getStoredHandle } from '../../stores/historyStore'
+import {
+  loadHistory,
+  removeFromHistory,
+  formatTimestamp,
+  getStoredHandle,
+} from '../../stores/historyStore'
 import type { DirectoryHandleLike } from '../../model/fs-types'
-import { DEFAULT_INNFO_VERSION, DEFAULT_TEMPLATE_VERSION, buildSpecificationUrl } from '../../utils/constants'
+import {
+  DEFAULT_INNFO_VERSION,
+  DEFAULT_TEMPLATE_VERSION,
+  buildSpecificationUrl,
+} from '../../utils/constants'
 import type { FolderHistoryEntry } from '../../shared/validation-types'
 
 // ── Events ──
@@ -72,15 +81,18 @@ async function openFolderPicker(): Promise<void> {
   error.value = null
 
   if (!apiSupported) {
-    error.value = 'File System Access API is not available. Use Chrome or Edge, or try "Load from URL" instead.'
+    error.value =
+      'File System Access API is not available. Use Chrome or Edge, or try "Load from URL" instead.'
     return
   }
 
   try {
     busy.value = true
-    const picker = (window as unknown as {
-      showDirectoryPicker?: () => Promise<DirectoryHandleLike>
-    }).showDirectoryPicker
+    const picker = (
+      window as unknown as {
+        showDirectoryPicker?: () => Promise<DirectoryHandleLike>
+      }
+    ).showDirectoryPicker
 
     if (!picker) {
       error.value = 'showDirectoryPicker is not available in this context.'
@@ -228,16 +240,24 @@ function generatePreview(): string {
 
 <template>
   <!-- Backdrop -->
-  <div
-    class="dp-backdrop"
-    @click.self="onBackdropClick"
-    @keydown="onKeydown"
-  >
+  <div class="dp-backdrop" @click.self="onBackdropClick" @keydown="onKeydown">
     <!-- ── Main Welcome Panel ── -->
-    <div v-if="!showUrlInput && !showFolderInit" class="dp-panel" role="dialog" aria-label="Open workspace">
+    <div
+      v-if="!showUrlInput && !showFolderInit"
+      class="dp-panel"
+      role="dialog"
+      aria-label="Open workspace"
+    >
       <button class="dp-close" @click="emit('close')" aria-label="Close">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 6L6 18M6 6l12 12"/>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       </button>
 
@@ -249,13 +269,18 @@ function generatePreview(): string {
 
       <!-- Primary actions -->
       <div class="dp-actions">
-        <button
-          class="dp-action dp-action--primary"
-          :disabled="busy"
-          @click="openFolderPicker"
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/>
+        <button class="dp-action dp-action--primary" :disabled="busy" @click="openFolderPicker">
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"
+            />
           </svg>
           <span class="dp-action__label">
             {{ busy ? 'Opening\u2026' : 'Open Local Folder' }}
@@ -263,23 +288,31 @@ function generatePreview(): string {
           <span v-if="!apiSupported" class="dp-action__badge">Unavailable</span>
         </button>
 
-        <button
-          class="dp-action dp-action--secondary"
-          @click="startUrlInput"
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        <button class="dp-action dp-action--secondary" @click="startUrlInput">
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
           <span class="dp-action__label">Load from URL</span>
         </button>
 
-        <button
-          class="dp-action dp-action--tertiary"
-          @click="startFolderInit"
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 5v14M5 12h14"/>
+        <button class="dp-action dp-action--tertiary" @click="startFolderInit">
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path d="M12 5v14M5 12h14" />
           </svg>
           <span class="dp-action__label">New Workspace</span>
         </button>
@@ -287,7 +320,8 @@ function generatePreview(): string {
 
       <!-- API fallback hint -->
       <p v-if="!apiSupported" class="dp-hint">
-        Folder picker requires Chrome or Edge. Use "Load from URL" or enter a directory path manually in a supporting browser.
+        Folder picker requires Chrome or Edge. Use "Load from URL" or enter a directory path
+        manually in a supporting browser.
       </p>
 
       <!-- ── Recent directories ── -->
@@ -303,8 +337,18 @@ function generatePreview(): string {
             :disabled="reopenBusy === entry.handleKey"
             @click="reopenFolder(entry)"
           >
-            <svg class="dp-recent__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/>
+            <svg
+              class="dp-recent__icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"
+              />
             </svg>
             <span class="dp-recent__name">{{ entry.name }}</span>
             <span class="dp-recent__time">{{ formatTimestamp(entry.timestamp) }}</span>
@@ -316,13 +360,22 @@ function generatePreview(): string {
     <!-- ── URL Input Panel ── -->
     <div v-else-if="showUrlInput" class="dp-panel" role="dialog" aria-label="Load model from URL">
       <button class="dp-close" @click="showUrlInput = false" aria-label="Back">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
       </button>
 
       <h2 class="dp-title">Load from URL</h2>
-      <p class="dp-subtitle">Enter the URL of an iNNfo <code>_NN.md</code> file to load it as a virtual workspace.</p>
+      <p class="dp-subtitle">
+        Enter the URL of an iNNfo <code>_NN.md</code> file to load it as a virtual workspace.
+      </p>
 
       <p v-if="error" class="dp-error" role="alert">{{ error }}</p>
 
@@ -334,19 +387,29 @@ function generatePreview(): string {
           class="dp-input"
           @keydown.enter="loadUrl"
         />
-        <button class="dp-btn dp-btn--primary" @click="loadUrl">
-          Load
-        </button>
+        <button class="dp-btn dp-btn--primary" @click="loadUrl">Load</button>
       </div>
 
       <p class="dp-hint">URL-loaded workspaces cannot be saved (no file system handle).</p>
     </div>
 
     <!-- ── Folder Init Panel (New Workspace) ── -->
-    <div v-else-if="showFolderInit" class="dp-panel" role="dialog" aria-label="Create new workspace">
+    <div
+      v-else-if="showFolderInit"
+      class="dp-panel"
+      role="dialog"
+      aria-label="Create new workspace"
+    >
       <button class="dp-close" @click="cancelFolderInit" aria-label="Back">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
       </button>
 
@@ -358,16 +421,8 @@ function generatePreview(): string {
       <div class="dp-form">
         <div class="dp-field">
           <label class="dp-label" for="fi-template">Template</label>
-          <select
-            id="fi-template"
-            v-model="selectedTemplate"
-            class="dp-select"
-          >
-            <option
-              v-for="tpl in availableTemplates"
-              :key="tpl.name"
-              :value="tpl"
-            >
+          <select id="fi-template" v-model="selectedTemplate" class="dp-select">
+            <option v-for="tpl in availableTemplates" :key="tpl.name" :value="tpl">
               {{ tpl.name }} ({{ tpl.version }})
             </option>
           </select>
@@ -396,14 +451,8 @@ function generatePreview(): string {
         </div>
 
         <div class="dp-form__actions">
-          <button class="dp-btn dp-btn--ghost" @click="cancelFolderInit">
-            Cancel
-          </button>
-          <button
-            class="dp-btn dp-btn--primary"
-            :disabled="!createValid"
-            @click="onCreateFolder"
-          >
+          <button class="dp-btn dp-btn--ghost" @click="cancelFolderInit">Cancel</button>
+          <button class="dp-btn dp-btn--primary" :disabled="!createValid" @click="onCreateFolder">
             Create
           </button>
         </div>
@@ -488,9 +537,9 @@ function generatePreview(): string {
   padding: 0.5rem 0.75rem;
   font-size: 13px;
   color: #b00020;
-  background: #FFF0F0;
+  background: #fff0f0;
   border-radius: 6px;
-  border: 1px solid #FFCDD2;
+  border: 1px solid #ffcdd2;
 }
 
 /* ── Action Buttons ── */
@@ -518,7 +567,7 @@ function generatePreview(): string {
 }
 
 .dp-action:hover:not(:disabled) {
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
   box-shadow: 0 1px 4px rgba(77, 14, 78, 0.06);
 }
 
@@ -528,13 +577,13 @@ function generatePreview(): string {
 }
 
 .dp-action--primary {
-  border-color: #4D0E4E;
-  color: #4D0E4E;
+  border-color: #4d0e4e;
+  color: #4d0e4e;
   font-weight: 600;
 }
 
 .dp-action--primary:hover:not(:disabled) {
-  background: #4D0E4E;
+  background: #4d0e4e;
   color: #fff;
 }
 
@@ -543,7 +592,7 @@ function generatePreview(): string {
 }
 
 .dp-action--primary svg {
-  stroke: #4D0E4E;
+  stroke: #4d0e4e;
 }
 
 .dp-action__label {
@@ -557,8 +606,8 @@ function generatePreview(): string {
   text-transform: uppercase;
   padding: 2px 6px;
   border-radius: 4px;
-  background: #FFEBEE;
-  color: #C62828;
+  background: #ffebee;
+  color: #c62828;
 }
 
 .dp-hint {
@@ -622,7 +671,7 @@ function generatePreview(): string {
 
 .dp-recent__icon {
   flex-shrink: 0;
-  color: #4D0E4E;
+  color: #4d0e4e;
 }
 
 .dp-recent__name {
@@ -690,7 +739,7 @@ function generatePreview(): string {
 .dp-input:focus,
 .dp-select:focus,
 .dp-textarea:focus {
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
   box-shadow: 0 0 0 2px rgba(77, 14, 78, 0.1);
 }
 
@@ -720,9 +769,9 @@ function generatePreview(): string {
 }
 
 .dp-btn--primary {
-  background: #4D0E4E;
+  background: #4d0e4e;
   color: #fff;
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
 }
 
 .dp-btn--primary:hover:not(:disabled) {

@@ -12,7 +12,7 @@ const modelsDir = join(import.meta.dirname!, '..', 'fixtures', 'models')
 const fixtureFiles = readdirSync(modelsDir).filter((f) => f.endsWith('.md'))
 
 function makeIndex(wikilinks: string[]): string {
-  const items = wikilinks.map(w => `* [[${w}]]`).join('\n')
+  const items = wikilinks.map((w) => `* [[${w}]]`).join('\n')
   return `---\nspec_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _NN index\n\n${items}\n`
 }
 

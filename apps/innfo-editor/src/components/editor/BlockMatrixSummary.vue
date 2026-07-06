@@ -13,7 +13,15 @@
           }"
           :class="'border'"
         >
-          <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            class="w-3 h-3 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
             <line x1="3" y1="9" x2="21" y2="9" />
             <line x1="9" y1="3" x2="9" y2="21" />
@@ -25,9 +33,7 @@
         </div>
       </div>
     </template>
-    <p v-else class="text-xs text-slate-400 dark:text-slate-500 italic">
-      No matrix participation.
-    </p>
+    <p v-else class="text-xs text-slate-400 dark:text-slate-500 italic">No matrix participation.</p>
   </div>
 </template>
 
@@ -68,7 +74,11 @@ const chips = computed<MatrixChip[]>(() => {
   // Helper: count non-dash/empty cells for a matrix + concept instance
   // Cell keys are formatted as `{matrixName}||{rowInstance}||{colInstance}`.
   // The node can appear as a row (parts[1]) or column (parts[2]) participant.
-  function countNonDashCells(matrixName: string, rootNodeId: string, conceptInstanceName: string): number {
+  function countNonDashCells(
+    matrixName: string,
+    rootNodeId: string,
+    conceptInstanceName: string,
+  ): number {
     const rn = modelStore.getNode(rootNodeId)
     if (!rn?.fields) return 0
 
@@ -99,7 +109,7 @@ const chips = computed<MatrixChip[]>(() => {
       if (rootNode?.rawContent) {
         const fmData = parseFrontmatter(rootNode.rawContent)
         const concepts: Array<{ name: string; color?: string }> = (fmData as any)?.concepts ?? []
-        const found = concepts.find(c => c.name === props.nodeConcept)
+        const found = concepts.find((c) => c.name === props.nodeConcept)
         if (found?.color) return getHexColor(found.color)
       }
       // Fall back to the node's type-based color
@@ -115,7 +125,7 @@ const chips = computed<MatrixChip[]>(() => {
     if (m.target === props.nodeConcept) {
       // Node is a column participant
       const count = countNonDashCells(m.name, props.rootNodeId, node.name)
-      if (!result.some(r => r.matrixName === m.name && r.position === 'row')) {
+      if (!result.some((r) => r.matrixName === m.name && r.position === 'row')) {
         result.push({ matrixName: m.name, position: 'col', count, accentColor: conceptColor })
       }
     }

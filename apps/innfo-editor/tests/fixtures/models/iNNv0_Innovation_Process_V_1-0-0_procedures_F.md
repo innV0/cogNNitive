@@ -1,11 +1,11 @@
 ---
 spec_version: "V_0-1-1"
-spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/procedures_V_0-1-1_FORMAT.md"
+spec_url: "https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.1/specs/procedures_V_0-1-1_NN.md"
 model_version: "V_1-0-0"
 level: 3
 parent:
   name: "procedures_V_0-1-1"
-  url: "http://localhost:3001/specs/procedures_V_0-1-1_FORMAT.md"
+  url: "http://localhost:3001/specs/procedures_V_0-1-1_NN.md"
 mode: "FILE"
 template: "procedures"
 ---

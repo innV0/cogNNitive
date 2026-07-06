@@ -46,20 +46,14 @@ export function useHashSync(): void {
         // Full match: conceptName.elementName
         if (node.name === elementName && node.parentId) {
           const parent = modelStore.getNode(node.parentId)
-          if (
-            parent?.conceptBinding?.name === conceptName ||
-            parent?.name === conceptName
-          ) {
+          if (parent?.conceptBinding?.name === conceptName || parent?.name === conceptName) {
             uiStore.selectNode(nodeId)
             break
           }
         }
       } else {
         // Single segment: try concept-binding first, then node name
-        if (
-          node.conceptBinding?.name === conceptName ||
-          node.name === conceptName
-        ) {
+        if (node.conceptBinding?.name === conceptName || node.name === conceptName) {
           uiStore.selectNode(nodeId)
           break
         }

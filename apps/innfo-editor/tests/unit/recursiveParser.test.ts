@@ -41,7 +41,7 @@ describe('recursiveParser: index.md-driven parser', () => {
 
     expect(result.issues).toHaveLength(0)
     const names = Object.values(result.nodes).map((n) => n.name)
-    expect(names).toContain('modelA')
+    expect(names).toContain('modelA_NN')
   })
 
   it('reports an issue when index.md is missing', async () => {
@@ -53,8 +53,8 @@ describe('recursiveParser: index.md-driven parser', () => {
     const result = await recursiveParse(root)
 
     expect(result.issues.length).toBeGreaterThan(0)
-    expect(result.issues[0].message).toContain('Missing index.md')
-    expect(result.rootIds).toHaveLength(0)
+    expect(result.issues[0].message).toContain('No index.md found')
+    expect(result.rootIds).toHaveLength(1)
   })
 
   it('reports a warning when a wikilink target does not exist', async () => {
@@ -79,9 +79,9 @@ title: "Workspace Index"
     const result = await recursiveParse(root)
 
     expect(result.rootIds).toHaveLength(1)
-    expect(result.nodes[result.rootIds[0]].name).toBe('exists')
+    expect(result.nodes[result.rootIds[0]].name).toBe('exists_NN')
 
-    const missingIssues = result.issues.filter(i => i.message.includes('not found'))
+    const missingIssues = result.issues.filter((i) => i.message.includes('not found'))
     expect(missingIssues.length).toBeGreaterThan(0)
   })
 

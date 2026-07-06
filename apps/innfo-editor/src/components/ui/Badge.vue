@@ -5,13 +5,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 
-const props = withDefaults(defineProps<{
-  size?: 'xs' | 'sm'
-}>(), { size: 'xs' });
+const props = withDefaults(
+  defineProps<{
+    size?: 'xs' | 'sm'
+  }>(),
+  { size: 'xs' },
+)
 
 const sizeClass = computed(() =>
-  props.size === 'sm' ? 'text-2xs' : 'text-2xs uppercase tracking-wider'
-);
+  props.size === 'sm' ? 'text-2xs' : 'text-2xs uppercase tracking-wider',
+)
 </script>

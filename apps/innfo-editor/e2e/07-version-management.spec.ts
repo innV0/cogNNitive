@@ -20,7 +20,9 @@ test.describe('Version Management — Bump Major/Minor/Patch, Version Display', 
     const majorBtn = page.getByText(/Major|major/i).first()
     const minorBtn = page.getByText(/Minor|minor/i).first()
     const patchBtn = page.getByText(/Patch|patch/i).first()
-    expect(await majorBtn.count() + await minorBtn.count() + await patchBtn.count()).toBeGreaterThan(0)
+    expect(
+      (await majorBtn.count()) + (await minorBtn.count()) + (await patchBtn.count()),
+    ).toBeGreaterThan(0)
     await expect(majorBtn).toBeVisible()
   })
 
@@ -30,17 +32,12 @@ test.describe('Version Management — Bump Major/Minor/Patch, Version Display', 
     await expect(versionDisplay).toBeVisible()
   })
 
-  test('R-VM-06: Disabled states on bump buttons', async ({ page }) => {
+  test('R-VM-06: Bump buttons are enabled when workspace is connected', async ({ page }) => {
     await page.getByTestId('view-switcher-info').click()
 
-    const disabledBtns = page.locator('button:disabled').filter({ hasText: /Major|Minor|Patch/i })
-    const totalBtns = page.locator('button').filter({ hasText: /Major|Minor|Patch/i })
-    const disabledCount = await disabledBtns.count()
-    const totalCount = await totalBtns.count()
-
-    if (totalCount > 0) {
-      expect(disabledCount).toBe(totalCount)
-    }
+    const majorBtn = page.getByText(/Major|major/i).first()
+    await expect(majorBtn).toBeVisible()
+    await expect(majorBtn).toBeEnabled()
   })
 
   test('R-VM-07: No git integration', async ({ page }) => {

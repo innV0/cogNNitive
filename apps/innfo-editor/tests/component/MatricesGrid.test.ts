@@ -4,7 +4,6 @@ import { setActivePinia, createPinia } from 'pinia'
 import { nextTick } from 'vue'
 import MatricesGrid from '../../src/components/editor/MatricesGrid.vue'
 import { useModelStore } from '../../src/stores/modelStore'
-import { useUiStore } from '../../src/stores/uiStore'
 
 // Mock @tanstack/vue-virtual so tests don't need real layout.
 // Returns a ref-like object: __v_isRef for template auto-unwrap,
@@ -14,7 +13,7 @@ vi.mock('@tanstack/vue-virtual', () => ({
     const opts =
       typeof optionsOrRef === 'function'
         ? (optionsOrRef as any)()
-        : (optionsOrRef as any)?.value ?? optionsOrRef
+        : ((optionsOrRef as any)?.value ?? optionsOrRef)
     const isHorizontal = opts?.horizontal ?? false
     const count = opts?.count ?? 0
     const size = isHorizontal ? 120 : 48
@@ -59,12 +58,7 @@ function makeNode(id: string, name: string, type: string): FakeNode {
 
 const ROOT_ID = 'Root'
 
-function setupStore(
-  rowsCount = 10,
-  colsCount = 10,
-  widgetType = 'boolean',
-  params = '',
-) {
+function setupStore(rowsCount = 10, colsCount = 10, widgetType = 'boolean', params = '') {
   const modelStore = useModelStore()
   const nodes: Record<string, FakeNode> = {
     [ROOT_ID]: {
@@ -206,9 +200,7 @@ describe('R-MV-01 / R-MV-02 / R-MV-03: Virtual scroll structure', () => {
   it('shows "select a matrix" prompt when no matrix selected', () => {
     setupStore(5, 5, 'boolean')
     const wrapper = mount(MatricesGrid, { props: { matrixIndex: -1 } })
-    expect(wrapper.text()).toContain(
-      'Select a matrix from the sidebar or dropdown',
-    )
+    expect(wrapper.text()).toContain('Select a matrix from the sidebar or dropdown')
   })
 
   it('renders matrix-selector dropdown and Copy Table MD button', async () => {
@@ -248,7 +240,7 @@ describe('R-MV-05: Value distribution reflects full dataset', () => {
   })
 
   it('counts all cells even with large matrix', () => {
-    setupBigStore(100, 100)  // 10,000 cells
+    setupBigStore(100, 100) // 10,000 cells
     const wrapper = mount(MatricesGrid, { props: { matrixIndex: 0 } })
     const text = wrapper.text()
     expect(text).toContain('X: 100')
@@ -267,9 +259,7 @@ describe('R-MV-05: Copy Table MD exports all cells', () => {
     // Mock clipboard.writeText
     const writeText = vi.fn().mockResolvedValue(undefined)
     if (navigator.clipboard) {
-      vi.spyOn(navigator.clipboard, 'writeText').mockImplementation(
-        writeText,
-      )
+      vi.spyOn(navigator.clipboard, 'writeText').mockImplementation(writeText)
     } else {
       Object.defineProperty(navigator, 'clipboard', {
         value: { writeText },
@@ -291,15 +281,11 @@ describe('R-MV-05: Copy Table MD exports all cells', () => {
     expect(writeText).toHaveBeenCalledTimes(1)
     const md = writeText.mock.calls[0][0] as string
 
-    expect(md).toMatch(
-      /\| Src \\ Tgt \| Tgt0 \| Tgt1 \| Tgt2 \| Tgt3 \| Tgt4 \|/,
-    )
+    expect(md).toMatch(/\| Src \\ Tgt \| Tgt0 \| Tgt1 \| Tgt2 \| Tgt3 \| Tgt4 \|/)
 
     const lines = md.trim().split('\n')
     // Data rows start with | Src0 through | Src9 — exclude header | Src \ Tgt
-    const dataLines = lines.filter(
-      (l: string) => /^\| Src\d/.test(l),
-    )
+    const dataLines = lines.filter((l: string) => /^\| Src\d/.test(l))
     expect(dataLines).toHaveLength(10)
 
     const src0Line = dataLines.find((l: string) => l.startsWith('| Src0 |'))
@@ -323,9 +309,7 @@ describe('R-MV-05: Cell editing in virtualised cells', () => {
 
     const modelStore = useModelStore()
     const root = modelStore.getNode(ROOT_ID)!
-    const cellKey = Object.keys(root.fields).find(
-      (k) => k.startsWith('M1||Src0||Tgt0'),
-    )
+    const cellKey = Object.keys(root.fields).find((k) => k.startsWith('M1||Src0||Tgt0'))
     expect(cellKey).toBeTruthy()
     if (cellKey) {
       expect(root.fields[cellKey]?.value).toBe('X')
@@ -355,9 +339,7 @@ describe('R-MV-05: Cell editing in virtualised cells', () => {
 
     const modelStore = useModelStore()
     const root = modelStore.getNode(ROOT_ID)!
-    const m1Key = Object.keys(root.fields).find((k) =>
-      k.startsWith('M1||'),
-    )
+    const m1Key = Object.keys(root.fields).find((k) => k.startsWith('M1||'))
     expect(m1Key).toBeTruthy()
     if (m1Key) {
       expect(root.fields[m1Key]?.value).toBe('1')
@@ -410,9 +392,7 @@ describe('R-MV-07: No changes to matrix field/export structure', () => {
     setupStoreWithCellValues()
     const modelStore = useModelStore()
     const root = modelStore.getNode(ROOT_ID)!
-    const cellKey = Object.keys(root.fields).find((k) =>
-      k.startsWith('M1||'),
-    )
+    const cellKey = Object.keys(root.fields).find((k) => k.startsWith('M1||'))
     expect(cellKey).toMatch(/^M1\|\|Src\d\|\|Tgt\d$/)
   })
 

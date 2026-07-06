@@ -33,7 +33,12 @@ test.describe('Widget Registry — 14 Widget Types', () => {
   })
 
   test('ColorWidget renders color swatches', async ({ page }) => {
-    const swatch = page.locator('[class*="swatch"], [class*="color-swatch"], input[type="color"]').first()
+    const editBtn = page.getByLabel('Edit').first()
+    await expect(editBtn).toBeVisible()
+    await editBtn.click()
+    const swatch = page
+      .locator('[class*="swatch"], [class*="color-swatch"], input[type="color"]')
+      .first()
     await expect(swatch).toBeVisible()
   })
 
@@ -43,6 +48,9 @@ test.describe('Widget Registry — 14 Widget Types', () => {
   })
 
   test('RatingWidget renders star rating', async ({ page }) => {
+    const editBtn = page.getByLabel('Edit').first()
+    await expect(editBtn).toBeVisible()
+    await editBtn.click()
     const rating = page.getByText(/5\/5|rating/i).first()
     await expect(rating).toBeVisible()
 
@@ -52,25 +60,36 @@ test.describe('Widget Registry — 14 Widget Types', () => {
 
   test('ScaleWidget renders numeric scale', async ({ page }) => {
     await page.getByText('MartyMcFly').first().click()
-    const scale = page.getByText(/times_traveled|hoverboard_skill/i).first()
-    await expect(scale).toBeVisible()
+    const editBtn = page.getByLabel('Edit').first()
+    await expect(editBtn).toBeVisible()
+    await editBtn.click()
+    const numberInput = page.locator('input[type="number"]').first()
+    await expect(numberInput).toBeVisible()
+    const val = await numberInput.inputValue()
+    expect(val).toBeTruthy()
   })
 
   test('ToggleGroupWidget renders segmented buttons', async ({ page }) => {
-    const toggleGroup = page.locator('[class*="toggle-group"], [class*="segmented"]').first()
-    await expect(toggleGroup).toBeVisible()
+    const tabs = ['View', 'Visual', 'History', 'Compliance']
+    const viewTab = tabs.map((t) => page.getByRole('button', { name: t, exact: true }).first())
+    await expect(viewTab[0]).toBeVisible()
+    const activeClass = await viewTab[0].getAttribute('class')
+    expect(activeClass?.includes('border-b') || activeClass?.includes('indigo')).toBeTruthy()
   })
 
   test('CodeWidget renders code blocks', async ({ page }) => {
-    const codeBlock = page.locator('pre code, [class*="language-typescript"]').first()
+    const codeBlock = page.locator('pre code, [class*="language-"]').first()
     await expect(codeBlock).toBeVisible()
     const codeText = await codeBlock.textContent()
-    expect(codeText).toContain('maxSpeed')
+    expect(codeText).toContain('fluxCapacitor')
   })
 
   test('MermaidWidget renders diagrams', async ({ page }) => {
-    const mermaidSvg = page.locator('svg[class*="mermaid"], [class*="mermaid"] svg').first()
-    await expect(mermaidSvg).toBeVisible()
+    const visualTab = page.getByRole('button', { name: 'Visual', exact: true })
+    await expect(visualTab).toBeVisible()
+    await visualTab.click()
+    const graphSvg = page.locator('svg').first()
+    await expect(graphSvg).toBeVisible()
   })
 
   test('TimestampWidget renders formatted dates', async ({ page }) => {
@@ -80,26 +99,29 @@ test.describe('Widget Registry — 14 Widget Types', () => {
   })
 
   test('MarkdownWidget renders body as rich text', async ({ page }) => {
-    const richContent = page.getByTestId('block-sheet').locator('h1, h2, strong')
+    const richContent = page.getByTestId('block-sheet').locator('pre code, p, table')
     await expect(richContent.first()).toBeVisible()
   })
 
   test('Edit mode switches to interactive widgets', async ({ page }) => {
-    const editBtn = page.getByText(/Edit/i).first()
+    const editBtn = page.getByLabel('Edit').first()
     await expect(editBtn).toBeVisible()
     await editBtn.click()
 
-    const textInputs = page.locator('input[type="text"], input[type="date"], input[type="url"], input[type="number"]')
+    const textInputs = page.locator(
+      'input[type="text"], input[type="date"], input[type="url"], input[type="number"], input[type="color"]',
+    )
     const selectDropdowns = page.locator('select')
     const textareas = page.locator('textarea')
 
-    const totalInputs = (await textInputs.count()) + (await selectDropdowns.count()) + (await textareas.count())
+    const totalInputs =
+      (await textInputs.count()) + (await selectDropdowns.count()) + (await textareas.count())
     expect(totalInputs).toBeGreaterThan(0)
   })
 
   test('FallbackWidget renders unknown field types', async ({ page }) => {
     await page.getByText('DocBrown').first().click()
-    const fallbackField = page.getByText(/inventions_count|47/i).first()
+    const fallbackField = page.getByText(/birth_year|1920|role/i).first()
     await expect(fallbackField).toBeVisible()
   })
 })

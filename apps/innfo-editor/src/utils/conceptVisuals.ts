@@ -1,14 +1,8 @@
-import {
-  FileText,
-  Folder,
-  Scale,
-  ListChecks,
-  GitCommit,
-  HelpCircle
-} from 'lucide-vue-next';
-import type { Component } from 'vue';
+import { FileText, Folder, Scale, ListChecks, GitCommit, HelpCircle } from 'lucide-vue-next'
+import type { Component } from 'vue'
 
-export type ConceptType = 'text' | 'category' | 'weight' | 'steps' | 'sequence' | null | undefined | string;
+export type ConceptType =
+  'text' | 'category' | 'weight' | 'steps' | 'sequence' | null | undefined | string
 
 /**
  * Maps a concept TYPE to its representative Lucide icon.
@@ -18,23 +12,23 @@ export type ConceptType = 'text' | 'category' | 'weight' | 'steps' | 'sequence' 
 export const getConceptTypeIcon = (type: ConceptType): Component => {
   switch (type) {
     case 'text':
-      return FileText;
+      return FileText
     case 'category':
-      return Folder;
+      return Folder
     case 'weight':
-      return Scale;
+      return Scale
     case 'steps':
-      return ListChecks;
+      return ListChecks
     case 'sequence':
-      return GitCommit;
+      return GitCommit
     default:
-      return HelpCircle;
+      return HelpCircle
   }
-};
+}
 
 /**
  * Semantic kind of a pill/block:
  * - `concept`  → the instantiable definition (a mold). Rendered as an outline.
  * - `instance` → a concrete block created from a concept. Rendered as a solid fill.
  */
-export type BlockKind = 'concept' | 'instance';
+export type BlockKind = 'concept' | 'instance'

@@ -4,19 +4,24 @@ import { type Page, type BrowserContext } from '@playwright/test'
  * Injects a mock `showDirectoryPicker` into the page BEFORE the app loads.
  * This lets the "Open Local Folder" flow work without a real native file picker.
  */
-export async function injectMockFileSystem(page: Page, context: BrowserContext) {
+export async function injectMockFileSystem(
+  page: Page,
+  context: BrowserContext,
+  customTree?: Record<string, any>,
+) {
   // Note: file-system-read/write permissions not available in Chromium Playwright.
   // The mock file system is injected via addInitScript bypassing browser's native API.
 
   // Inject mock BEFORE navigation — addInitScript runs on every page
-  await context.addInitScript(() => {
+  await context.addInitScript((customTreeArg) => {
     // ── Mock root workspace tree (iNNfo _NN.md syntax) ────────────
     //
     // CRITICAL: The app's recursiveParse() only processes wikilinks ending
     // with _NN.md. Section headers use # _NN prefix, element markers use
     // * _NN Concept: Name — NOT the old _F syntax.
-    const MOCK_TREE: Record<string, any> = {
-      'index.md': '# _NN index\n\n* [[HillValleyCorp_NN.md]]\n* [[TimeTravelProtocol_NN.md]]\n* [[BTTFKB_NN.md]]\n',
+    const MOCK_TREE: Record<string, any> = customTreeArg || {
+      'index.md':
+        '# _NN index\n\n* [[HillValleyCorp_NN.md]]\n* [[TimeTravelProtocol_NN.md]]\n* [[BTTFKB_NN.md]]\n',
       // ── Business model ──
       // Root node name: "HillValleyCorp"
       'HillValleyCorp_NN.md': `---
@@ -114,10 +119,44 @@ concepts:
     type: "topic"
     icon: "wrench"
     color: "#059669"
+    fields:
+      - name: "category"
+        type: "string"
+      - name: "status"
+        type: "string"
+      - name: "year_introduced"
+        type: "string"
+      - name: "max_speed"
+        type: "number"
+      - name: "color"
+        type: "string"
+      - name: "rating"
+        type: "string"
+      - name: "power_output"
+        type: "number"
+      - name: "power_unit"
+        type: "string"
   - name: "Persona"
     type: "persona"
     icon: "user"
     color: "#0891B2"
+    fields:
+      - name: "role"
+        type: "string"
+      - name: "expertise_level"
+        type: "string"
+      - name: "birth_year"
+        type: "number"
+      - name: "rating"
+        type: "string"
+matrices:
+  - name: "topic-persona"
+    source: "Topic"
+    target: "Persona"
+    widgetType: "text"
+    params: ""
+topic-persona||Delorean||DocBrown: "Owner"
+topic-persona||Delorean||MartyMcFly: "Driver"
 ---
 
 # _NN index
@@ -138,7 +177,15 @@ concepts:
   color: "#C0C0C0"
   rating: 5
   \x60\x60\x60
-  DeLorean DMC-12 time machine.
+  DeLorean DMC-12 time machine invented by [[DocBrown]].
+
+\x60\x60\x60javascript
+const fluxCapacitor = true;
+\x60\x60\x60
+
+| Feature | Value |
+| --- | --- |
+| Speed | 88 mph |
 
 * _NN Topic: FluxCapacitor
   \x60\x60\x60yaml
@@ -178,6 +225,12 @@ concepts:
   rating: 4
   \x60\x60\x60
   Marty McFly — time traveling teenager.
+
+# _NN matrices: topic-persona
+
+| Topic \\\\ Persona | DocBrown | MartyMcFly |
+| :--- | :---: | :---: |
+| Delorean | Owner | Driver |
 `,
     }
 
@@ -246,8 +299,12 @@ concepts:
       async createWritable() {
         const that = this
         return {
-          async write(data: string) { that.content = data },
-          async close() { /* noop */ },
+          async write(data: string) {
+            that.content = data
+          },
+          async close() {
+            /* noop */
+          },
         }
       }
     }
@@ -267,7 +324,7 @@ concepts:
       writeText: async () => {},
       readText: async () => '',
     }
-  })
+  }, customTree)
 }
 
 /**
@@ -276,7 +333,10 @@ concepts:
 export async function loadHomePage(page: Page) {
   await page.goto('/app/')
   await page.waitForLoadState('networkidle')
-  await page.locator('button', { hasText: /Open folder/i }).first().waitFor({ state: 'visible', timeout: 10000 })
+  await page
+    .locator('button', { hasText: /Open folder/i })
+    .first()
+    .waitFor({ state: 'visible', timeout: 10000 })
 }
 
 /**
@@ -305,7 +365,11 @@ export async function expandAllNodes(page: Page) {
   if (await expandBtn.isVisible()) {
     await expandBtn.click()
     // Wait for tree nodes to become visible
-    await page.getByText('Delorean').first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => {})
+    await page
+      .getByText('Delorean')
+      .first()
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {})
   }
 }
 

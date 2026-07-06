@@ -37,9 +37,12 @@ function onInput(e: Event): void {
   emit('update:modelValue', target.value)
 }
 
-watch(() => props.modelValue, () => {
-  // Re-calc lines on value change
-})
+watch(
+  () => props.modelValue,
+  () => {
+    // Re-calc lines on value change
+  },
+)
 </script>
 
 <template>

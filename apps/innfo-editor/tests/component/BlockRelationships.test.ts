@@ -44,7 +44,9 @@ describe('BlockRelationships.vue — R-SC-03', () => {
     const wrapper = mount(BlockRelationships, {
       props: {
         relationships: rels,
-        onNavigate: (targetId: string) => { navigated.push(targetId) },
+        onNavigate: (targetId: string) => {
+          navigated.push(targetId)
+        },
       },
     })
 

@@ -1,12 +1,16 @@
 <template>
   <component :is="resolvedIcon" v-if="isLucide" :class="customClass" />
-  <span v-else class="select-none leading-none inline-flex items-center justify-center font-normal" :class="customClass">
+  <span
+    v-else
+    class="select-none leading-none inline-flex items-center justify-center font-normal"
+    :class="customClass"
+  >
     {{ icon }}
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 import {
   Activity,
   AlertTriangle,
@@ -124,18 +128,21 @@ import {
   UsersRound,
   Workflow,
   Wrench,
-  Zap
-} from 'lucide-vue-next';
+  Zap,
+} from 'lucide-vue-next'
 
-const props = withDefaults(defineProps<{
-  icon?: string | null;
-  fallback?: string;
-  customClass?: string;
-}>(), {
-  icon: '',
-  fallback: 'file-text',
-  customClass: 'w-4 h-4 text-current'
-});
+const props = withDefaults(
+  defineProps<{
+    icon?: string | null
+    fallback?: string
+    customClass?: string
+  }>(),
+  {
+    icon: '',
+    fallback: 'file-text',
+    customClass: 'w-4 h-4 text-current',
+  },
+)
 
 // Emojis mapping to Lucide Icons
 const emojiMap: Record<string, any> = {
@@ -198,11 +205,11 @@ const emojiMap: Record<string, any> = {
   '👷': HardHat,
   '❓': HelpCircle,
   '🚩': Flag,
-  'ℹ️': Info,
-  'ℹ': Info,
+  ℹ️: Info,
+  ℹ: Info,
   '⚖️': Scale,
-  '⚖': Scale
-};
+  '⚖': Scale,
+}
 
 // Lucide icon name mapping (normalized to lowercase, alphanumeric only)
 const nameMap: Record<string, any> = {
@@ -300,34 +307,34 @@ const nameMap: Record<string, any> = {
   usersround: UsersRound,
   workflow: Workflow,
   wrench: Wrench,
-  zap: Zap
-};
+  zap: Zap,
+}
 
 const normalize = (name: string) => {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
-};
+  return name.toLowerCase().replace(/[^a-z0-9]/g, '')
+}
 
 const resolvedIcon = computed(() => {
   if (!props.icon) {
-    return nameMap[normalize(props.fallback)] || FileText;
+    return nameMap[normalize(props.fallback)] || FileText
   }
-  const trimmed = props.icon.trim();
+  const trimmed = props.icon.trim()
   if (emojiMap[trimmed]) {
-    return emojiMap[trimmed];
+    return emojiMap[trimmed]
   }
-  const normalized = normalize(trimmed);
+  const normalized = normalize(trimmed)
   if (nameMap[normalized]) {
-    return nameMap[normalized];
+    return nameMap[normalized]
   }
   // If not mapped:
   // If it is a short string (e.g. an emoji), return null to let the template render it.
   // Otherwise, return the fallback icon.
-  const isShort = Array.from(trimmed).length <= 2;
+  const isShort = Array.from(trimmed).length <= 2
   if (isShort) {
-    return null;
+    return null
   }
-  return nameMap[normalize(props.fallback)] || FileText;
-});
+  return nameMap[normalize(props.fallback)] || FileText
+})
 
-const isLucide = computed(() => resolvedIcon.value !== null);
+const isLucide = computed(() => resolvedIcon.value !== null)
 </script>

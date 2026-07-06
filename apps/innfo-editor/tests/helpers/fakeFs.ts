@@ -1,4 +1,8 @@
-import type { DirectoryHandleLike, FileHandleLike, WritableStreamLike } from '../../src/model/fs-types'
+import type {
+  DirectoryHandleLike,
+  FileHandleLike,
+  WritableStreamLike,
+} from '../../src/model/fs-types'
 
 /** In-memory tree description used to build fake FS Access API handles for tests. */
 export type FakeTree = { [name: string]: string | FakeTree }
@@ -16,10 +20,17 @@ class FakeWritableStream implements WritableStreamLike {
 
 class FakeFileHandle implements FileHandleLike {
   kind: 'file' = 'file'
-  constructor(public name: string, public content: string) {}
+  constructor(
+    public name: string,
+    public content: string,
+  ) {}
   async getFile() {
     const content = this.content
-    return { async text() { return content } }
+    return {
+      async text() {
+        return content
+      },
+    }
   }
   async createWritable(): Promise<WritableStreamLike> {
     return new FakeWritableStream((content) => {
@@ -30,7 +41,10 @@ class FakeFileHandle implements FileHandleLike {
 
 class FakeDirectoryHandle implements DirectoryHandleLike {
   kind: 'directory' = 'directory'
-  constructor(public name: string, private tree: FakeTree) {}
+  constructor(
+    public name: string,
+    private tree: FakeTree,
+  ) {}
 
   async *entries(): AsyncIterableIterator<[string, FileHandleLike | DirectoryHandleLike]> {
     for (const [entryName, value] of Object.entries(this.tree)) {

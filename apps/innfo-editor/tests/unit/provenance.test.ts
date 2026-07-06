@@ -51,7 +51,10 @@ describe('provenance-stamping commit hook (R16)', () => {
     const node = makeNode('Root')
     node.fields.summary = {
       value: 'Original',
-      provenance: { author: { kind: 'system', id: 'parser' }, timestamp: '2024-01-01T00:00:00.000Z' },
+      provenance: {
+        author: { kind: 'system', id: 'parser' },
+        timestamp: '2024-01-01T00:00:00.000Z',
+      },
     }
     modelStore.setGraph({ Root: node }, ['Root'])
 

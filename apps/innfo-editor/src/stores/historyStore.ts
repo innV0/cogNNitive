@@ -59,10 +59,7 @@ export async function loadHistory(): Promise<FolderHistoryEntry[]> {
 }
 
 /** Adds a new entry to the history (dedup by handleKey). Stores the handle separately. */
-export async function addToHistory(
-  name: string,
-  handle: DirectoryHandleLike
-): Promise<void> {
+export async function addToHistory(name: string, handle: DirectoryHandleLike): Promise<void> {
   const db = await openHandleDb()
   const tx = db.transaction(STORE_NAME, 'readwrite')
   const store = tx.objectStore(STORE_NAME)
@@ -75,7 +72,7 @@ export async function addToHistory(
   })
 
   // Dedup by handleKey (drop entries whose handle no longer exists or matches same name)
-  const filtered = existing.filter(e => e.name !== name)
+  const filtered = existing.filter((e) => e.name !== name)
   const handleKey = generateHandleKey(name)
   const entry: FolderHistoryEntry = { name, handleKey, timestamp: Date.now() }
 
@@ -108,7 +105,7 @@ export async function removeFromHistory(handleKey: string): Promise<void> {
     req.onsuccess = () => res((req.result as FolderHistoryEntry[]) ?? [])
     req.onerror = () => rej(req.error)
   })
-  const updated = existing.filter(e => e.handleKey !== handleKey)
+  const updated = existing.filter((e) => e.handleKey !== handleKey)
   store.put(updated, HISTORY_KEY)
 
   await new Promise<void>((res, rej) => {

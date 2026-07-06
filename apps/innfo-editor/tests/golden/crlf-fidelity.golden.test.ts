@@ -27,7 +27,7 @@ function toNnContent(content: string): string {
 }
 
 function makeIndex(wikilinks: string[]): string {
-  const items = wikilinks.map(w => `* [[${w}]]`).join('\n')
+  const items = wikilinks.map((w) => `* [[${w}]]`).join('\n')
   return `---\nspec_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _NN index\n\n${items}\n`
 }
 
@@ -50,7 +50,11 @@ function structureOf(nodes: Record<string, ModelNode>, rootIds: string[]) {
       markers: n.markers,
       childCount: n.childIds.length,
     }))
-  return { rootIds: [...rootIds].sort(), nodeCount: Object.keys(nodes).length, nodes: nodeSummaries }
+  return {
+    rootIds: [...rootIds].sort(),
+    nodeCount: Object.keys(nodes).length,
+    nodes: nodeSummaries,
+  }
 }
 
 describe('recursiveParser/Serializer CRLF fidelity', () => {
@@ -69,7 +73,9 @@ describe('recursiveParser/Serializer CRLF fidelity', () => {
 
     expect(lfParse.issues).toHaveLength(0)
     expect(crlfParse.issues).toHaveLength(0)
-    expect(structureOf(crlfParse.nodes, crlfParse.rootIds)).toEqual(structureOf(lfParse.nodes, lfParse.rootIds))
+    expect(structureOf(crlfParse.nodes, crlfParse.rootIds)).toEqual(
+      structureOf(lfParse.nodes, lfParse.rootIds),
+    )
   })
 
   it('round-trips a CRLF source cleanly through parse -> serialize -> re-parse', async () => {
@@ -86,7 +92,9 @@ describe('recursiveParser/Serializer CRLF fidelity', () => {
 
     let capturedContent: string | null = null
     const capturingDriver: ModelDriver = {
-      readModel: async () => { throw new Error('not expected') },
+      readModel: async () => {
+        throw new Error('not expected')
+      },
       writeModel: async (_uri: string, model: ParsedModel) => {
         capturedContent = model.rawContent
       },

@@ -65,7 +65,10 @@ const svgData = computed<{
   height: number
 }>(() => {
   const source = props.modelValue ?? ''
-  const lines = source.split('\n').map((l) => l.trim()).filter(Boolean)
+  const lines = source
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
 
   const boxes: Box[] = []
   const arrows: Arrow[] = []
@@ -74,7 +77,10 @@ const svgData = computed<{
   let maxY = 0
 
   for (const line of lines) {
-    const parts = line.split('>').map((p) => p.trim()).filter(Boolean)
+    const parts = line
+      .split('>')
+      .map((p) => p.trim())
+      .filter(Boolean)
     const rowBoxes: Box[] = []
 
     for (let i = 0; i < parts.length; i++) {
@@ -111,12 +117,6 @@ function arrowPath(from: Box, to: Box): string {
   return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`
 }
 
-function arrowEnd(to: Box): string {
-  const x = to.x
-  const y = to.y + to.h / 2
-  const s = 6
-  return `M${x},${y} l${-s},${-s * 0.6} l0,${s * 1.2} Z`
-}
 </script>
 
 <template>
@@ -130,7 +130,9 @@ function arrowEnd(to: Box): string {
         wrap="off"
         placeholder="Enter diagram: e.g. Plan > Execute > Review"
       ></textarea>
-      <span class="widget-diagram-hint">Use <code>&gt;</code> between boxes, one flow per line</span>
+      <span class="widget-diagram-hint"
+        >Use <code>&gt;</code> between boxes, one flow per line</span
+      >
     </div>
     <div v-else-if="!modelValue" class="widget-diagram-empty">—</div>
     <svg
@@ -179,7 +181,9 @@ function arrowEnd(to: Box): string {
           font-family="system-ui, sans-serif"
           font-size="12"
           fill="#1e293b"
-        >{{ box.label }}</text>
+        >
+          {{ box.label }}
+        </text>
       </g>
     </svg>
   </div>
@@ -209,7 +213,7 @@ function arrowEnd(to: Box): string {
   color: #1e293b;
 }
 .widget-diagram-textarea:focus {
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
   box-shadow: 0 0 0 2px rgba(77, 14, 78, 0.1);
   background: #fff;
 }

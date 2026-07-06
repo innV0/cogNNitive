@@ -8,7 +8,11 @@ import { describe, it, expect } from 'vitest'
 // against innfo-core's own resolver algorithm; app runtime code never
 // imports this path.
 import { getSpecForLevel } from '../../../../packages/innfo-core/src/resolver'
-import type { SpecCache, SpecDocument, SpecFrontmatter } from '../../../../packages/innfo-core/src/types'
+import type {
+  SpecCache,
+  SpecDocument,
+  SpecFrontmatter,
+} from '../../../../packages/innfo-core/src/types'
 import { resolveEffectiveMetamodel } from '../../src/model/metamodel'
 import type { ModelNode, LocalMetamodel } from '../../src/model/types'
 
@@ -29,7 +33,10 @@ function makeNode(id: string, overrides: Partial<ModelNode> = {}): ModelNode {
   }
 }
 
-function metamodel(concepts: LocalMetamodel['concepts'] = [], markers: LocalMetamodel['markers'] = []): LocalMetamodel {
+function metamodel(
+  concepts: LocalMetamodel['concepts'] = [],
+  markers: LocalMetamodel['markers'] = [],
+): LocalMetamodel {
   return { concepts, markers }
 }
 
@@ -52,7 +59,9 @@ describe('metamodel: recursive resolution (R9)', () => {
     })
     const subtree = makeNode('Root/Subtree', {
       parentId: 'Root',
-      localMetamodel: metamodel([{ name: 'Risk', type: 'category', fields: [{ name: 'severity', type: 'string' }] }]),
+      localMetamodel: metamodel([
+        { name: 'Risk', type: 'category', fields: [{ name: 'severity', type: 'string' }] },
+      ]),
     })
     const nodeInSubtree = makeNode('Root/Subtree/Leaf', { parentId: 'Root/Subtree' })
     const nodes = { Root: root, 'Root/Subtree': subtree, 'Root/Subtree/Leaf': nodeInSubtree }
@@ -112,7 +121,7 @@ describe('metamodel: recursive resolution (R9)', () => {
     expect(resolved.markers).toEqual([])
   })
 
-  it('closest-declaration-wins matches innfo-core getSpecForLevel\'s resolution at node-nesting boundaries (task 5.5 cross-check)', () => {
+  it("closest-declaration-wins matches innfo-core getSpecForLevel's resolution at node-nesting boundaries (task 5.5 cross-check)", () => {
     // innfo-core's resolveParentChain/getSpecForLevel resolve a *spec-level*
     // chain (defiNNe -> FORMAT -> template -> instance) by walking from a
     // child spec up to its declared parent and picking, per level, the doc
@@ -125,7 +134,9 @@ describe('metamodel: recursive resolution (R9)', () => {
     const makeDoc = (name: string, level: 0 | 1 | 2 | 3, concepts: string[]): SpecDocument => ({
       name,
       level,
-      frontmatter: { concepts: concepts.map((n) => ({ name: n, type: 'text' })) } as unknown as SpecFrontmatter,
+      frontmatter: {
+        concepts: concepts.map((n) => ({ name: n, type: 'text' })),
+      } as unknown as SpecFrontmatter,
       rawContent: '',
     })
 
@@ -147,12 +158,20 @@ describe('metamodel: recursive resolution (R9)', () => {
     // Our node-nesting resolver: a subtree ("instance"-equivalent) declaring
     // Risk overrides the root ("template"-equivalent) Risk declaration,
     // exactly mirroring the per-level document boundary above.
-    const root = makeNode('Root', { localMetamodel: metamodel([{ name: 'Risk', type: 'text' }, { name: 'Stakeholder', type: 'text' }]) })
+    const root = makeNode('Root', {
+      localMetamodel: metamodel([
+        { name: 'Risk', type: 'text' },
+        { name: 'Stakeholder', type: 'text' },
+      ]),
+    })
     const instance = makeNode('Root/Instance', {
       parentId: 'Root',
       localMetamodel: metamodel([{ name: 'Risk', type: 'category' }]),
     })
-    const resolved = resolveEffectiveMetamodel(instance.id, { Root: root, 'Root/Instance': instance })
+    const resolved = resolveEffectiveMetamodel(instance.id, {
+      Root: root,
+      'Root/Instance': instance,
+    })
 
     expect(resolved.concepts.find((c) => c.name === 'Risk')?.type).toBe('category')
     expect(resolved.concepts.find((c) => c.name === 'Stakeholder')).toBeDefined()

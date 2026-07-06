@@ -16,7 +16,10 @@ function makeNode(id: string, fieldKey: string, value: unknown): ModelNode {
     fields: {
       [fieldKey]: {
         value,
-        provenance: { author: { kind: 'system', id: 'parser' }, timestamp: '2024-01-01T00:00:00.000Z' },
+        provenance: {
+          author: { kind: 'system', id: 'parser' },
+          timestamp: '2024-01-01T00:00:00.000Z',
+        },
       },
     },
     markers: {},
@@ -74,7 +77,9 @@ describe('WidgetField: dispatches to ported widget or FallbackWidget (R15)', () 
     const modelStore = useModelStore()
     modelStore.setGraph({ Root: makeNode('Root', 'summary', 'Hello') }, ['Root'])
 
-    mount(WidgetField, { props: { nodeId: 'Root', fieldKey: 'summary', widgetType: 'text', authorId: 'lucas' } })
+    mount(WidgetField, {
+      props: { nodeId: 'Root', fieldKey: 'summary', widgetType: 'text', authorId: 'lucas' },
+    })
 
     const node = modelStore.getNode('Root')!
     expect(node.fields.summary.provenance.author).toEqual({ kind: 'system', id: 'parser' })

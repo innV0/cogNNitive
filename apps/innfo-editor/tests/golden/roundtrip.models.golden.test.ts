@@ -12,7 +12,7 @@ const modelsDir = join(import.meta.dirname!, '..', 'fixtures', 'models')
 const fixtureFiles = readdirSync(modelsDir).filter((f) => f.endsWith('.md'))
 
 function makeIndex(wikilinks: string[]): string {
-  const items = wikilinks.map(w => `* [[${w}]]`).join('\n')
+  const items = wikilinks.map((w) => `* [[${w}]]`).join('\n')
   return `---\nspec_version: "V_0-1-2"\nlevel: 0\ntitle: "Workspace Index"\n---\n\n# _NN index\n\n${items}\n`
 }
 
@@ -35,7 +35,11 @@ function structureOf(nodes: Record<string, ModelNode>, rootIds: string[]) {
       markers: n.markers,
       childCount: n.childIds.length,
     }))
-  return { rootIds: [...rootIds].sort(), nodeCount: Object.keys(nodes).length, nodes: nodeSummaries }
+  return {
+    rootIds: [...rootIds].sort(),
+    nodeCount: Object.keys(nodes).length,
+    nodes: nodeSummaries,
+  }
 }
 
 describe('recursiveSerializer golden round-trip: frozen models/* fixtures', () => {
@@ -54,14 +58,17 @@ describe('recursiveSerializer golden round-trip: frozen models/* fixtures', () =
       // identity.ts's "Duplicate sibling name" or recursiveParser.ts's
       // cross-concept "appears in both … — consider renaming".
       const collisionIssues = firstParse.issues.filter(
-        (i) => i.message.includes('Duplicate sibling name') || i.message.includes('consider renaming'),
+        (i) =>
+          i.message.includes('Duplicate sibling name') || i.message.includes('consider renaming'),
       )
       expect(firstParse.issues.length).toBe(collisionIssues.length)
 
       // Use a capturing driver for round-trip
       let capturedContent: string | null = null
       const capturingDriver: ModelDriver = {
-        readModel: async () => { throw new Error('not expected') },
+        readModel: async () => {
+          throw new Error('not expected')
+        },
         writeModel: async (_uri: string, model: ParsedModel) => {
           capturedContent = model.rawContent
         },
@@ -81,7 +88,8 @@ describe('recursiveSerializer golden round-trip: frozen models/* fixtures', () =
       const rewrittenRoot = buildFakeTree('models', rewrittenTree)
       const secondParse = await recursiveParse(rewrittenRoot)
       const secondCollisionIssues = secondParse.issues.filter(
-        (i) => i.message.includes('Duplicate sibling name') || i.message.includes('consider renaming'),
+        (i) =>
+          i.message.includes('Duplicate sibling name') || i.message.includes('consider renaming'),
       )
       expect(secondParse.issues.length).toBe(secondCollisionIssues.length)
 

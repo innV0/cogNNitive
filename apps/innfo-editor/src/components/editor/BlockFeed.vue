@@ -24,7 +24,10 @@
 
     <!-- Instance Sheets (list concept only) -->
     <div v-if="isListConcept" class="pl-4 space-y-3">
-      <div v-if="items.length === 0" class="text-center py-12 text-slate-400 dark:text-slate-500 italic text-xs bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
+      <div
+        v-if="items.length === 0"
+        class="text-center py-12 text-slate-400 dark:text-slate-500 italic text-xs bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700"
+      >
         No elements yet. Add one with the '+' button above or use a _NN block entry in the markdown.
       </div>
 
@@ -59,69 +62,75 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import BlockSheet from './BlockSheet.vue';
-import type { BlockKind } from '../../utils/conceptVisuals';
-import type { ParsedItem } from '../../stores/types';
+import { ref, watch } from 'vue'
+import BlockSheet from './BlockSheet.vue'
+import type { ParsedItem } from '../../stores/types'
 
-const props = withDefaults(defineProps<{
-  conceptName: string;
-  conceptType: string;
-  conceptColor?: string;
-  conceptIcon?: string;
-  conceptFields?: any[];
-  conceptBlock: { id?: string; name: string; description: string; fields?: Record<string, any> };
-  items: ParsedItem[];
-  isListConcept: boolean;
-  hasMarkers?: boolean;
-  selectedItemName?: string;
-}>(), {
-  conceptColor: '',
-  conceptIcon: '',
-  conceptFields: () => [],
-  hasMarkers: false,
-  selectedItemName: '',
-});
+const props = withDefaults(
+  defineProps<{
+    conceptName: string
+    conceptType: string
+    conceptColor?: string
+    conceptIcon?: string
+    conceptFields?: any[]
+    conceptBlock: { id?: string; name: string; description: string; fields?: Record<string, any> }
+    items: ParsedItem[]
+    isListConcept: boolean
+    hasMarkers?: boolean
+    selectedItemName?: string
+  }>(),
+  {
+    conceptColor: '',
+    conceptIcon: '',
+    conceptFields: () => [],
+    hasMarkers: false,
+    selectedItemName: '',
+  },
+)
 
-const emit = defineEmits<{
-  'change-concept': [];
-  'change-item': [];
-  'add-item': [];
-  'delete-item': [index: number];
-  'move-item-up': [index: number];
-  'move-item-down': [index: number];
-  'navigate-to-node': [nodeId: string];
-}>();
+const _emit = defineEmits<{
+  'change-concept': []
+  'change-item': []
+  'add-item': []
+  'delete-item': [index: number]
+  'move-item-up': [index: number]
+  'move-item-down': [index: number]
+  'navigate-to-node': [nodeId: string]
+}>()
 
 // Single-active-editor state: at most ONE editor open at a time
-const editingId = ref<string | null>(null);
+const editingId = ref<string | null>(null)
 
 // Per-item collapsed state tracking
-const collapsedOverrides = ref<Record<string, boolean>>({});
+const collapsedOverrides = ref<Record<string, boolean>>({})
 
 // A list concept's sheet is pure context (collapse it); a single-block concept's
 // sheet IS the content, so it starts expanded for immediate read/edit.
-const conceptCollapsed = ref(props.isListConcept);
+const conceptCollapsed = ref(props.isListConcept)
 
 const toggleEdit = (key: string) => {
-  editingId.value = editingId.value === key ? null : key;
-};
+  editingId.value = editingId.value === key ? null : key
+}
 
 // Collapse the concept header when a specific element is selected
-watch(() => props.selectedItemName, (name) => {
-  collapsedOverrides.value = {};
-  if (name) {
-    conceptCollapsed.value = true;
-  }
-}, { immediate: true });
+watch(
+  () => props.selectedItemName,
+  (name) => {
+    collapsedOverrides.value = {}
+    if (name) {
+      conceptCollapsed.value = true
+    }
+  },
+  { immediate: true },
+)
 
 const itemCollapsed = (item: ParsedItem): boolean => {
-  const override = collapsedOverrides.value[item.name];
-  if (override !== undefined) return override;
-  return props.selectedItemName ? item.name !== props.selectedItemName : true;
-};
+  const override = collapsedOverrides.value[item.name]
+  if (override !== undefined) return override
+  return props.selectedItemName ? item.name !== props.selectedItemName : true
+}
 
 const onItemCollapsed = (item: ParsedItem, val: boolean) => {
-  collapsedOverrides.value = { ...collapsedOverrides.value, [item.name]: val };
-};
+  collapsedOverrides.value = { ...collapsedOverrides.value, [item.name]: val }
+}
 </script>

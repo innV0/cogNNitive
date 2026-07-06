@@ -14,18 +14,11 @@ test.describe('Matrices — Virtual Scrolling, MatrixSummary, MatrixPill Navigat
   })
 
   test('Matrix definitions shown in sidebar Relations section', async ({ page }) => {
-    const relationsSection = page.getByText('Relations').first()
-    await expect(relationsSection).toBeVisible()
-
-    await relationsSection.click()
-
+    await expect(page.getByText('Relations').first()).toBeVisible()
     await expect(page.locator('[data-testid^="matrix-pill-"]').first()).toBeVisible()
   })
 
   test('Clicking MatrixPill navigates to matrix view', async ({ page }) => {
-    const relationsSection = page.getByText('Relations').first()
-    await relationsSection.click()
-
     const matrixPill = page.locator('[data-testid^="matrix-pill-"]').first()
     await expect(matrixPill).toBeVisible()
     await matrixPill.click()
@@ -42,7 +35,9 @@ test.describe('Matrices — Virtual Scrolling, MatrixSummary, MatrixPill Navigat
     await expect(page.getByTestId('matrix-selector')).toBeVisible()
     await page.getByTestId('matrix-selector').click()
     // Select second option from dropdown
-    const options = page.locator('[class*="bg-white dark:bg-slate-800 border border-slate-200"] [role="option"], [class*="bg-white dark:bg-slate-800 border border-slate-200"] button')
+    const options = page.locator(
+      '[class*="bg-white dark:bg-slate-800 border border-slate-200"] [role="option"], [class*="bg-white dark:bg-slate-800 border border-slate-200"] button',
+    )
     const optionCount = await options.count()
     if (optionCount > 1) {
       await options.nth(1).click()
@@ -59,7 +54,8 @@ test.describe('Matrices — Virtual Scrolling, MatrixSummary, MatrixPill Navigat
   test('Copy table button present on matrices', async ({ page }) => {
     await page.getByTestId('view-switcher-matrices').click()
 
-    const copyBtn = page.getByText(/Copy|Copy table|copy/i)
+    const copyBtn = page
+      .getByText(/Copy|Copy table|copy/i)
       .or(page.locator('[title*="copy" i]'))
       .first()
     await expect(copyBtn).toBeVisible()

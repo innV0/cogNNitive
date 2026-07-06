@@ -16,7 +16,9 @@
           loading="lazy"
           @error="onImgError($event)"
         />
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-2 py-1.5">
+        <div
+          class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-2 py-1.5"
+        >
           <span class="text-xs text-white/90 truncate block">{{ asset.filename }}</span>
         </div>
       </button>
@@ -34,7 +36,15 @@
         class="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
       >
         <!-- File icon SVG -->
-        <svg class="w-4 h-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          class="w-4 h-4 shrink-0 text-slate-400"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
           <polyline points="14 2 14 8 20 8" />
         </svg>
@@ -61,7 +71,15 @@
           aria-label="Close lightbox"
           data-testid="lightbox-close"
         >
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
@@ -73,7 +91,15 @@
           @click="prevImage"
           aria-label="Previous image"
         >
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
@@ -90,13 +116,23 @@
           @click="nextImage"
           aria-label="Next image"
         >
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </button>
 
         <!-- Counter -->
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/50 text-white text-xs font-medium">
+        <div
+          class="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/50 text-white text-xs font-medium"
+        >
           {{ lightboxIndex + 1 }} / {{ imageAssets.length }}
         </div>
       </div>
@@ -120,29 +156,27 @@ const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'ic
 
 // Separate assets into images and non-images
 const imageAssets = computed(() =>
-  props.assets.filter(a => {
+  props.assets.filter((a) => {
     const ext = a.filename.split('.').pop()?.toLowerCase()
     return ext ? IMAGE_EXTENSIONS.includes(ext) : false
-  })
+  }),
 )
 
 const nonImageAssets = computed(() =>
-  props.assets.filter(a => {
+  props.assets.filter((a) => {
     const ext = a.filename.split('.').pop()?.toLowerCase()
     return ext ? !IMAGE_EXTENSIONS.includes(ext) : true
-  })
+  }),
 )
 
 // Lightbox state
 const lightboxOpen = ref(false)
 const lightboxIndex = ref(0)
 
-const currentLightboxUrl = computed(() =>
-  imageAssets.value[lightboxIndex.value]?.url ?? ''
-)
+const currentLightboxUrl = computed(() => imageAssets.value[lightboxIndex.value]?.url ?? '')
 
-const currentLightboxFilename = computed(() =>
-  imageAssets.value[lightboxIndex.value]?.filename ?? ''
+const currentLightboxFilename = computed(
+  () => imageAssets.value[lightboxIndex.value]?.filename ?? '',
 )
 
 function openLightbox(idx: number) {
@@ -161,7 +195,8 @@ function nextImage() {
 
 function prevImage() {
   if (imageAssets.value.length === 0) return
-  lightboxIndex.value = (lightboxIndex.value - 1 + imageAssets.value.length) % imageAssets.value.length
+  lightboxIndex.value =
+    (lightboxIndex.value - 1 + imageAssets.value.length) % imageAssets.value.length
 }
 
 function onImgError(event: Event) {

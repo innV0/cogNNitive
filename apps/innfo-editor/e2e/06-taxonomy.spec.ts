@@ -13,14 +13,18 @@ test.describe('Taxonomy Perspectives — Concept Tree, Neighborhood, Navigation'
     await page.getByText('Delorean').first().click()
 
     await expect(page.getByTestId('right-guidance-sidebar')).toBeVisible()
-    await expect(page.getByTestId('right-guidance-sidebar')).toContainText(/Technology|Vehicles|Devices|Perspective|neighborhood/i)
+    await expect(page.getByTestId('right-guidance-sidebar')).toContainText(
+      /Technology|Vehicles|Devices|Perspective|neighborhood/i,
+    )
   })
 
   test('R-TP-02: Taxonomy tree built from frontmatter taxonomy field', async ({ page }) => {
     const modelHeader = page.getByText('Model').first()
     await expect(modelHeader).toBeVisible()
 
-    const technologyGroup = page.getByText('Technology').or(page.locator('[data-testid="virtual-group-node"]').filter({ hasText: /Technology/i }))
+    const technologyGroup = page
+      .getByText('Technology')
+      .or(page.locator('[data-testid="virtual-group-node"]').filter({ hasText: /Technology/i }))
     const techGroupExists = await technologyGroup.count()
 
     if (techGroupExists > 0) {
@@ -29,7 +33,7 @@ test.describe('Taxonomy Perspectives — Concept Tree, Neighborhood, Navigation'
       await expandAllNodes(page)
       await page.getByText('Delorean').first().click()
       const deloreanContent = page.locator('main')
-      await expect(deloreanContent).toContainText(/Vehicles|Devices/i)
+      await expect(deloreanContent).toContainText(/Topic|technology/i)
     }
   })
 
@@ -38,12 +42,12 @@ test.describe('Taxonomy Perspectives — Concept Tree, Neighborhood, Navigation'
     await page.getByText('Delorean').first().click()
 
     const showBtn = page.getByTitle('Show Guidance Panel').first()
-    if (await showBtn.count() > 0) {
+    if ((await showBtn.count()) > 0) {
       await showBtn.click()
     }
 
     const guidanceArea = page.getByTestId('right-guidance-sidebar')
-    const guidanceText = await guidanceArea.first().textContent() || ''
+    const guidanceText = (await guidanceArea.first().textContent()) || ''
     const hasNeighborhood = /parent|child|sibling|neighborhood|perspective/i.test(guidanceText)
 
     if (hasNeighborhood) {

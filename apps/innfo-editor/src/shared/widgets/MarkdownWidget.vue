@@ -8,7 +8,7 @@
 import { ref } from 'vue'
 import { marked } from 'marked'
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     modelValue: string
     fieldDefinition?: {
@@ -90,25 +90,33 @@ function insertHeading(): void {
           @click="insertFormat('**', '**')"
           title="Bold"
           type="button"
-        ><strong>B</strong></button>
+        >
+          <strong>B</strong>
+        </button>
         <button
           class="widget-markdown-tb-btn"
           @click="insertFormat('*', '*')"
           title="Italic"
           type="button"
-        ><em>I</em></button>
+        >
+          <em>I</em>
+        </button>
         <button
           class="widget-markdown-tb-btn"
           @click="insertBullet()"
           title="Bullet list"
           type="button"
-        >•</button>
+        >
+          •
+        </button>
         <button
           class="widget-markdown-tb-btn"
           @click="insertHeading()"
           title="Heading"
           type="button"
-        >H</button>
+        >
+          H
+        </button>
       </div>
       <textarea
         ref="textareaRef"
@@ -178,7 +186,7 @@ function insertHeading(): void {
   color: #1e293b;
 }
 .widget-markdown-textarea:focus {
-  border-color: #4D0E4E;
+  border-color: #4d0e4e;
   box-shadow: 0 0 0 2px rgba(77, 14, 78, 0.1);
   background: #fff;
 }
@@ -224,11 +232,14 @@ function insertHeading(): void {
   background: none;
   padding: 0;
 }
-.widget-markdown-rendered :deep(ul), .widget-markdown-rendered :deep(ol) {
+.widget-markdown-rendered :deep(ul),
+.widget-markdown-rendered :deep(ol) {
   padding-left: 1.25rem;
   margin: 0.25rem 0;
 }
-.widget-markdown-rendered :deep(h1), .widget-markdown-rendered :deep(h2), .widget-markdown-rendered :deep(h3) {
+.widget-markdown-rendered :deep(h1),
+.widget-markdown-rendered :deep(h2),
+.widget-markdown-rendered :deep(h3) {
   margin: 0.5rem 0 0.25rem 0;
   font-weight: 600;
 }

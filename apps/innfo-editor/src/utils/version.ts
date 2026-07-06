@@ -11,28 +11,28 @@
  *   - Old Model format:  <ModelName>_BM_V_x-y-z_NN.md
  */
 
-export type BumpLevel = 'major' | 'minor' | 'patch';
+export type BumpLevel = 'major' | 'minor' | 'patch'
 
 export interface SemVer {
-  major: number;
-  minor: number;
-  patch: number;
+  major: number
+  minor: number
+  patch: number
 }
 
 export interface ParsedFormatName {
   /** The <Name> segment preceding the version. */
-  baseName: string;
+  baseName: string
   /** True when the name carries the `_business` or `_BM` marker. */
-  isBusinessModel: boolean;
+  isBusinessModel: boolean
   /** The template name if present (e.g. 'business' or 'procedures'). */
-  templateName?: string;
+  templateName?: string
   /** The document's own version. */
-  version: SemVer;
+  version: SemVer
 }
 
 /** Renders a SemVer as the iNNfo version string, e.g. `V_0-2-0`. */
 export function formatVersionString(v: SemVer): string {
-  return `V_${v.major}-${v.minor}-${v.patch}`;
+  return `V_${v.major}-${v.minor}-${v.patch}`
 }
 
 /**
@@ -41,9 +41,9 @@ export function formatVersionString(v: SemVer): string {
  */
 export function parseFormatFilename(fileName: string): ParsedFormatName | null {
   // 1. Try New: <ModelName>_V_x-y-z_<TemplateName>_NN.md
-  const newMatch = fileName.match(/^(.+?)_V_(\d+)-(\d+)-(\d+)(?:_(.+?))?_NN\.md$/);
+  const newMatch = fileName.match(/^(.+?)_V_(\d+)-(\d+)-(\d+)(?:_(.+?))?_NN\.md$/)
   if (newMatch) {
-    const templateName = newMatch[5];
+    const templateName = newMatch[5]
     return {
       baseName: newMatch[1],
       isBusinessModel: templateName === 'business' || templateName === 'BM',
@@ -51,13 +51,13 @@ export function parseFormatFilename(fileName: string): ParsedFormatName | null {
       version: {
         major: Number(newMatch[2]),
         minor: Number(newMatch[3]),
-        patch: Number(newMatch[4])
-      }
-    };
+        patch: Number(newMatch[4]),
+      },
+    }
   }
 
   // 2. Try Old: <ModelName>_BM_V_x-y-z_NN.md
-  const oldMatch = fileName.match(/^(.+?)_BM_V_(\d+)-(\d+)-(\d+)_NN\.md$/);
+  const oldMatch = fileName.match(/^(.+?)_BM_V_(\d+)-(\d+)-(\d+)_NN\.md$/)
   if (oldMatch) {
     return {
       baseName: oldMatch[1],
@@ -66,32 +66,32 @@ export function parseFormatFilename(fileName: string): ParsedFormatName | null {
       version: {
         major: Number(oldMatch[2]),
         minor: Number(oldMatch[3]),
-        patch: Number(oldMatch[4])
-      }
-    };
+        patch: Number(oldMatch[4]),
+      },
+    }
   }
 
-  return null;
+  return null
 }
 
 /** Builds an iNNfo-compliant file name from its parts (§8.1). */
 export function buildFormatFilename(
   baseName: string,
   templateName: string | undefined,
-  version: SemVer
+  version: SemVer,
 ): string {
-  const suffix = templateName ? `_${templateName}` : '';
-  return `${baseName}_V_${version.major}-${version.minor}-${version.patch}${suffix}_NN.md`;
+  const suffix = templateName ? `_${templateName}` : ''
+  return `${baseName}_V_${version.major}-${version.minor}-${version.patch}${suffix}_NN.md`
 }
 
 /** Returns a new SemVer with the requested level incremented (§8.2 SemVer rules). */
 export function bumpVersion(v: SemVer, level: BumpLevel): SemVer {
   switch (level) {
     case 'major':
-      return { major: v.major + 1, minor: 0, patch: 0 };
+      return { major: v.major + 1, minor: 0, patch: 0 }
     case 'minor':
-      return { major: v.major, minor: v.minor + 1, patch: 0 };
+      return { major: v.major, minor: v.minor + 1, patch: 0 }
     case 'patch':
-      return { major: v.major, minor: v.minor, patch: v.patch + 1 };
+      return { major: v.major, minor: v.minor, patch: v.patch + 1 }
   }
 }

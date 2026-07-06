@@ -2,13 +2,15 @@ import { defineStore } from 'pinia'
 import type { ModelNode } from '../model/types'
 import type { DirectoryHandleLike } from './workspaceStore'
 import { recursiveParse } from '../model/recursiveParser'
-import type { ModelDriver, ParseIssue } from '@innv0/innfo-core'
+import { validateFormatContent, parseFrontmatter } from '@innv0/innfo-core'
+import type { ModelDriver, ParseIssue, ValidationReport, LocalMetamodel } from '@innv0/innfo-core'
 
 export interface ModelState {
   nodes: Record<string, ModelNode>
   rootIds: string[]
   dirtyIds: Set<string>
   parseIssues: ParseIssue[]
+  validationReport: ValidationReport | null
 }
 
 /**
@@ -22,12 +24,19 @@ export const useModelStore = defineStore('model', {
     rootIds: [],
     dirtyIds: new Set<string>(),
     parseIssues: [],
+    validationReport: null,
   }),
   getters: {
-    getNode: (state) => (id: string): ModelNode | undefined => state.nodes[id],
-    getChildren: (state) => (id: string): ModelNode[] =>
-      (state.nodes[id]?.childIds ?? []).map((cid) => state.nodes[cid]).filter(Boolean),
-    getRoots: (state) => (): ModelNode[] => state.rootIds.map((id) => state.nodes[id]).filter(Boolean),
+    getNode:
+      (state) =>
+      (id: string): ModelNode | undefined =>
+        state.nodes[id],
+    getChildren:
+      (state) =>
+      (id: string): ModelNode[] =>
+        (state.nodes[id]?.childIds ?? []).map((cid) => state.nodes[cid]).filter(Boolean),
+    getRoots: (state) => (): ModelNode[] =>
+      state.rootIds.map((id) => state.nodes[id]).filter(Boolean),
 
     /**
      * Returns the first root node id as the default "active" node.
@@ -46,6 +55,23 @@ export const useModelStore = defineStore('model', {
       this.nodes = nodes
       this.rootIds = rootIds
       this.dirtyIds = new Set<string>()
+      this.validateModel()
+    },
+
+    validateModel(): void {
+      const rootId = this.rootIds[0]
+      if (rootId && this.nodes[rootId]) {
+        const rootNode = this.nodes[rootId]
+        const path = rootNode.source?.path ?? ''
+        const fileName = path.split('/').pop() || path || 'unknown.md'
+        if (rootNode.rawContent) {
+          this.validationReport = validateFormatContent(rootNode.rawContent, fileName)
+        } else {
+          this.validationReport = null
+        }
+      } else {
+        this.validationReport = null
+      }
     },
 
     upsertNode(node: ModelNode): void {
@@ -77,7 +103,91 @@ export const useModelStore = defineStore('model', {
     async parseFromHandle(handle: DirectoryHandleLike, driver?: ModelDriver): Promise<void> {
       const result = await recursiveParse(handle, driver)
       this.parseIssues = result.issues
+      await this._resolveParentSpecs(result.nodes, result.rootIds)
       this.setGraph(result.nodes, result.rootIds)
+    },
+
+    /**
+     * Resolves parent_spec URLs for level-3 models and injects template
+     * concepts as synthetic root nodes so findTemplatePeer() can locate
+     * concept colors without relying on co-location.
+     *
+     * Best-effort: network failures or missing templates degrade gracefully
+     * to slate fallback.
+     */
+    async _resolveParentSpecs(
+      nodes: Record<string, ModelNode>,
+      rootIds: string[],
+    ): Promise<void> {
+      for (const rootId of rootIds) {
+        const root = nodes[rootId]
+        if (!root?.rawContent) continue
+
+        const fm = parseFrontmatter(root.rawContent)
+        const parentUrl: string | undefined = (fm as any)?.parent_spec?.url
+        const parentName: string | undefined = (fm as any)?.parent_spec?.name
+        if (!parentUrl || !parentName) continue
+
+        // Skip if already loaded as a peer root with concepts
+        // Name comparison: strip trailing _NN from node name since
+        // parent_spec.name (e.g. "business_V_0-1-1") doesn't include it
+        // but the filename-derived node name does (e.g. "business_V_0-1-1_NN").
+        const normalizedParent = parentName.replace(/_NN$/, '')
+        const existingPeer = rootIds.find((rid) => {
+          if (rid === rootId) return false
+          const candidate = nodes[rid]
+          if (!candidate?.localMetamodel?.concepts?.length) return false
+          const candidateName = candidate.name?.replace(/_NN$/, '')
+          return candidateName === normalizedParent
+        })
+        if (existingPeer) continue
+
+        try {
+          const resp = await fetch(parentUrl)
+          if (!resp.ok) continue
+          const text = await resp.text()
+          const tplFm = parseFrontmatter(text)
+          if (!tplFm?.concepts?.length) continue
+
+          const templateId = `spec:${parentName}`
+          if (nodes[templateId]) continue
+
+          const concepts = tplFm.concepts.map((c: any) => ({
+            name: c.name,
+            icon: c.icon,
+            color: c.color,
+            type: c.type,
+            weight: c.weight,
+            fields: c.fields,
+          }))
+
+          const markers = (tplFm.markers ?? []).map((m: any) => ({
+            name: m.name,
+            icon: m.icon,
+            color: m.color,
+            symbol: m.symbol,
+          }))
+
+          nodes[templateId] = {
+            id: templateId,
+            name: parentName,
+            parentId: null,
+            childIds: [],
+            type: 'category',
+            kind: 'root' as const,
+            localMetamodel: { concepts, markers } satisfies LocalMetamodel,
+            fields: {},
+            markers: {},
+            relationships: [],
+            rawSections: {},
+            source: { path: `spec:${parentName}` },
+            sourceMode: 'structural' as const,
+          }
+          rootIds.push(templateId)
+        } catch {
+          // Best-effort: network failures degrade to slate fallback
+        }
+      }
     },
 
     /**
@@ -100,7 +210,12 @@ export const useModelStore = defineStore('model', {
      * Creates a new child node under the given parent.
      * @returns the new node's id
      */
-    createChild(parentId: string, name: string, type: string, kind?: 'concept' | 'element'): string {
+    createChild(
+      parentId: string,
+      name: string,
+      type: string,
+      kind?: 'concept' | 'element',
+    ): string {
       const parent = this.nodes[parentId]
       if (!parent) throw new Error(`Parent node "${parentId}" not found`)
       const id = `${parentId}/${name}`
@@ -137,7 +252,7 @@ export const useModelStore = defineStore('model', {
       if (node.parentId) {
         const parent = this.nodes[node.parentId]
         if (parent) {
-          parent.childIds = parent.childIds.filter(id => id !== nodeId)
+          parent.childIds = parent.childIds.filter((id) => id !== nodeId)
         }
       }
       delete this.nodes[nodeId]

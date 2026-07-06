@@ -27,7 +27,7 @@ defineEmits<{
 .field-boolean {
   width: 1rem;
   height: 1rem;
-  color: #4D0E4E;
+  color: #4d0e4e;
   border: 1px solid #cbd5e1;
   border-radius: 0.25rem;
   cursor: pointer;

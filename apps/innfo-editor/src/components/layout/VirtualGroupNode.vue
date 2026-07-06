@@ -73,7 +73,11 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
-import { useConceptVisuals, getHexColor, getHexColorLight } from '../../composables/useConceptVisuals'
+import {
+  useConceptVisuals,
+  getHexColor,
+  getHexColorLight,
+} from '../../composables/useConceptVisuals'
 import IconRenderer from '../editor/IconRenderer.vue'
 import ConceptTreeNode from './ConceptTreeNode.vue'
 import type { ModelNode } from '../../model/types'
@@ -92,7 +96,7 @@ const props = withDefaults(
   },
 )
 
-const emit = defineEmits<{
+const _emit = defineEmits<{
   select: [nodeId: string]
   'move-up': [nodeId: string]
   'move-down': [nodeId: string]

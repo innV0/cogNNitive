@@ -25,11 +25,11 @@ export function useToast() {
       clearTimeout(timer)
       timeouts.delete(id)
     }
-    toasts.value = toasts.value.filter(t => t.id !== id)
+    toasts.value = toasts.value.filter((t) => t.id !== id)
   }
 
   function clearAll() {
-    for (const [id, timer] of timeouts) {
+    for (const [, timer] of timeouts) {
       clearTimeout(timer)
     }
     timeouts.clear()

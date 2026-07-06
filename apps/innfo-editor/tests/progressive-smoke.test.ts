@@ -161,7 +161,7 @@ describe('Paso 2 — Cargar modelo', () => {
     const { join } = await import('node:path')
     const ghostbustersContent = readFileSync(
       join(import.meta.dirname!, 'fixtures', 'models', 'Ghostbusters_V_0-1-1_business_F.md'),
-      'utf-8'
+      'utf-8',
     )
 
     const ghostbustersIndex = `---
@@ -241,7 +241,7 @@ describe('Paso 4 — Fixtures reales desde tests/fixtures/ en la raíz', () => {
     const { join } = await import('node:path')
     const content = readFileSync(
       join(import.meta.dirname!, '..', '..', '..', 'tests', 'fixtures', 'file-model_F.md'),
-      'utf-8'
+      'utf-8',
     )
 
     const indexMd = `---

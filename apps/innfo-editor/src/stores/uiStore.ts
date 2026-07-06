@@ -17,6 +17,7 @@ export const useUiStore = defineStore('ui', () => {
   const selectedNodeId = ref<string | null>(null)
   const selectedInstanceId = ref<string | null>(null)
   const activeMatrixIndex = ref<number>(-1)
+  const showValidationReport = ref(false)
 
   function setActiveConcept(name: string | null): void {
     activeConcept.value = name
@@ -42,6 +43,10 @@ export const useUiStore = defineStore('ui', () => {
     activeMatrixIndex.value = index
   }
 
+  function setShowValidationReport(val: boolean): void {
+    showValidationReport.value = val
+  }
+
   return {
     activeConcept,
     activePerspective,
@@ -49,11 +54,13 @@ export const useUiStore = defineStore('ui', () => {
     selectedNodeId,
     selectedInstanceId,
     activeMatrixIndex,
+    showValidationReport,
     setActiveConcept,
     setActivePerspective,
     setActiveView,
     selectNode,
     selectInstance,
     setActiveMatrixIndex,
+    setShowValidationReport,
   }
 })
