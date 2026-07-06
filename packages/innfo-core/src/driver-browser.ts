@@ -14,19 +14,8 @@
  */
 
 import type { ParsedModel } from './types'
-
-export interface ModelEntry {
-  name: string
-  uri: string
-  kind: 'element' | 'asset' | 'concept'
-}
-
-export interface ModelDriver {
-  readModel(uri: string): Promise<ParsedModel>
-  writeModel(uri: string, model: ParsedModel): Promise<void>
-  listChildren(uri: string): Promise<ModelEntry[]>
-  listAssets(uri: string): Promise<string[]>
-}
+import type { ModelDriver, ModelEntry } from './driver'
+export type { ModelDriver, ModelEntry }
 
 /**
  * Creates a browser-safe no-op driver. The returned driver methods all
@@ -41,7 +30,7 @@ export function createDriver(_baseUri: string): ModelDriver {
   const notAvailable = (method: string) => {
     throw new Error(
       `ModelDriver.${method}() is not available in the browser. ` +
-      'Use the File System Access API handle-based code path instead.',
+        'Use the File System Access API handle-based code path instead.',
     )
   }
   return {

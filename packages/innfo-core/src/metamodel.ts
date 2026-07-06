@@ -31,7 +31,10 @@ function buildAncestorChain(nodeId: string, nodes: Record<string, ModelNode>): M
  * metamodel (nested elements) contribute nothing and are transparent to
  * the walk.
  */
-export function resolveEffectiveMetamodel(nodeId: string, nodes: Record<string, ModelNode>): LocalMetamodel {
+export function resolveEffectiveMetamodel(
+  nodeId: string,
+  nodes: Record<string, ModelNode>,
+): LocalMetamodel {
   const chain = buildAncestorChain(nodeId, nodes)
 
   const conceptsByName = new Map<string, MetamodelConcept>()

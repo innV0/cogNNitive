@@ -1,9 +1,13 @@
 import {
-  ParsedModel, SpecDocument, ValidationResult, ValidationError,
-  Concept, MatrixDecl, ElementNode, ElementsMap,
-  ValidationCheck, ValidationReport, SyntaxCheck,
-} from './types';
-import { parseModel } from './parser';
+  ParsedModel,
+  SpecDocument,
+  ValidationResult,
+  ValidationError,
+  ValidationCheck,
+  ValidationReport,
+  SyntaxCheck,
+} from './types'
+import { parseModel } from './parser'
 
 const VERSION_RE = /^V_\d+-\d+-\d+$/
 const WIKILINK_RE = /\[\[([^\]]+)\]\]/g
@@ -12,107 +16,125 @@ const SECTION_NN_RE = /^#\s+_NN\s+(?:(matrices):\s*(.*)|(.*))$/gm
 export function validateModel(
   model: ParsedModel,
   template: SpecDocument | null,
-  formatSpec: SpecDocument | null
+  _formatSpec: SpecDocument | null,
 ): ValidationResult {
-  const errors: ValidationError[] = [];
-  const warnings: ValidationError[] = [];
-  const fm = model.frontmatter;
+  const errors: ValidationError[] = []
+  const warnings: ValidationError[] = []
+  const fm = model.frontmatter
 
   if (!fm.level) {
-    errors.push({ path: 'frontmatter.level', message: 'Missing level', severity: 'error' });
+    errors.push({ path: 'frontmatter.level', message: 'Missing level', severity: 'error' })
   }
   if (fm.level !== 3) {
-    errors.push({ path: 'frontmatter.level', message: `Expected level 3 for model, got ${fm.level}`, severity: 'error' });
+    errors.push({
+      path: 'frontmatter.level',
+      message: `Expected level 3 for model, got ${fm.level}`,
+      severity: 'error',
+    })
   }
   if (!fm.parent_spec) {
-    errors.push({ path: 'frontmatter.parent_spec', message: 'Missing parent_spec', severity: 'error' });
+    errors.push({
+      path: 'frontmatter.parent_spec',
+      message: 'Missing parent_spec',
+      severity: 'error',
+    })
   }
   if (!fm.model_version) {
-    errors.push({ path: 'frontmatter.model_version', message: 'Missing model_version', severity: 'error' });
+    errors.push({
+      path: 'frontmatter.model_version',
+      message: 'Missing model_version',
+      severity: 'error',
+    })
   }
 
   // FR-007: Reject FOLDER mode
   if (fm.mode === 'FOLDER') {
     errors.push({
       path: 'frontmatter.mode',
-      message: 'FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.',
+      message:
+        'FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.',
       severity: 'error',
-    });
+    })
   }
 
   if (!template) {
-    warnings.push({ path: 'parent', message: 'Template not resolved — skipping template validation', severity: 'warning' });
-    return { valid: errors.length === 0, errors, warnings };
+    warnings.push({
+      path: 'parent',
+      message: 'Template not resolved — skipping template validation',
+      severity: 'warning',
+    })
+    return { valid: errors.length === 0, errors, warnings }
   }
 
-  const templateFm = template.frontmatter;
-  const templateConcepts = templateFm.concepts ?? [];
-  const templateMarkers = templateFm.markers ?? [];
-  const templateMatrices = templateFm.matrices ?? [];
+  const templateFm = template.frontmatter
+  const templateConcepts = templateFm.concepts ?? []
+  const templateMarkers = templateFm.markers ?? []
+  const templateMatrices = templateFm.matrices ?? []
 
   for (const [conceptName, elements] of model.elements) {
-    const conceptDef = templateConcepts.find(c => c.name.toLowerCase() === conceptName.toLowerCase());
+    const conceptDef = templateConcepts.find(
+      (c) => c.name.toLowerCase() === conceptName.toLowerCase(),
+    )
     if (!conceptDef) {
       errors.push({
         path: `elements.${conceptName}`,
         message: `Concept "${conceptName}" is not defined in template`,
-        severity: 'error'
-      });
-      continue;
+        severity: 'error',
+      })
+      continue
     }
 
-    const conceptType = conceptDef.type;
-    if ((conceptType === 'text') && elements.length > 1) {
+    const conceptType = conceptDef.type
+    if (conceptType === 'text' && elements.length > 1) {
       warnings.push({
         path: `elements.${conceptName}`,
         message: `Text-type concept "${conceptName}" should have at most 1 element, got ${elements.length}`,
-        severity: 'warning'
-      });
+        severity: 'warning',
+      })
     }
 
     for (const el of elements) {
       if (conceptDef.fields && conceptDef.fields.length > 0) {
         for (const fieldDef of conceptDef.fields) {
           if (fieldDef.type === 'select' && fieldDef.options && el.fields[fieldDef.name]) {
-            const val = String(el.fields[fieldDef.name]);
+            const val = String(el.fields[fieldDef.name])
             if (!fieldDef.options.includes(val)) {
               errors.push({
                 path: `elements.${conceptName}.${el.name}.fields.${fieldDef.name}`,
                 message: `Invalid value "${val}" for field "${fieldDef.name}". Allowed: ${fieldDef.options.join(', ')}`,
-                severity: 'error'
-              });
+                severity: 'error',
+              })
             }
           }
         }
       }
-
     }
   }
 
   for (const matrix of model.matrices) {
-    const decl = templateMatrices.find(m => m.name.toLowerCase() === matrix.name.toLowerCase());
+    const decl = templateMatrices.find((m) => m.name.toLowerCase() === matrix.name.toLowerCase())
     if (!decl) {
       warnings.push({
         path: `matrices.${matrix.name}`,
         message: `Matrix "${matrix.name}" is not declared in template`,
-        severity: 'warning'
-      });
+        severity: 'warning',
+      })
     }
   }
 
   for (const [itemName, markers] of Object.entries(model.nodeMarkers)) {
     for (const markerName of Object.keys(markers)) {
-      if (!templateMarkers.find(m => m.name === markerName)) {
+      if (!templateMarkers.find((m) => m.name === markerName)) {
         warnings.push({
           path: `nodeMarkers.${itemName}.${markerName}`,
           message: `Marker "${markerName}" is not defined in template`,
-          severity: 'warning'
-        });
+          severity: 'warning',
+        })
       }
     }
   }
 
-  return { valid: errors.length === 0, errors, warnings };
+  return { valid: errors.length === 0, errors, warnings }
 }
 
 /**
@@ -122,12 +144,12 @@ export function validateModel(
  * @param content - Raw file content to validate
  * @param fileName - File name (used for naming convention checks)
  * @param expectedSpecVersion - Optional expected spec_version (e.g. "V_0-1-5").
-   *   Pass the current iNNfo spec version to validate spec_version matches.
+ *   Pass the current iNNfo spec version to validate spec_version matches.
  */
 export function validateFormatContent(
   content: string,
   fileName: string,
-  expectedSpecVersion?: string
+  expectedSpecVersion?: string,
 ): ValidationReport {
   const checks: ValidationCheck[] = []
   const parsed = parseModel(content)
@@ -139,11 +161,13 @@ export function validateFormatContent(
     checks.push({
       id: 'fm-no-folder-mode',
       label: 'No FOLDER mode in V_0-1-3',
-      description: 'FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.',
+      description:
+        'FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.',
       category: 'frontmatter',
       severity: 'error',
       passed: false,
-      message: 'FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.',
+      message:
+        'FOLDER mode is removed in V_0-1-3. Use index.md-based workspace with single-file models.',
     })
   }
 
@@ -158,13 +182,20 @@ export function validateFormatContent(
     category: 'frontmatter',
     severity: 'error',
     passed: levelOk,
-    message: levelOk ? undefined
-      : fm.level === undefined ? 'Missing level field'
-      : `Expected level 3, got ${fm.level}`,
+    message: levelOk
+      ? undefined
+      : fm.level === undefined
+        ? 'Missing level field'
+        : `Expected level 3, got ${fm.level}`,
   })
 
   // 2. parent_spec
-  const parentOk = !!(fm.parent_spec && typeof fm.parent_spec === 'object' && fm.parent_spec.name && fm.parent_spec.url)
+  const parentOk = !!(
+    fm.parent_spec &&
+    typeof fm.parent_spec === 'object' &&
+    fm.parent_spec.name &&
+    fm.parent_spec.url
+  )
   checks.push({
     id: 'fm-parent',
     label: 'Parent spec reference (name + URL)',
@@ -172,10 +203,13 @@ export function validateFormatContent(
     category: 'frontmatter',
     severity: 'error',
     passed: parentOk,
-    message: parentOk ? undefined
-      : !fm.parent_spec ? 'Missing parent_spec field'
-      : !fm.parent_spec.name ? 'Parent_spec missing name'
-      : 'Parent_spec missing url',
+    message: parentOk
+      ? undefined
+      : !fm.parent_spec
+        ? 'Missing parent_spec field'
+        : !fm.parent_spec.name
+          ? 'Parent_spec missing name'
+          : 'Parent_spec missing url',
   })
 
   // 3. model_version present
@@ -200,8 +234,7 @@ export function validateFormatContent(
       category: 'frontmatter',
       severity: 'warning',
       passed: versionFormatOk,
-      message: versionFormatOk ? undefined
-        : `"${fm.model_version}" does not match V_x-y-z format`,
+      message: versionFormatOk ? undefined : `"${fm.model_version}" does not match V_x-y-z format`,
     })
   }
 
@@ -239,7 +272,8 @@ export function validateFormatContent(
       category: 'frontmatter',
       severity: 'warning',
       passed: specMatch,
-      message: specMatch ? undefined
+      message: specMatch
+        ? undefined
         : `Expected "${expectedSpecVersion}", got "${fm.spec_version}"`,
     })
   }
@@ -277,12 +311,14 @@ export function validateFormatContent(
 
   // 9. Concept section markers
   const sectionMatches = [...content.matchAll(SECTION_NN_RE)]
-  const conceptSectionCount = sectionMatches.filter(m => {
+  const conceptSectionCount = sectionMatches.filter((m) => {
     const name = m[1] === 'matrices' ? m[2] : m[3]
     return m[1] !== 'matrices' && name != null && name.trim().toLowerCase() !== 'index'
   }).length
   if (hasBody) {
-    const allValid = sectionMatches.every(m => m[1] === 'matrices' || (m[3] != null && m[3].trim().length > 0))
+    const allValid = sectionMatches.every(
+      (m) => m[1] === 'matrices' || (m[3] != null && m[3].trim().length > 0),
+    )
     checks.push({
       id: 'body-concept-sections',
       label: 'Valid concept section markers',
@@ -290,15 +326,18 @@ export function validateFormatContent(
       category: 'body',
       severity: 'error',
       passed: conceptSectionCount > 0 && allValid,
-      message: !allValid ? 'Some section headers have invalid _NN markers'
-        : conceptSectionCount === 0 ? 'No concept sections found (body is empty or malformed)'
-        : undefined,
+      message: !allValid
+        ? 'Some section headers have invalid _NN markers'
+        : conceptSectionCount === 0
+          ? 'No concept sections found (body is empty or malformed)'
+          : undefined,
     })
   }
 
   // 10. Element marker syntax
   const visMarkerRe = /^\s*[*\-]\s+_NN\s+([\w\s-]+?):\s+(.+)$/gm
-  const hidMarkerRe = /^\s*[*\-]\s+<!--\s+(?:_NN\s+([\w\s-]+?):|block:\s*([\w\s-]+?))\s*-->\s*(.*)$/gm
+  const hidMarkerRe =
+    /^\s*[*\-]\s+<!--\s+(?:_NN\s+([\w\s-]+?):|block:\s*([\w\s-]+?))\s*-->\s*(.*)$/gm
   const visibleMarkers = [...body.matchAll(visMarkerRe)]
   const hiddenMarkers = [...body.matchAll(hidMarkerRe)]
   const totalMarkers = visibleMarkers.length + hiddenMarkers.length
@@ -316,9 +355,13 @@ export function validateFormatContent(
       else continue
     }
     const trimmed = line.trim()
-    if ((trimmed.startsWith('* ') || trimmed.startsWith('- '))
-      && !trimmed.startsWith('* _NN ') && !trimmed.startsWith('- _NN ')
-      && !trimmed.startsWith('* <!--') && !trimmed.startsWith('- <!--')) {
+    if (
+      (trimmed.startsWith('* ') || trimmed.startsWith('- ')) &&
+      !trimmed.startsWith('* _NN ') &&
+      !trimmed.startsWith('- _NN ') &&
+      !trimmed.startsWith('* <!--') &&
+      !trimmed.startsWith('- <!--')
+    ) {
       suspectLines.push(trimmed.substring(0, 60))
     }
   }
@@ -327,14 +370,17 @@ export function validateFormatContent(
     checks.push({
       id: 'body-element-markers',
       label: 'Valid element markers',
-      description: 'Elements must use `* _NN ConceptName: Element` or `* <!-- _NN ConceptName: --> Element` syntax',
+      description:
+        'Elements must use `* _NN ConceptName: Element` or `* <!-- _NN ConceptName: --> Element` syntax',
       category: 'body',
       severity: 'error',
       passed: suspectLines.length === 0 && totalMarkers > 0,
-      message: suspectLines.length > 0
-        ? `${suspectLines.length} bullet(s) look like elements but use wrong marker syntax:\n${suspectLines.slice(0, 3).join('\n')}`
-        : totalMarkers === 0 ? 'No _NN element markers found'
-        : undefined,
+      message:
+        suspectLines.length > 0
+          ? `${suspectLines.length} bullet(s) look like elements but use wrong marker syntax:\n${suspectLines.slice(0, 3).join('\n')}`
+          : totalMarkers === 0
+            ? 'No _NN element markers found'
+            : undefined,
     })
   }
 
@@ -345,13 +391,15 @@ export function validateFormatContent(
     checks.push({
       id: 'body-numbered-list-markers',
       label: 'No numbered-list _NN markers',
-      description: 'Numbered lists (1. _NN Concept: Name) are silently ignored by the parser. Use bullet syntax (* _NN Concept: Name) instead.',
+      description:
+        'Numbered lists (1. _NN Concept: Name) are silently ignored by the parser. Use bullet syntax (* _NN Concept: Name) instead.',
       category: 'body',
       severity: 'warning',
       passed: numberedMatches.length === 0,
-      message: numberedMatches.length > 0
-        ? `${numberedMatches.length} numbered _NN marker(s) detected — these are silently ignored by the parser`
-        : undefined,
+      message:
+        numberedMatches.length > 0
+          ? `${numberedMatches.length} numbered _NN marker(s) detected — these are silently ignored by the parser`
+          : undefined,
     })
   }
 
@@ -383,13 +431,15 @@ export function validateFormatContent(
     checks.push({
       id: 'body-invalid-bullet-chars',
       label: 'Valid bullet characters only (* and -)',
-      description: 'Element markers MUST use * (asterisk) or - (hyphen) as bullet character. + and > are invalid.',
+      description:
+        'Element markers MUST use * (asterisk) or - (hyphen) as bullet character. + and > are invalid.',
       category: 'body',
       severity: 'error',
       passed: invalidBulletLines.length === 0,
-      message: invalidBulletLines.length > 0
-        ? `${invalidBulletLines.length} line(s) use invalid bullet characters:\n${invalidBulletLines.slice(0, 3).join('\n')}`
-        : undefined,
+      message:
+        invalidBulletLines.length > 0
+          ? `${invalidBulletLines.length} line(s) use invalid bullet characters:\n${invalidBulletLines.slice(0, 3).join('\n')}`
+          : undefined,
     })
   }
 
@@ -413,17 +463,20 @@ export function validateFormatContent(
     checks.push({
       id: 'conv-type-field',
       label: 'Type field present for OKF conformance',
-      description: 'Distributed _NN.md files should include a type field in frontmatter for OKF conformance (§5.1.2)',
+      description:
+        'Distributed _NN.md files should include a type field in frontmatter for OKF conformance (§5.1.2)',
       category: 'convention',
       severity: 'warning',
       passed: typeOk,
-      message: typeOk ? undefined : 'Missing type field in frontmatter (required for OKF conformance)',
+      message: typeOk
+        ? undefined
+        : 'Missing type field in frontmatter (required for OKF conformance)',
     })
   }
 
   // 13. Wikilinks reference
   if (hasIndex) {
-    const allWikilinks = [...content.matchAll(WIKILINK_RE)].map(m => m[1].toLowerCase())
+    const allWikilinks = [...content.matchAll(WIKILINK_RE)].map((m) => m[1].toLowerCase())
     const conceptNames = new Set<string>()
     for (const key of parsed.elements.keys()) {
       conceptNames.add(key.toLowerCase())
@@ -431,10 +484,10 @@ export function validateFormatContent(
     // Also collect concept section titles
     for (const m of sectionMatches) {
       const isMatrix = m[1] === 'matrices'
-      const name = (isMatrix ? (m[2] || '') : (m[3] || '')).trim().toLowerCase()
+      const name = (isMatrix ? m[2] || '' : m[3] || '').trim().toLowerCase()
       if (name && name !== 'index') conceptNames.add(name)
     }
-    const undefinedRefs = [...new Set(allWikilinks.filter(w => !conceptNames.has(w)))]
+    const undefinedRefs = [...new Set(allWikilinks.filter((w) => !conceptNames.has(w)))]
 
     checks.push({
       id: 'conv-wikilinks',
@@ -443,26 +496,26 @@ export function validateFormatContent(
       category: 'convention',
       severity: 'warning',
       passed: undefinedRefs.length === 0,
-      message: undefinedRefs.length > 0
-        ? `${undefinedRefs.length} undefined reference(s): ${undefinedRefs.slice(0, 5).join(', ')}${undefinedRefs.length > 5 ? '…' : ''}`
-        : undefined,
+      message:
+        undefinedRefs.length > 0
+          ? `${undefinedRefs.length} undefined reference(s): ${undefinedRefs.slice(0, 5).join(', ')}${undefinedRefs.length > 5 ? '…' : ''}`
+          : undefined,
     })
   }
 
   // ── Summary ────────────────────────────────────────────────────
 
-  const all = checks.length
-  const errors = checks.filter(c => !c.passed && c.severity === 'error').length
-  const warnings = checks.filter(c => !c.passed && c.severity === 'warning').length
+  const errors = checks.filter((c) => !c.passed && c.severity === 'error').length
+  const warnings = checks.filter((c) => !c.passed && c.severity === 'warning').length
 
   // Only show active checks (skip info and passed warnings from totals)
-  const activeChecks = checks.filter(c => c.severity !== 'info')
+  const activeChecks = checks.filter((c) => c.severity !== 'info')
 
   return {
     checks,
     summary: {
       total: activeChecks.length,
-      passed: activeChecks.filter(c => c.passed).length,
+      passed: activeChecks.filter((c) => c.passed).length,
       errors,
       warnings,
     },
@@ -473,9 +526,7 @@ export function validateFormatContent(
  * Validates iNNfo document syntax.
  * Returns a list of syntax checks (simpler than the full content validator).
  */
-export function validateFormatSyntax(
-  content: string
-): SyntaxCheck[] {
+export function validateFormatSyntax(content: string): SyntaxCheck[] {
   const checks: SyntaxCheck[] = []
   const parsed = parseModel(content)
 
@@ -496,7 +547,6 @@ export function validateFormatSyntax(
   })
 
   // Document structure checks
-  const body = content.replace(/^---[\s\S]*?---\n?/, '').trim()
   const hasIndex = parsed.taxonomy.length > 0
   checks.push({
     id: 'syntax-index',

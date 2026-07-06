@@ -37,10 +37,10 @@ export interface ModelInfo {
   version: string | null
 }
 
-const NN_MD_RE = /(?:NN|F)\.md$/i
+const MD_FILE_RE = /\.md$/i
 
 /**
- * Scan a root directory for iNNfo model files (`*_NN.md`).
+ * Scan a root directory for iNNfo model files (`*.md`).
  * Returns an array of `ModelInfo` sorted by id.
  */
 export async function listModels(rootDir: string): Promise<ModelInfo[]> {
@@ -50,10 +50,11 @@ export async function listModels(rootDir: string): Promise<ModelInfo[]> {
 
   for (const entry of entries) {
     if (!entry.isFile()) continue
-    if (!NN_MD_RE.test(entry.name)) continue
+    if (!MD_FILE_RE.test(entry.name)) continue
+    if (entry.name.toLowerCase() === 'index.md') continue
 
     const filePath = join(rootDir, entry.name)
-    const id = entry.name.replace(NN_MD_RE, '')
+    const id = entry.name.replace(MD_FILE_RE, '')
     const version = resolveSpecVersionFromFilename(entry.name)
 
     // Quick-read frontmatter to detect mode

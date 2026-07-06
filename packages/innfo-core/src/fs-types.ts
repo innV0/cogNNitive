@@ -23,7 +23,9 @@ export interface DirectoryHandleLike {
   getDirectoryHandle(name: string, options?: { create?: boolean }): Promise<DirectoryHandleLike>
 }
 
-export function isDirectoryHandle(h: FileHandleLike | DirectoryHandleLike): h is DirectoryHandleLike {
+export function isDirectoryHandle(
+  h: FileHandleLike | DirectoryHandleLike,
+): h is DirectoryHandleLike {
   return h.kind === 'directory'
 }
 

@@ -1,5 +1,4 @@
 import type { ParsedModel } from './types'
-import { UnifiedDriver } from './driver-unified'
 
 export interface ModelEntry {
   name: string
@@ -12,8 +11,4 @@ export interface ModelDriver {
   writeModel(uri: string, model: ParsedModel): Promise<void>
   listChildren(uri: string): Promise<ModelEntry[]>
   listAssets(uri: string): Promise<string[]>
-}
-
-export function createDriver(baseUri: string): UnifiedDriver {
-  return new UnifiedDriver(baseUri)
 }

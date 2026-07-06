@@ -1,218 +1,222 @@
-export type ConceptType = 'text' | 'list' | 'category' | 'weight' | 'steps' | 'sequence';
-export type SpecLevel = 0 | 1 | 2 | 3;
+export type ConceptType = 'text' | 'list' | 'category' | 'weight' | 'steps' | 'sequence'
+export type SpecLevel = 0 | 1 | 2 | 3
 
 export interface ParentRef {
-  name: string;
-  url: string;
+  name: string
+  url: string
 }
 
 export interface ConceptField {
-  name: string;
-  type: 'string' | 'select' | 'reference' | 'image' | 'file' | 'video' | 'audio';
-  options?: string[];
-  target_concepts?: string[];
+  name: string
+  type: 'string' | 'select' | 'reference' | 'image' | 'file' | 'video' | 'audio'
+  options?: string[]
+  target_concepts?: string[]
 }
 
 export interface Concept {
-  name: string;
-  icon?: string;
-  type: ConceptType;
-  color?: string;
-  weight?: number;
-  fields?: ConceptField[];
+  name: string
+  icon?: string
+  type: ConceptType
+  color?: string
+  weight?: number
+  fields?: ConceptField[]
 }
 
 export interface Marker {
-  name: string;
-  icon?: string;
-  symbol?: string;
-  color?: string;
-  weight?: number;
+  name: string
+  icon?: string
+  symbol?: string
+  color?: string
+  weight?: number
 }
 
 export interface MatrixDecl {
-  name: string;
-  source: string;
-  target: string;
-  params: string;
+  name: string
+  source: string
+  target: string
+  params: string
 }
 
-export type RelationshipType = 'hierarchy' | 'evaluable_matrix' | 'graph_edge' | 'sequence';
+export type RelationshipType = 'hierarchy' | 'evaluable_matrix' | 'graph_edge' | 'sequence'
 
 export interface RelationshipDecl {
-  enabled: boolean;
-  via?: string;
+  enabled: boolean
+  via?: string
 }
 
 export interface RelationshipTypeDef {
-  name: RelationshipType;
-  description: string;
-  representation: string;
+  name: RelationshipType
+  description: string
+  representation: string
 }
 
 export interface SpecFrontmatter {
-  spec_version: string;
-  spec_url: string;
-  level: SpecLevel;
-  parent_spec?: ParentRef;
-  title?: string;
-  description?: string;
-  author?: string;
-  status?: string;
-  concepts?: Concept[];
-  markers?: Marker[];
-  matrices?: MatrixDecl[];
-  relationship_types?: RelationshipTypeDef[];
-  relationship_declarations?: Partial<Record<RelationshipType, RelationshipDecl>>;
-  model_version?: string;
-  last_updated?: string;
+  spec_version: string
+  spec_url: string
+  level: SpecLevel
+  parent_spec?: ParentRef
+  title?: string
+  description?: string
+  author?: string
+  status?: string
+  concepts?: Concept[]
+  markers?: Marker[]
+  matrices?: MatrixDecl[]
+  relationship_types?: RelationshipTypeDef[]
+  relationship_declarations?: Partial<Record<RelationshipType, RelationshipDecl>>
+  model_version?: string
+  last_updated?: string
   /** Asset storage mode: 'centralized' (default) or 'per-element'. */
-  asset_mode?: 'centralized' | 'per-element';
-  [key: string]: unknown;
+  asset_mode?: 'centralized' | 'per-element'
+  [key: string]: unknown
 }
 
 export interface ElementNode {
-  type: string;
-  name: string;
-  description: string;
-  fields: Record<string, unknown>;
-  markers: Record<string, number | string>;
+  type: string
+  name: string
+  description: string
+  fields: Record<string, unknown>
+  markers: Record<string, number | string>
   /** Optional slug derived from YAML `slug` field or auto-derived from name. */
-  slug?: string;
+  slug?: string
 }
 
 export interface MatrixCell {
-  row: string;
-  col: string;
-  value: string;
+  row: string
+  col: string
+  value: string
 }
 
 export interface MatrixData {
-  name: string;
-  source: string;
-  target: string;
-  cells: MatrixCell[];
+  name: string
+  source: string
+  target: string
+  cells: MatrixCell[]
 }
 
 export interface TaxonomyEdge {
-  parent: string;
-  child: string;
+  parent: string
+  child: string
 }
 
 /** Case-insensitive wrapper around Map<string, ElementNode[]> */
 export class ElementsMap {
-  private _map = new Map<string, { key: string; nodes: ElementNode[] }>();
+  private _map = new Map<string, { key: string; nodes: ElementNode[] }>()
   set(key: string, nodes: ElementNode[]) {
-    this._map.set(key.toLowerCase(), { key, nodes });
+    this._map.set(key.toLowerCase(), { key, nodes })
   }
   has(key: string): boolean {
-    return this._map.has(key.toLowerCase());
+    return this._map.has(key.toLowerCase())
   }
   get(key: string): ElementNode[] | undefined {
-    return this._map.get(key.toLowerCase())?.nodes;
+    return this._map.get(key.toLowerCase())?.nodes
   }
   keys(): string[] {
-    return Array.from(this._map.values()).map(e => e.key);
+    return Array.from(this._map.values()).map((e) => e.key)
   }
   entries(): Array<[string, ElementNode[]]> {
-    return Array.from(this._map.values()).map(e => [e.key, e.nodes]);
+    return Array.from(this._map.values()).map((e) => [e.key, e.nodes])
   }
   forEach(fn: (nodes: ElementNode[], key: string) => void) {
     for (const { key, nodes } of this._map.values()) {
-      fn(nodes, key);
+      fn(nodes, key)
     }
   }
-  get size() { return this._map.size; }
-  [Symbol.iterator]() { return this.entries()[Symbol.iterator](); }
+  get size() {
+    return this._map.size
+  }
+  [Symbol.iterator]() {
+    return this.entries()[Symbol.iterator]()
+  }
   /** JSON serialization support — serializes as a plain record */
   toJSON(): Record<string, ElementNode[]> {
-    const obj: Record<string, ElementNode[]> = {};
+    const obj: Record<string, ElementNode[]> = {}
     for (const [key, nodes] of this.entries()) {
-      obj[key] = nodes;
+      obj[key] = nodes
     }
-    return obj;
+    return obj
   }
 }
 
 /** Hierarchical tree node built from taxonomy + hierarchy matrices */
 export interface TreeNode {
-  id: string;
-  name: string;
-  type: string;
-  description: string;
-  fields: Record<string, unknown>;
-  markers: Record<string, number | string>;
-  children: TreeNode[];
+  id: string
+  name: string
+  type: string
+  description: string
+  fields: Record<string, unknown>
+  markers: Record<string, number | string>
+  children: TreeNode[]
 }
 
 /** A relationship extracted from wikilinks or graph_edges */
 export interface Relationship {
-  sourceId: string;
-  targetId: string;
-  label: string;
-  value?: string | number;
+  sourceId: string
+  targetId: string
+  label: string
+  value?: string | number
 }
 
 /** An analysis/evaluation score entry */
 export interface AnalysisEntry {
-  timestamp: string;
-  evaluator: string;
-  evaluatorType: 'human' | 'ai';
-  score: number;
-  comment: string;
+  timestamp: string
+  evaluator: string
+  evaluatorType: 'human' | 'ai'
+  score: number
+  comment: string
 }
 
 /** Raw section content preserved for round-trip fidelity */
 export interface RawSection {
-  rawTitle: string;
-  body: string;
+  rawTitle: string
+  body: string
 }
 
 export interface ParsedModel {
-  frontmatter: SpecFrontmatter;
-  taxonomy: TaxonomyEdge[];
-  elements: ElementsMap;
-  matrices: MatrixData[];
-  nodeMarkers: Record<string, Record<string, number | string>>;
-  rawContent: string;
+  frontmatter: SpecFrontmatter
+  taxonomy: TaxonomyEdge[]
+  elements: ElementsMap
+  matrices: MatrixData[]
+  nodeMarkers: Record<string, Record<string, number | string>>
+  rawContent: string
   /** Optional: hierarchy tree built from taxonomy + hierarchy matrices */
-  tree?: TreeNode[];
+  tree?: TreeNode[]
   /** Optional: relationships from graph_edges + wikilinks */
-  relationships?: Relationship[];
+  relationships?: Relationship[]
   /** Optional: analysis/evaluation entries */
-  analysis?: AnalysisEntry[];
+  analysis?: AnalysisEntry[]
   /** Optional: raw body text per concept for round-trip fidelity */
-  rawSections?: Record<string, string>;
+  rawSections?: Record<string, string>
   /** Slug collisions detected during parsing (FR-002). */
-  slugCollisions?: Array<{ slug: string; elements: string[]; concept: string }>;
+  slugCollisions?: Array<{ slug: string; elements: string[]; concept: string }>
   /** Non-fatal parse warnings (e.g. deprecated features). */
-  parseWarnings?: string[];
+  parseWarnings?: string[]
 }
 
 export interface SpecCache {
-  specs: Map<string, SpecDocument>;
-  chain: string[];
+  specs: Map<string, SpecDocument>
+  chain: string[]
 }
 
 export interface SpecDocument {
-  name: string;
-  level: SpecLevel;
-  parentName?: string;
-  parentUrl?: string;
-  frontmatter: SpecFrontmatter;
-  rawContent: string;
+  name: string
+  level: SpecLevel
+  parentName?: string
+  parentUrl?: string
+  frontmatter: SpecFrontmatter
+  rawContent: string
 }
 
 export interface ValidationError {
-  path: string;
-  message: string;
-  severity: 'error' | 'warning';
+  path: string
+  message: string
+  severity: 'error' | 'warning'
 }
 
 export interface ValidationResult {
-  valid: boolean;
-  errors: ValidationError[];
-  warnings: ValidationError[];
+  valid: boolean
+  errors: ValidationError[]
+  warnings: ValidationError[]
 }
 
 /* ── Validation check types (from app validator) ── */
@@ -248,13 +252,13 @@ export interface SyntaxCheck {
 }
 
 export interface FileDriverOptions {
-  encoding?: string;
+  encoding?: string
 }
 
 export interface ResolverOptions {
-  cacheDir?: string;
-  maxDepth?: number;
-  timeout?: number;
+  cacheDir?: string
+  maxDepth?: number
+  timeout?: number
 }
 
 /* ── Graph / App Model Types (moved from apps/innfo-editor/src/model/types.ts) ── */

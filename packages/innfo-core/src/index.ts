@@ -1,4 +1,4 @@
-export * from './types';
+export * from './types'
 
 export {
   parseYaml,
@@ -13,7 +13,7 @@ export {
   extractAnalysis,
   slugify,
   deriveElementSlugs,
-} from './parser';
+} from './parser'
 
 export {
   resolveParentChain,
@@ -21,20 +21,16 @@ export {
   getTemplate,
   getFormatSpec,
   getDefiNNe,
-} from './resolver';
+} from './resolver'
 
-export {
-  validateModel,
-  validateFormatContent,
-  validateFormatSyntax,
-} from './validator';
+export { validateModel, validateFormatContent, validateFormatSyntax } from './validator'
 
-export * from './identity';
-export * from './metamodel';
-export * from './recursiveParser';
-export * from './driver';
-export type { ModelDriver, ModelEntry } from './driver';
-export { createDriver } from './driver';
-export * from './fs-types';
-export { listModels, resolveSpecVersionFromFilename } from './helpers';
-export type { ModelInfo } from './helpers';
+export * from './identity'
+export * from './metamodel'
+export * from './recursiveParser'
+export * from './driver'
+export type { ModelDriver, ModelEntry } from './driver'
+export { createDriver } from './driver-unified'
+export * from './fs-types'
+export { listModels, resolveSpecVersionFromFilename } from './helpers'
+export type { ModelInfo } from './helpers'

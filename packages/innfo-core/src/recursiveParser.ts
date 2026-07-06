@@ -1,18 +1,26 @@
 import { parseModel } from './parser'
 import type { ElementNode, ParsedModel, ModelNode, FieldValue, LocalMetamodel } from './types'
-import { IdentityRegistry, buildQualifiedId } from './identity'
-import type { DirectoryHandleLike, FileHandleLike } from './fs-types'
-import { resolveEffectiveMetamodel } from './metamodel'
+import { IdentityRegistry } from './identity'
+import type { DirectoryHandleLike } from './fs-types'
 import type { ModelDriver } from './driver'
 
-const INNFO_FILE_SUFFIX = '_NN.md'
+const INNFO_FILE_SUFFIX = '.md'
+const INDEX_MD = 'index.md'
+
+/**
+ * Strips the final `.md` suffix from a filename to derive the model name.
+ * Handles both `_NN.md` and bare `.md` filenames.
+ */
+function stripMdSuffix(filename: string): string {
+  return filename.replace(/\.md$/i, '')
+}
 
 /**
  * Resolves a relative graph edge target path to an absolute qualified node id.
  * Supports ../ for sibling directories, ../../ for ancestor jumps.
  */
 export function resolveGraphEdgeTarget(target: string, sourcePath: string): string {
-  const sourceDir = sourcePath.replace(/\/_NN\.md$/i, '')
+  const sourceDir = sourcePath.replace(/\/[^/]+\.md$/i, '')
   const sourceParts = sourceDir.split('/').filter(Boolean)
   const targetParts = target.split('/').filter(Boolean)
 
@@ -33,7 +41,10 @@ export function resolveGraphEdgeTarget(target: string, sourcePath: string): stri
  * back to a relative path from sourcePath.
  */
 export function resolveQualifiedIdToPath(qualifiedId: string, sourcePath: string): string {
-  const sourceParts = sourcePath.replace(/\/_NN\.md$/i, '').split('/').filter(Boolean)
+  const sourceParts = sourcePath
+    .replace(/\/[^/]+\.md$/i, '')
+    .split('/')
+    .filter(Boolean)
   const targetParts = qualifiedId.split('/').filter(Boolean)
 
   let i = 0
@@ -206,11 +217,14 @@ function resolveElementAssets(
   // Build a map of concept name -> asset field definitions
   const assetFieldsByConcept = new Map<string, Array<{ name: string; type: string }>>()
   for (const concept of parsed.frontmatter.concepts ?? []) {
-    const assetFields = (concept.fields ?? []).filter(f =>
-      f.type === 'image' || f.type === 'file' || f.type === 'video' || f.type === 'audio'
+    const assetFields = (concept.fields ?? []).filter(
+      (f) => f.type === 'image' || f.type === 'file' || f.type === 'video' || f.type === 'audio',
     )
     if (assetFields.length > 0) {
-      assetFieldsByConcept.set(concept.name, assetFields.map(f => ({ name: f.name, type: f.type })))
+      assetFieldsByConcept.set(
+        concept.name,
+        assetFields.map((f) => ({ name: f.name, type: f.type })),
+      )
     }
   }
 
@@ -235,15 +249,130 @@ function resolveElementAssets(
       for (const fieldDef of assetFields) {
         const fieldValue = el.fields[fieldDef.name]
         if (typeof fieldValue === 'string' && fieldValue.trim()) {
-          const assetDir = assetMode === 'per-element' && el.slug
-            ? `${modelDir}/${el.slug}`
-            : `${modelDir}/assets`
+          const assetDir =
+            assetMode === 'per-element' && el.slug ? `${modelDir}/${el.slug}` : `${modelDir}/assets`
           paths.push(`${assetDir}/${fieldValue.trim()}`)
         }
       }
 
       if (paths.length > 0) {
         node.assets = [...(node.assets ?? []), ...paths]
+      }
+    }
+  }
+}
+
+/**
+ * Parses a single model file and registers its root node and elements into ctx.
+ * Shared by the wikilink-driven path (index.md present) and the fallback path
+ * (index.md missing — standalone _NN.md files).
+ */
+async function parseAndRegisterModel(
+  content: string,
+  refPath: string,
+  refName: string,
+  ctx: ParseContext,
+  elementNameToModel: Map<string, string>,
+): Promise<void> {
+  let parsed: ParsedModel
+  try {
+    parsed = parseModel(content)
+  } catch (err) {
+    ctx.issues.push({
+      path: refPath,
+      message: err instanceof Error ? err.message : String(err),
+    })
+    return
+  }
+
+  // Skip files without iNNfo frontmatter — not a model (§2.1)
+  if (!parsed.frontmatter.spec_version) {
+    return
+  }
+
+  // Determine asset mode (FR-004, default centralized)
+  const assetMode = parsed.frontmatter.asset_mode ?? 'centralized'
+
+  // Create root node for this model
+  const qualifiedId = ctx.identity.register(null, refName)
+  const rootNode: ModelNode = {
+    id: qualifiedId,
+    name: refName,
+    parentId: null,
+    childIds: [],
+    type: (parsed.frontmatter.title as string) || 'document',
+    kind: 'root',
+    fields: toFieldValues(parsed.frontmatter as Record<string, unknown>),
+    markers: {},
+    relationships: [],
+    assetMode,
+    rawSections: {},
+    rawContent: content,
+    localMetamodel: toLocalMetamodel(parsed),
+    sourceMode: 'parsed',
+    source: { path: refPath },
+  }
+
+  // Parse graph_edges from frontmatter into relationships
+  if (parsed.frontmatter.graph_edges) {
+    const graphEdges = parsed.frontmatter.graph_edges as Array<{
+      target: string
+      label: string
+      weight?: number
+    }>
+    for (const edge of graphEdges) {
+      rootNode.relationships.push({
+        targetId: resolveGraphEdgeTarget(edge.target, refPath),
+        label: edge.label,
+        value: edge.weight,
+      })
+    }
+  }
+
+  // Store matrix definitions as __matrix_defs for UI components
+  const fmMatrices = (parsed.frontmatter as any)?.matrices
+  if (Array.isArray(fmMatrices) && fmMatrices.length > 0) {
+    rootNode.fields['__matrix_defs'] = {
+      value: fmMatrices.map((m: any) => ({
+        name: m.name,
+        source: m.source,
+        target: m.target,
+        widgetType: m.widgetType || 'text',
+        params: m.params || '',
+      })),
+      provenance: { author: { kind: 'system', id: 'parser' }, timestamp: nowIso() },
+    }
+  }
+
+  // Store matrix cell values as root node fields for MatricesGrid
+  for (const matrix of parsed.matrices) {
+    const prefix = matrix.name + '||'
+    for (const cell of matrix.cells) {
+      if (cell.row && cell.col) {
+        rootNode.fields[prefix + cell.row + '||' + cell.col] = {
+          value: cell.value,
+          provenance: { author: { kind: 'system', id: 'parser' }, timestamp: nowIso() },
+        }
+      }
+    }
+  }
+
+  ctx.nodes[qualifiedId] = rootNode
+
+  // Normalize in-file elements
+  normalizeElementsIntoGraph(parsed, qualifiedId, refPath, ctx)
+
+  // Track element names per model for cross-model collision detection (FR-005)
+  for (const [, elementNodes] of parsed.elements.entries()) {
+    for (const el of elementNodes) {
+      if (elementNameToModel.has(el.name)) {
+        const existingModel = elementNameToModel.get(el.name)!
+        ctx.issues.push({
+          path: '<root>',
+          message: `Element "${el.name}" appears in both "${existingModel}" and "${refName}" — consider renaming to "${el.name} (${refName})"`,
+        })
+      } else {
+        elementNameToModel.set(el.name, refName)
       }
     }
   }
@@ -267,9 +396,21 @@ function isNotFound(err: unknown): boolean {
  * Parses a workspace by reading `index.md` as the single entry point.
  *
  * Step 1: Read index.md from root handle (or driver)
- * Step 2: Extract wikilink targets from index.md body
+ * Step 2: Extract wikilink targets from index.md body (any `.md` file)
  * Step 3: For each wikilink target → resolve file, parseModel, normalize elements
  * Step 4: Report identity collisions
+ *
+ * Only files with a valid iNNfo YAML frontmatter (`spec_version` field) are
+ * registered as models — plain Markdown files are silently skipped.
+ *
+ * **Fallback**: When `index.md` is missing and no `driver` is provided, the
+ * root directory is scanned for standalone `.md` files (excluding `index.md`)
+ * and each valid iNNfo model is loaded as an independent root node. The
+ * missing-index.md issue is still reported as the first warning in `issues[]`.
+ *
+ * **Naming convention**: The `_NN.md` suffix is RECOMMENDED (§8.1) but no
+ * longer required — any `.md` filename works. The validator reports a warning
+ * for files that don't follow the convention.
  *
  * When `driver` is provided, model reads go through `driver.readModel()` instead of
  * raw DirectoryHandleLike interactions.
@@ -293,11 +434,65 @@ export async function recursiveParse(
     }
   } catch (err) {
     if (isNotFound(err)) {
-      return {
-        nodes: {},
-        rootIds: [],
-        issues: [{ path: '<root>', message: 'Missing index.md — workspace root must contain an index.md file' }],
+      // Fallback: when index.md is missing, scan root for standalone .md files
+      if (!driver) {
+        const modelRefsFromScan: Array<{ name: string; path: string }> = []
+        for await (const [name, entry] of root.entries()) {
+          // Accept any .md file except index.md itself
+          if (entry.kind === 'file' && name.endsWith(INNFO_FILE_SUFFIX) && name.toLowerCase() !== INDEX_MD) {
+            modelRefsFromScan.push({ name: stripMdSuffix(name), path: name })
+          }
+        }
+
+        const elementNameToModel = new Map<string, string>()
+        for (const ref of modelRefsFromScan) {
+          let content: string
+          try {
+            const fileHandle = await root.getFileHandle(ref.path)
+            const file = await fileHandle.getFile()
+            content = await file.text()
+          } catch (scanErr) {
+            if (isNotFound(scanErr)) {
+              ctx.issues.push({
+                path: ref.path,
+                message: `Referenced model "${ref.path}" not found — skipping`,
+              })
+              continue
+            }
+            ctx.issues.push({
+              path: ref.path,
+              message: scanErr instanceof Error ? scanErr.message : String(scanErr),
+            })
+            continue
+          }
+
+          await parseAndRegisterModel(content, ref.path, ref.name, ctx, elementNameToModel)
+        }
+
+        // Surface identity collisions even in fallback mode
+        for (const collision of ctx.identity.getCollisions()) {
+          ctx.issues.push({
+            path: collision.parentQualifiedId ?? '<root>',
+            message: collision.message,
+          })
+        }
       }
+
+      // Add the missing index.md issue as the first warning (downgraded when fallback found models)
+      const rootCount = Object.values(ctx.nodes).filter((n) => n.parentId === null).length
+      ctx.issues.unshift({
+        path: '<root>',
+        message:
+          rootCount > 0
+            ? `No index.md found — loaded ${rootCount} standalone model(s) from root directory`
+            : 'Missing index.md — workspace root must contain an index.md file',
+      })
+
+      const rootIds = Object.values(ctx.nodes)
+        .filter((n) => n.parentId === null)
+        .map((n) => n.id)
+
+      return { nodes: ctx.nodes, rootIds, issues: ctx.issues }
     }
     return {
       nodes: {},
@@ -313,9 +508,10 @@ export async function recursiveParse(
   let match: RegExpExecArray | null
   while ((match = wikilinkRegex.exec(body)) !== null) {
     const target = match[1].trim()
-    // Only treat wikilinks ending in _NN.md as model references
-    if (target.endsWith(INNFO_FILE_SUFFIX)) {
-      const name = target.slice(0, -INNFO_FILE_SUFFIX.length)
+    // Treat wikilinks ending in .md as model references
+    // (the _NN.md suffix is recommended but not required — §8.1)
+    if (target.endsWith(INNFO_FILE_SUFFIX) && target.toLowerCase() !== INDEX_MD) {
+      const name = stripMdSuffix(target)
       modelRefs.push({ name, path: target })
     }
   }
@@ -351,72 +547,8 @@ export async function recursiveParse(
       continue
     }
 
-    // Parse model content
-    let parsed: ParsedModel
-    try {
-      parsed = parseModel(content)
-    } catch (err) {
-      ctx.issues.push({
-        path: ref.path,
-        message: err instanceof Error ? err.message : String(err),
-      })
-      continue
-    }
-
-    // Determine asset mode (FR-004, default centralized)
-    const assetMode = parsed.frontmatter.asset_mode ?? 'centralized'
-
-    // Create root node for this model
-    const qualifiedId = ctx.identity.register(null, ref.name)
-    const rootNode: ModelNode = {
-      id: qualifiedId,
-      name: ref.name,
-      parentId: null,
-      childIds: [],
-      type: (parsed.frontmatter.title as string) || 'document',
-      kind: 'root',
-      fields: {},
-      markers: {},
-      relationships: [],
-      assetMode,
-      rawSections: {},
-      rawContent: content,
-      localMetamodel: toLocalMetamodel(parsed),
-      sourceMode: 'parsed',
-      source: { path: ref.path },
-    }
-
-    // Parse graph_edges from frontmatter into relationships
-    if (parsed.frontmatter.graph_edges) {
-      const graphEdges = parsed.frontmatter.graph_edges as Array<{ target: string; label: string; weight?: number }>
-      for (const edge of graphEdges) {
-        rootNode.relationships.push({
-          targetId: resolveGraphEdgeTarget(edge.target, ref.path),
-          label: edge.label,
-          value: edge.weight,
-        })
-      }
-    }
-
-    ctx.nodes[qualifiedId] = rootNode
-
-    // Normalize in-file elements
-    normalizeElementsIntoGraph(parsed, qualifiedId, ref.path, ctx)
-
-    // Track element names per model for cross-model collision detection
-    for (const [, elementNodes] of parsed.elements.entries()) {
-      for (const el of elementNodes) {
-        if (elementNameToModel.has(el.name)) {
-          const existingModel = elementNameToModel.get(el.name)!
-          ctx.issues.push({
-            path: '<root>',
-            message: `Element "${el.name}" appears in both "${existingModel}" and "${ref.name}" — consider renaming to "${el.name} (${ref.name})"`,
-          })
-        } else {
-          elementNameToModel.set(el.name, ref.name)
-        }
-      }
-    }
+    // Parse and register the model (shared helper — also used by index.md fallback)
+    await parseAndRegisterModel(content, ref.path, ref.name, ctx, elementNameToModel)
   }
 
   // Step 4: Surface identity collisions as parse issues
@@ -428,8 +560,8 @@ export async function recursiveParse(
   }
 
   const rootIds = Object.values(ctx.nodes)
-    .filter(n => n.parentId === null)
-    .map(n => n.id)
+    .filter((n) => n.parentId === null)
+    .map((n) => n.id)
 
   return { nodes: ctx.nodes, rootIds, issues: ctx.issues }
 }
