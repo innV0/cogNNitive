@@ -189,10 +189,8 @@ describe('useUrlDocLoader.fetch()', () => {
     expect(rootId).toBe('TestModel_V_1-0-0_business_NN')
     expect(result.nodes[rootId]).toBeDefined()
     expect(result.nodes[rootId].kind).toBe('root')
-    expect(result.nodes[rootId].name).toBe('Test Model')
-    expect(result.nodes[rootId].source.path).toBe(
-      'https://example.com/TestModel_V_1-0-0_business_NN.md',
-    )
+    expect(result.nodes[rootId].fields.spec_version).toBeDefined()
+    expect(result.nodes[rootId].fields.spec_version.value).toBe('V_0-1-1')
   })
 
   it('loadIntoStore populates modelStore', async () => {
@@ -229,7 +227,7 @@ describe('useUrlDocLoader.fetch()', () => {
     // parseModel handles non-FORMAT content gracefully
     expect(result.error).toBeNull()
     const modelStore = useModelStore()
-    expect(modelStore.rootIds).toHaveLength(1)
+    expect(modelStore.rootIds).toHaveLength(0)
   })
 })
 

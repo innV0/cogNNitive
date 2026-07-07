@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import Header from '../components/layout/Header.vue'
 import LeftSidebar from '../components/layout/LeftSidebar.vue'
@@ -9,11 +9,11 @@ import ToastMessage from '../components/ToastMessage.vue'
 import { useWorkspaceStore } from '../stores/workspaceStore'
 import { useModelStore } from '../stores/modelStore'
 import { useUiStore, type ActiveView } from '../stores/uiStore'
-import type { ValidationReport as ValidationReportType } from '../shared/validation-types'
+import { useMetamodelStore } from '../stores/metamodelStore'
 import { useToast } from '../shared/useToast'
 import { useHashSync } from '../composables/useHashSync'
-import { AlertTriangle, X } from 'lucide-vue-next'
 import { ValidationService } from '../services/ValidationService'
+import type { ModelNode } from '../model/types'
 
 // Dynamic sub-editors
 const BlockFeed = defineAsyncComponent(() => import('../components/editor/BlockFeed.vue'))
@@ -30,6 +30,7 @@ const router = useRouter()
 const workspaceStore = useWorkspaceStore()
 const modelStore = useModelStore()
 const uiStore = useUiStore()
+const metamodelStore = useMetamodelStore()
 const { show } = useToast()
 const validationService = new ValidationService(modelStore, show)
 
@@ -41,16 +42,8 @@ useHashSync()
 const validationReport = computed(() => modelStore.validationReport)
 const validating = ref(false)
 
-// Watch validation report to automatically show the report if errors are present on load
-watch(
-  () => modelStore.validationReport,
-  (newReport) => {
-    if (newReport && newReport.summary.errors > 0) {
-      uiStore.setShowValidationReport(true)
-    }
-  },
-  { immediate: true }
-)
+// Validation report is set silently on import (auto-run in setGraph → validateModel).
+// The overlay only opens on explicit Validate button click (runValidation).
 
 // ── Derived ──
 const selectedNodeId = computed(() => uiStore.selectedNodeId)
@@ -70,42 +63,77 @@ const rootNode = computed(() => {
 })
 
 /** Determines which editor sub-view to render based on node characteristics. */
+const isConceptLike = (node: { kind?: string }) =>
+  node.kind === 'concept' || node.kind === 'root'
+
 const editorView = computed<'text' | 'tree' | 'sheet'>(() => {
   if (!selectedNode.value) return 'sheet'
   // Nodes with rawContent get the TextEditor (FILE-mode)
   if (selectedNode.value.rawContent) return 'text'
+  // Concept/root nodes always show BlockFeed (sheet) — not TreeEditor
+  if (isConceptLike(selectedNode.value)) return 'sheet'
   // Nodes with children get the TreeEditor (structural)
   if (selectedNode.value.childIds.length > 0) return 'tree'
   // Everything else gets a BlockSheet view
   return 'sheet'
 })
 
+const getConceptFieldsForNode = (node: ModelNode) => {
+  const metamodelFields = metamodelStore.getConceptFields(node.type) ?? []
+  const fieldsMap = new Map<string, { name: string; type: string }>()
+
+  for (const f of metamodelFields) {
+    fieldsMap.set(f.name, { name: f.name, type: f.type })
+  }
+
+  if (node.fields) {
+    for (const [key, fv] of Object.entries(node.fields)) {
+      if (!fieldsMap.has(key)) {
+        const val = (fv as any).value
+        const rawType = typeof val
+        let type = rawType === 'boolean' ? 'boolean' : 'string'
+        if (rawType === 'number') {
+          type = Number.isInteger(val) && val >= 1 && val <= 5 ? 'rating' : 'number'
+        } else if (rawType === 'string') {
+          if (/^#[0-9a-fA-F]{6}$/.test(val)) type = 'color'
+          else if (/^https?:\/\//.test(val)) type = 'url'
+          else if (/^\d{4}-\d{2}-\d{2}$/.test(val)) type = 'date'
+        }
+        fieldsMap.set(key, { name: key, type })
+      }
+    }
+  }
+
+  return Array.from(fieldsMap.values())
+}
+
 const activeConceptFields = computed(() => {
   const node = selectedNode.value
-  if (!node?.fields) return []
-  return Object.keys(node.fields).map((key) => {
-    const val = node.fields[key].value
-    const rawType = typeof val
-    let type = rawType === 'boolean' ? 'boolean' : 'string'
-    if (rawType === 'number') {
-      type = Number.isInteger(val) && val >= 1 && val <= 5 ? 'rating' : 'number'
-    } else if (rawType === 'string') {
-      if (/^#[0-9a-fA-F]{6}$/.test(val)) type = 'color'
-      else if (/^https?:\/\//.test(val)) type = 'url'
-      else if (/^\d{4}-\d{2}-\d{2}$/.test(val)) type = 'date'
-    }
-    return { name: key, type }
-  })
+  if (!node) return []
+  return getConceptFieldsForNode(node)
 })
 
 const conceptBlock = computed(() => {
   const node = selectedNode.value
   if (!node) return { id: '', name: '', description: '' }
+  const metamodelFields = metamodelStore.getConceptFields(node.type) ?? []
+  const fields: Record<string, any> = {}
+
+  for (const f of metamodelFields) {
+    fields[f.name] = f.type === 'boolean' ? false : ''
+  }
+
+  if (node.fields) {
+    for (const [k, fv] of Object.entries(node.fields)) {
+      fields[k] = (fv as any).value
+    }
+  }
+
   return {
     id: node.id,
     name: node.name,
     description: node.rawSections?.description || '',
-    fields: Object.fromEntries(Object.entries(node.fields).map(([k, fv]) => [k, fv.value])),
+    fields,
   }
 })
 
@@ -136,6 +164,7 @@ const activeEditorProps = computed(() => {
     conceptFields: activeConceptFields.value,
     items: [],
     isListConcept: false,
+    validationReport: validationReport.value,
   }
 })
 
@@ -205,7 +234,7 @@ function onSelectMatrix(idx: number): void {
 function onSelectView(view: string): void {
   if (view === 'metamatrix-config') {
     uiStore.setActiveView('matrices')
-    // We stay in matrices view which already shows MetamatrixConfig above MatricesGrid
+    uiStore.showMetamatrixConfig = !uiStore.showMetamatrixConfig
   }
 }
 
@@ -239,17 +268,17 @@ function closeWorkspace(): void {
 
 // ── Keyboard shortcuts ──
 
-  async function onKeydown(e: KeyboardEvent): Promise<void> {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-      e.preventDefault()
-      try {
-        await workspaceStore.saveActiveFile()
-        show('Saved successfully.', 'success')
-      } catch {
-        show('Save failed.', 'error')
-      }
+async function onKeydown(e: KeyboardEvent): Promise<void> {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault()
+    try {
+      await workspaceStore.saveActiveFile()
+      show('Saved successfully.', 'success')
+    } catch {
+      show('Save failed.', 'error')
     }
   }
+}
 
 onMounted(() => {
   window.addEventListener('keydown', onKeydown)
@@ -288,7 +317,7 @@ onUnmounted(() => {
           <!-- View switcher -->
           <div class="flex items-center gap-1 px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800">
             <button
-              v-for="view in ['editor', 'graph', 'matrices', 'info'] as const"
+              v-for="view in ['editor', 'graph', 'matrices'] as const"
               :key="view"
               :data-testid="'view-switcher-' + view"
               class="px-2.5 py-1 text-xs font-medium rounded transition-all cursor-pointer capitalize"
@@ -322,15 +351,22 @@ onUnmounted(() => {
 
         <!-- ── Editor View ── -->
         <template v-if="uiStore.activeView === 'editor'">
-          <div v-if="selectedNodeId && !uiStore.showValidationReport" class="flex-1 p-4 overflow-y-auto">
+          <div
+            v-if="selectedNodeId && !uiStore.showValidationReport"
+            class="flex-1 p-4 overflow-y-auto"
+          >
             <component
               :is="activeEditorComponent"
+              :key="selectedNodeId"
               v-bind="activeEditorProps"
               v-on="activeEditorEvents"
             />
           </div>
 
-          <div v-else-if="uiStore.showValidationReport && validationReport" class="flex-1 p-4 overflow-y-auto">
+          <div
+            v-else-if="uiStore.showValidationReport && validationReport"
+            class="flex-1 p-4 overflow-y-auto"
+          >
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-sm font-semibold">Validation Report</h3>
               <button
@@ -365,7 +401,7 @@ onUnmounted(() => {
         <!-- ── Matrices View ── -->
         <template v-else-if="uiStore.activeView === 'matrices'">
           <div class="flex-1 flex flex-col min-h-0 p-4 overflow-y-auto">
-            <MetamatrixConfig class="mb-6" />
+            <MetamatrixConfig v-if="uiStore.showMetamatrixConfig" class="mb-6" />
             <MatricesGrid
               :matrix-index="uiStore.activeMatrixIndex"
               @cell-change="(_key, _val) => {}"

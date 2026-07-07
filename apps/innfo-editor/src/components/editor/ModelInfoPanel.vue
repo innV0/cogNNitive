@@ -311,10 +311,7 @@ import {
   DEFAULT_TEMPLATE_VERSION,
   buildSpecificationUrl,
 } from '../../utils/constants'
-import {
-  bumpVersion,
-  formatVersionString,
-} from '../../utils/version'
+import { bumpVersion, formatVersionString } from '../../utils/version'
 import type { BumpLevel, SemVer } from '../../utils/version'
 
 const props = defineProps<{
@@ -398,7 +395,7 @@ const specUrl = computed(() => buildSpecificationUrl(formatVersion.value))
 
 // ── Version Management ─────────────────────────────────────────────────
 
-const showVersionPanel = ref(true)
+const showVersionPanel = ref(false)
 const selectedLevel = ref<BumpLevel | null>(null)
 
 const bumpLevels: BumpLevel[] = ['major', 'minor', 'patch']

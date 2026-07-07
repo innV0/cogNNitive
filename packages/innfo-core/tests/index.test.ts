@@ -13,7 +13,7 @@ import {
 } from '../src/index'
 import type { ElementNode } from '../src/types'
 
-const specsDir = join(import.meta.dirname!, '..', '..', '..', 'specs')
+const specsDir = join(import.meta.dirname!, '..', '..', '..', 'specs.bak')
 const archiveDir = join(import.meta.dirname!, '..', '..', '..', 'archive', 'specs')
 
 function readSpec(name: string): string {

@@ -189,7 +189,7 @@
             </div>
           </div>
 
-          <!-- Scrollable grid (both axes) -->
+          <!-- Scrollable grid (both axes) with sticky first row/col via layout sync -->
           <div ref="scrollRef" class="flex-1 overflow-auto" @scroll="onMatrixScroll">
             <div
               v-if="rows.length && columns.length"
@@ -353,7 +353,8 @@ import { commitFieldValue } from '../../shared/provenance'
 // ── Constants ──
 const ROW_HEIGHT = 48
 const HEADER_HEIGHT = 40
-const FIRST_COL_WIDTH = 150
+const FIRST_COL_WIDTH = 180
+const MIN_COL_WIDTH = 140
 const OVERSCAN = 3
 
 const props = defineProps<{
@@ -469,10 +470,11 @@ const columns = computed(() => {
 
 // ── Column width from params (default 120px) ──
 const colWidth = computed(() => {
-  if (!activeMatrix.value) return 120
+  if (!activeMatrix.value) return MIN_COL_WIDTH
   const params = activeMatrix.value.params
   const match = params?.match(/colWidth:(\d+)/)
-  return match ? parseInt(match[1]) : 120
+  const w = match ? parseInt(match[1]) : 180
+  return Math.max(w, MIN_COL_WIDTH)
 })
 
 const scaleRange = computed(() => {

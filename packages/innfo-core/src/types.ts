@@ -35,6 +35,14 @@ export interface MatrixDecl {
   source: string
   target: string
   params: string
+  /** Widget type for matrix cell interaction: 'boolean' | 'cycle' | 'scale' | 'set' | 'text' */
+  widgetType?: string
+  /** Min heatmap color (CSS color) */
+  min_color?: string
+  /** Max heatmap color (CSS color) */
+  max_color?: string
+  /** Display label for the relationship */
+  label?: string
 }
 
 export type RelationshipType = 'hierarchy' | 'evaluable_matrix' | 'graph_edge' | 'sequence'

@@ -70,13 +70,14 @@ defineEmits<{
 // Resolve concept icon from modelStore nodes by type
 function getConceptIcon(typeName: string | undefined): string {
   if (!typeName) return 'table-2'
+  const lowerType = typeName.toLowerCase()
   // Find first node with this type and check its localMetamodel
   for (const node of Object.values(modelStore.nodes)) {
-    if (node.conceptBinding?.name === typeName) {
+    if (node.conceptBinding?.name?.toLowerCase() === lowerType) {
       return 'table-2'
     }
-    if (node.type === typeName && node.localMetamodel?.concepts) {
-      const match = node.localMetamodel.concepts.find((c) => c.name === typeName)
+    if (node.type?.toLowerCase() === lowerType && node.localMetamodel?.concepts) {
+      const match = node.localMetamodel.concepts.find((c) => c.name.toLowerCase() === lowerType)
       if (match?.icon) return match.icon
     }
   }
@@ -85,12 +86,13 @@ function getConceptIcon(typeName: string | undefined): string {
 
 function getConceptColor(typeName: string | undefined): string | null {
   if (!typeName) return null
+  const lowerType = typeName.toLowerCase()
   // Check localMetamodel of root for concept color
   const rootId = modelStore.rootIds[0]
   if (!rootId) return null
   const root = modelStore.getNode(rootId)
   if (root?.localMetamodel?.concepts) {
-    const match = root.localMetamodel.concepts.find((c) => c.name === typeName)
+    const match = root.localMetamodel.concepts.find((c) => c.name.toLowerCase() === lowerType)
     if (match?.color) return match.color
   }
   return null

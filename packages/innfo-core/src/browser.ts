@@ -17,12 +17,22 @@ export * from './metamodel'
 export * from './fs-types'
 export {
   recursiveParse,
+  normalizeSingleModel,
   resolveGraphEdgeTarget,
   resolveQualifiedIdToPath,
   type ParseIssue,
   type RecursiveParseResult,
 } from './recursiveParser'
 // Browser-safe driver stub (Node.js driver implementations are excluded
-// as they depend on node:fs/promises — resolver is excluded for the same reason)
+// as they depend on node:fs/promises)
 export { createDriver } from './driver-browser'
 export type { ModelDriver, ModelEntry } from './driver-browser'
+
+export {
+  getSpecForLevel,
+  getTemplate,
+  getFormatSpec,
+  getDefiNNe,
+  SpecResolutionError,
+} from './resolver'
+export type { SpecResolver } from './resolver'

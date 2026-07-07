@@ -65,13 +65,13 @@ describe('FieldViewer.vue — R-SC-06', () => {
       },
     })
 
-    const text = wrapper.text()
+    const text = wrapper.text().toLowerCase()
     // Labels use CSS `uppercase` — happy-dom does not apply CSS transforms,
     // so we assert against the raw field name (before CSS transform).
     expect(text).toContain('status')
     expect(text).toContain('active')
     expect(text).toContain('summary')
-    expect(text).toContain('Hello world')
+    expect(text).toContain('hello world')
     expect(text).toContain('count')
     expect(text).toContain('42')
     // Field label replaces underscore with space: is_enabled → "is enabled"

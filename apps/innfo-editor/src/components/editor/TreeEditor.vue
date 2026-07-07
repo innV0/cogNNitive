@@ -37,7 +37,7 @@
         </div>
         <div class="space-y-2">
           <BlockSheet
-            v-for="(child) in childNodes"
+            v-for="child in childNodes"
             :key="child.id"
             :block="blockFromNode(child)"
             :kind="'instance'"
@@ -45,7 +45,7 @@
             :concept-type="child.type || activeConceptType || 'text'"
             :concept-icon="childIcon(child)"
             :concept-color="childColor(child)"
-            :concept-fields="activeConceptFields"
+            :concept-fields="getConceptFieldsForNode(child)"
             :has-markers="activeConceptType === 'weight'"
             :show-delete="true"
             :collapsed="true"
@@ -74,6 +74,11 @@
 import { ref, computed, watch } from 'vue'
 import { FolderOpen } from 'lucide-vue-next'
 import { useModelStore } from '../../stores/modelStore'
+import { useMetamodelStore } from '../../stores/metamodelStore'
+import {
+  getConceptFieldsForNode as getConceptFieldsForNodeHelper,
+  getMergedBlockFields,
+} from '../../utils/metamodelHelper'
 import BlockSheet from './BlockSheet.vue'
 import type { ModelNode } from '../../model/types'
 
@@ -87,6 +92,7 @@ const _emit = defineEmits<{
 }>()
 
 const modelStore = useModelStore()
+const metamodelStore = useMetamodelStore()
 
 const isCollapsed = ref(false)
 const isEditing = ref(false)
@@ -131,13 +137,14 @@ const activeConceptType = computed(() => {
   return 'text'
 })
 
+const getConceptFieldsForNode = (node: ModelNode) => {
+  return getConceptFieldsForNodeHelper(node, metamodelStore.getConceptFields)
+}
+
 const activeConceptFields = computed(() => {
   const node = selectedNode.value
-  if (!node?.fields) return []
-  return Object.keys(node.fields).map((key) => ({
-    name: key,
-    type: typeof node.fields[key].value === 'boolean' ? 'boolean' : 'string',
-  }))
+  if (!node) return []
+  return getConceptFieldsForNode(node)
 })
 
 // Build a BlockData-compatible object from a ModelNode
@@ -147,7 +154,7 @@ const blockFromNode = (node: ModelNode) => {
     id: node.id,
     name: node.name,
     description: node.rawSections?.description || '',
-    fields: Object.fromEntries(Object.entries(node.fields).map(([k, fv]) => [k, fv.value])),
+    fields: getMergedBlockFields(node, metamodelStore.getConceptFields),
   }
 }
 

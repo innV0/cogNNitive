@@ -83,7 +83,7 @@
     <!-- ── Children (recursive, with optional virtual grouping) ── -->
     <div
       v-if="hasChildren && !isCollapsed"
-      class="ml-3 pl-2 border-l border-slate-200 dark:border-slate-700 space-y-0.5"
+      class="ml-2 pl-1 border-l border-slate-200 dark:border-slate-700 space-y-0.5"
     >
       <!-- When groupByConcept is set, group flat elements by their type -->
       <template v-if="props.groupByConcept">
@@ -133,10 +133,7 @@
 import { ref, computed, watch } from 'vue'
 import { ChevronDown, ChevronUp } from 'lucide-vue-next'
 import { useModelStore } from '../../stores/modelStore'
-import {
-  useConceptVisuals,
-  getHexColorMedium,
-} from '../../composables/useConceptVisuals'
+import { useConceptVisuals, getHexColorMedium } from '../../composables/useConceptVisuals'
 import BlockPill from '../editor/BlockPill.vue'
 import VirtualGroupNode from './VirtualGroupNode.vue'
 import type { ModelNode } from '../../model/types'
@@ -297,7 +294,7 @@ const rowStyle = computed(() => {
 
   const style: Record<string, string> = {}
 
-  if (sel) {
+  if (sel && isConcept) {
     style.backgroundColor = getHexColorMedium(color)
     style.borderColor = color
     style.borderWidth = '1px'
@@ -309,11 +306,7 @@ const rowStyle = computed(() => {
     style.paddingLeft = 'calc(0.5rem - 2px)'
   } else {
     // Elements: thin transparent left border for alignment
-    style.paddingLeft = '0.75rem'
-    // Small accent via box-shadow instead
-    if (sel) {
-      style.boxShadow = `inset 3px 0 0 0 ${color}`
-    }
+    style.paddingLeft = '0.5rem'
   }
 
   // Ghost state: reduced opacity on the entire row

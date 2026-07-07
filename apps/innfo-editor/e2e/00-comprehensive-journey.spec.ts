@@ -107,4 +107,35 @@ test.describe('Flujo de Negocio Completo: Edición, Guardado y Validación', () 
       await expect(complianceTab.first()).toBeVisible()
     })
   })
+
+  test('Paso 5: Abrir la tabla de conceptos desde el panel del Header (Info) y Table tab', async () => {
+    await test.step('Dado que el usuario ve el panel de información del modelo en el header', async () => {
+      const infoBtn = pageInstance.getByRole('button', { name: /Model Info/i })
+      await expect(infoBtn).toBeVisible()
+    })
+
+    await test.step('Cuando hace clic en el botón Info del header', async () => {
+      const infoBtn = pageInstance.getByRole('button', { name: /Model Info/i })
+      await infoBtn.click()
+    })
+
+    await test.step('Entonces se debe mostrar el panel de información del modelo', async () => {
+      await expect(pageInstance.getByText(/Format Version|Template:|Model Info|iNNfo/i).first()).toBeVisible()
+    })
+
+    await test.step('Cuando vuelve al editor y selecciona un concepto con hijos (Topic)', async () => {
+      await pageInstance.getByRole('button', { name: 'editor' }).click()
+      await pageInstance.getByText('Topic', { exact: true }).first().click()
+    })
+
+    await test.step('Entonces debe aparecer la pestaña "Table" en el BlockSheet', async () => {
+      const tableTab = pageInstance.getByRole('button', { name: 'Table', exact: true })
+      await expect(tableTab).toBeVisible()
+    })
+
+    await test.step('Cuando hace clic en "Table" debe mostrar los elementos como filas', async () => {
+      await pageInstance.getByRole('button', { name: 'Table', exact: true }).click()
+      await expect(pageInstance.getByText('FluxCapacitor')).toBeVisible()
+    })
+  })
 })

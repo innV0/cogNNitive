@@ -16,12 +16,13 @@ export {
 } from './parser'
 
 export {
-  resolveParentChain,
   getSpecForLevel,
   getTemplate,
   getFormatSpec,
   getDefiNNe,
+  SpecResolutionError,
 } from './resolver'
+export type { SpecResolver } from './resolver'
 
 export { validateModel, validateFormatContent, validateFormatSyntax } from './validator'
 

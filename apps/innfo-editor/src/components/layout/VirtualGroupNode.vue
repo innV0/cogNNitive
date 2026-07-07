@@ -53,7 +53,7 @@
     <!-- ── Child elements ── -->
     <div
       v-if="children.length > 0 && !isCollapsed"
-      class="ml-3 pl-2 border-l border-slate-200 dark:border-slate-700 space-y-0.5"
+      class="ml-2 pl-1 border-l border-slate-200 dark:border-slate-700 space-y-0.5"
     >
       <ConceptTreeNode
         v-for="child in children"

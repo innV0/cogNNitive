@@ -66,9 +66,7 @@
 
         <!-- Taxonomy / Perspective -->
         <div v-if="treeBreadcrumb.length > 0" class="space-y-2">
-          <h3
-            class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
-          >
+          <h3 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             Perspective
           </h3>
           <div class="text-xs text-slate-600 dark:text-slate-400 space-y-1">
@@ -78,17 +76,22 @@
                 <span
                   class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-2xs font-medium"
                   :class="crumbClass(crumb)"
-                >{{ crumb.name }}</span>
+                  >{{ crumb.name }}</span
+                >
               </template>
             </div>
             <div v-if="parentSiblings.length > 0" class="mt-2">
-              <span class="text-slate-400 dark:text-slate-500 text-2xs font-semibold uppercase tracking-wider">Neighborhood:</span>
+              <span
+                class="text-slate-400 dark:text-slate-500 text-2xs font-semibold uppercase tracking-wider"
+                >Neighborhood:</span
+              >
               <div class="flex flex-wrap gap-1 mt-1">
                 <span
                   v-for="sib in parentSiblings"
                   :key="sib"
                   class="px-1.5 py-0.5 rounded-full text-2xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                >{{ sib }}</span>
+                  >{{ sib }}</span
+                >
               </div>
             </div>
           </div>
@@ -96,9 +99,7 @@
 
         <!-- Taxonomy Fields -->
         <div v-if="taxonomyFields.length > 0" class="space-y-2">
-          <h3
-            class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
-          >
+          <h3 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             Classification
           </h3>
           <div class="flex flex-wrap gap-1.5">
@@ -233,8 +234,20 @@ const guidance = ref<DocumentationEntry | null>(null)
 const loading = ref(false)
 
 const TAXONOMY_FIELD_NAMES = new Set([
-  'category', 'type', 'domain', 'sector', 'industry', 'field', 'area', 'discipline', 'genre',
-  'kind', 'nature', 'classification', 'group', 'family',
+  'category',
+  'type',
+  'domain',
+  'sector',
+  'industry',
+  'field',
+  'area',
+  'discipline',
+  'genre',
+  'kind',
+  'nature',
+  'classification',
+  'group',
+  'family',
 ])
 
 const selectedModelNode = computed(() => {
@@ -250,7 +263,9 @@ const treeBreadcrumb = computed(() => {
   while (current) {
     crumbs.unshift({ name: current.name, type: current.type || 'node' })
     if (!current.parentId) break
-    current = modelStore.getNode(current.parentId)
+    const nextNode = modelStore.getNode(current.parentId)
+    if (!nextNode) break
+    current = nextNode
   }
   return crumbs
 })
