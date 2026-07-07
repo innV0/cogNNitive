@@ -116,7 +116,6 @@ function arrowPath(from: Box, to: Box): string {
   const mx = (x1 + x2) / 2
   return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`
 }
-
 </script>
 
 <template>

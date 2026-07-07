@@ -139,8 +139,10 @@
 
       <!-- Info button -->
       <button
+        @click="uiStore.setActiveView('info')"
         class="p-1.5 rounded transition-colors cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-        title="View Model Status"
+        :class="uiStore.activeView === 'info' ? 'bg-primary/10 text-primary' : ''"
+        title="View Model Info"
       >
         <Info class="w-4 h-4" />
       </button>
@@ -185,10 +187,15 @@ const modelStore = useModelStore()
 const uiStore = useUiStore()
 
 const hasErrors = computed(() => (modelStore.validationReport?.summary.errors ?? 0) > 0)
-const hasWarnings = computed(() => (modelStore.validationReport?.summary.warnings ?? 0) > 0 || modelStore.parseIssues.length > 0)
+const hasWarnings = computed(
+  () =>
+    (modelStore.validationReport?.summary.warnings ?? 0) > 0 || modelStore.parseIssues.length > 0,
+)
 const isOk = computed(() => !hasErrors.value && !hasWarnings.value)
 const totalErrors = computed(() => modelStore.validationReport?.summary.errors ?? 0)
-const totalWarnings = computed(() => (modelStore.validationReport?.summary.warnings ?? 0) + modelStore.parseIssues.length)
+const totalWarnings = computed(
+  () => (modelStore.validationReport?.summary.warnings ?? 0) + modelStore.parseIssues.length,
+)
 
 const statusClass = computed(() => {
   if (hasErrors.value) {
@@ -243,44 +250,33 @@ const filePath = computed(() => {
   return node.source.path
 })
 
-/**
- * Minimal frontmatter parser for known fields.
- * Extracts formatVersion, templateName, templateVersion from rawContent YAML-like frontmatter.
- */
-function parseFrontmatter(rawContent: string | undefined): Record<string, string> {
-  const result: Record<string, string> = {}
-  if (!rawContent) return result
+const formatVersion = computed(() => {
+  const node = rootNode.value
+  return (node?.fields?.format_version?.value ??
+    node?.fields?.spec_version?.value ??
+    DEFAULT_INNFO_VERSION) as string
+})
 
-  // Match YAML frontmatter between --- delimiters
-  const match = rawContent.match(/^---\s*\n([\s\S]*?)\n---/)
-  if (!match) return result
+const templateName = computed(() => {
+  const node = rootNode.value
+  return (node?.fields?.template_name?.value ??
+    (node?.fields?.parent?.value as any)?.name ??
+    DEFAULT_TEMPLATE_NAME) as string
+})
 
-  const frontmatter = match[1]
-  const fieldPatterns: Record<string, RegExp> = {
-    formatVersion: /^format_version\s*[=:]\s*(.+)$/im,
-    templateName: /^template_name\s*[=:]\s*(.+)$/im,
-    templateVersion: /^template_version\s*[=:]\s*(.+)$/im,
-    modelVersion: /^version\s*[=:]\s*(.+)$/im,
-  }
+const templateVersion = computed(() => {
+  const node = rootNode.value
+  const tVal =
+    node?.fields?.template_version?.value ??
+    (node?.fields?.parent?.value as any)?.version ??
+    DEFAULT_TEMPLATE_VERSION
+  return ((node?.fields?.template?.value as any)?.version ?? tVal) as string
+})
 
-  for (const [key, pattern] of Object.entries(fieldPatterns)) {
-    const fieldMatch = frontmatter.match(pattern)
-    if (fieldMatch) {
-      result[key] = fieldMatch[1].trim()
-    }
-  }
-
-  return result
-}
-
-const frontmatter = computed(() => parseFrontmatter(rootNode.value?.rawContent))
-
-const formatVersion = computed(() => frontmatter.value.formatVersion || DEFAULT_INNFO_VERSION)
-const templateName = computed(() => frontmatter.value.templateName || DEFAULT_TEMPLATE_NAME)
-const templateVersion = computed(
-  () => frontmatter.value.templateVersion || DEFAULT_TEMPLATE_VERSION,
-)
-const modelVersion = computed(() => frontmatter.value.modelVersion || '—')
+const modelVersion = computed(() => {
+  const node = rootNode.value
+  return (node?.fields?.version?.value ?? node?.fields?.model_version?.value ?? '—') as string
+})
 
 const unsavedChanges = computed(() => modelStore.dirtyIds.size > 0)
 

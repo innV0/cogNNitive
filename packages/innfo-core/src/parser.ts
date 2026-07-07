@@ -10,7 +10,7 @@ import {
   Relationship,
   AnalysisEntry,
 } from './types'
-import { parse as yamlParse } from 'yaml'
+import { parse as yamlParse, stringify as yamlStringify } from 'yaml'
 
 const YAML_BLOCK_RE = /^---\r?\n([\s\S]*?)\r?\n---/
 const WIKILINK_RE = /\[\[([^\]]+)\]\]/g
@@ -480,6 +480,20 @@ export function serializeModel(model: ParsedModel): string {
   if (fm.model_version) lines.push(`model_version: "${fm.model_version}"`)
   if (fm.title) lines.push(`title: "${fm.title}"`)
   if (fm.mode) lines.push(`mode: "${fm.mode}"`)
+  if ((fm as any).template !== undefined) {
+    const val = (fm as any).template
+    lines.push(yamlStringify({ template: val }).trim())
+  }
+  if ((fm as any).parent !== undefined) {
+    const val = (fm as any).parent
+    lines.push(yamlStringify({ parent: val }).trim())
+  }
+  if ((fm as any).last_saved !== undefined) {
+    lines.push(`last_saved: "${(fm as any).last_saved}"`)
+  }
+  if ((fm as any).last_updated !== undefined) {
+    lines.push(`last_updated: "${(fm as any).last_updated}"`)
+  }
 
   // Matrix declarations
   const matrices = fm.matrices as
@@ -684,7 +698,6 @@ export function buildHierarchyTree(
   }
   for (const [id, node] of nodeMap) {
     if (!allChildren.has(id)) {
-
       roots.push(node)
     }
   }

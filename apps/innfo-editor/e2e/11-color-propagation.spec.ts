@@ -272,7 +272,9 @@ relationship_declarations:
       async createWritable() {
         const that = this
         return {
-          async write(data: string) { that.content = data },
+          async write(data: string) {
+            that.content = data
+          },
           async close() {},
         }
       }
@@ -294,7 +296,10 @@ test.describe('Level-3 Model Color Propagation', () => {
 
   test('C1: Open workspace and verify model + template both load', async ({ page }) => {
     // Open folder
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     // Wait for tree to render
@@ -309,7 +314,10 @@ test.describe('Level-3 Model Color Propagation', () => {
     }
 
     // Verify concept nodes from the model appear in the tree
-    const bodyText = await page.locator('body').innerText().catch(() => '')
+    const bodyText = await page
+      .locator('body')
+      .innerText()
+      .catch(() => '')
     console.log('C1 tree content:', bodyText.substring(0, 800))
 
     // The model's elements should be rendered
@@ -321,7 +329,10 @@ test.describe('Level-3 Model Color Propagation', () => {
   })
 
   test('C2: Click an element node and verify BlockSheet shows color', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     // Wait for tree
@@ -344,7 +355,10 @@ test.describe('Level-3 Model Color Propagation', () => {
       await page.waitForTimeout(500)
 
       // Check the BlockSheet for the Stakeholders concept color (should be blue)
-      const sheetText = await page.locator('body').innerText().catch(() => '')
+      const sheetText = await page
+        .locator('body')
+        .innerText()
+        .catch(() => '')
       console.log('C2 sheet text:', sheetText.substring(0, 500))
 
       // The BlockSheet should show the concept name "Stakeholders" and element name "Venkman"
@@ -355,7 +369,10 @@ test.describe('Level-3 Model Color Propagation', () => {
   })
 
   test('C3: Graph view renders colored nodes', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
 
     await page.getByText('Ghostbusters').first().waitFor({ state: 'visible', timeout: 10000 })
@@ -381,7 +398,10 @@ test.describe('Level-3 Model Color Propagation', () => {
   })
 
   test('C4: Colors propagate from template peer for level-3 model elements', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
     await page.getByText('Ghostbusters').first().waitFor({ state: 'visible', timeout: 10000 })
 
@@ -400,7 +420,10 @@ test.describe('Level-3 Model Color Propagation', () => {
 
     // The BlockSheet should show "Stakeholders" concept name with blue accent color
     // The concept name appears in the sheet header — check it rendered
-    const sheetText = await page.locator('body').innerText().catch(() => '')
+    const sheetText = await page
+      .locator('body')
+      .innerText()
+      .catch(() => '')
     const hasStakeholdersLabel = sheetText.includes('Stakeholders')
     console.log('C4 sheet has Stakeholders label:', hasStakeholdersLabel)
 
@@ -412,7 +435,10 @@ test.describe('Level-3 Model Color Propagation', () => {
   })
 
   test('C5: Click "Paranormal Infestation" under Problems (red concept)', async ({ page }) => {
-    await page.locator('button', { hasText: /Open folder/i }).first().click()
+    await page
+      .locator('button', { hasText: /Open folder/i })
+      .first()
+      .click()
     await page.waitForURL('**/workspace', { timeout: 15000 })
     await page.getByText('Ghostbusters').first().waitFor({ state: 'visible', timeout: 10000 })
 
@@ -430,7 +456,10 @@ test.describe('Level-3 Model Color Propagation', () => {
     if (problemVisible) {
       await problemEl.click()
       await page.waitForTimeout(500)
-      const sheetText = await page.locator('body').innerText().catch(() => '')
+      const sheetText = await page
+        .locator('body')
+        .innerText()
+        .catch(() => '')
       const hasProblemsLabel = sheetText.includes('Problems')
       console.log('C5 Problems label in sheet:', hasProblemsLabel)
     }

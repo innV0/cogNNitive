@@ -27,7 +27,7 @@ export function useHashSync(): void {
     if (updating) return
     updating = true
 
-    const raw = window.location.hash.replace(/^#/, '')
+    const raw = decodeURIComponent(window.location.hash.replace(/^#/, ''))
     if (!raw) {
       updating = false
       return

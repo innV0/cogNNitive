@@ -115,10 +115,7 @@ export const useModelStore = defineStore('model', {
      * Best-effort: network failures or missing templates degrade gracefully
      * to slate fallback.
      */
-    async _resolveParentSpecs(
-      nodes: Record<string, ModelNode>,
-      rootIds: string[],
-    ): Promise<void> {
+    async _resolveParentSpecs(nodes: Record<string, ModelNode>, rootIds: string[]): Promise<void> {
       for (const rootId of rootIds) {
         const root = nodes[rootId]
         if (!root?.rawContent) continue

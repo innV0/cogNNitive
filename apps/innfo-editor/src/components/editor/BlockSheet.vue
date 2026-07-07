@@ -134,13 +134,6 @@
         <span v-if="i > 0" class="text-slate-300 dark:text-slate-600 mx-0.5">&rsaquo;</span>
         <span>{{ seg }}</span>
       </template>
-      <span v-if="treeSiblings.length > 0" class="text-slate-300 dark:text-slate-600 mx-1">|</span>
-      <span class="text-slate-400 dark:text-slate-500">Siblings:</span>
-      <span
-        v-for="sib in treeSiblings"
-        :key="sib"
-        class="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
-      >{{ sib }}</span>
     </div>
 
     <!-- Tab bar (read mode only, when expanded) -->
@@ -311,6 +304,16 @@
             </p>
           </div>
 
+          <!-- ═══ Table Tab ═══ -->
+          <div v-else-if="activeTab === 'table'" class="pt-2">
+            <ConceptTableView
+              v-if="block.id"
+              :node-id="block.id"
+              :concept-type="conceptType"
+              :concept-fields="conceptFields"
+            />
+          </div>
+
           <!-- ═══ History Tab ═══ -->
           <div v-else-if="activeTab === 'history'">
             <div class="border-t border-slate-200 dark:border-slate-700 pt-5 space-y-3">
@@ -387,6 +390,7 @@ import BlockRelationships from './BlockRelationships.vue'
 import BlockMatrixSummary from './BlockMatrixSummary.vue'
 import NodeMedia from './NodeMedia.vue'
 import ComplianceTab from './ComplianceTab.vue'
+import ConceptTableView from './ConceptTableView.vue'
 import { parseFrontmatter } from '@innv0/innfo-core'
 import type { ValidationReport } from '../../shared/validation-types'
 
@@ -441,14 +445,25 @@ const modelStore = useModelStore()
 
 // ── Tab state ───────────────────────────────────────────────────
 
-const tabDefs = [
-  { id: 'view', label: 'View' },
-  { id: 'visual', label: 'Visual' },
-  { id: 'history', label: 'History' },
-  { id: 'compliance', label: 'Compliance' },
-] as const
+const hasChildren = computed(() => {
+  if (!props.block.id || props.kind !== 'concept') return false
+  return modelStore.getChildren(props.block.id).length > 0
+})
 
-const activeTab = ref<'view' | 'visual' | 'history' | 'compliance'>('view')
+const tabDefs = computed(() => {
+  const tabs: { id: string; label: string }[] = [
+    { id: 'view', label: 'View' },
+    { id: 'visual', label: 'Visual' },
+  ]
+  if (hasChildren.value) {
+    tabs.push({ id: 'table', label: 'Table' })
+  }
+  tabs.push({ id: 'history', label: 'History' })
+  tabs.push({ id: 'compliance', label: 'Compliance' })
+  return tabs
+})
+
+const activeTab = ref('view')
 
 // ── Palette ─────────────────────────────────────────────────────
 

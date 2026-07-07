@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { DirectoryHandleLike, FileHandleLike } from '../src/fs-types'
-import { recursiveParse } from '../src/recursiveParser'
+import { recursiveParse, normalizeSingleModel } from '../src/recursiveParser'
 
 /* ── Fake handle helpers ─────────────────────────────────────── */
 
@@ -72,7 +72,7 @@ describe('recursiveParse (index.md-driven)', () => {
       expect(result.rootIds).toHaveLength(1)
       const rootNode = result.nodes[result.rootIds[0]]
       expect(rootNode).toBeDefined()
-      expect(rootNode.name).toBe('gb_NN')
+      expect(rootNode.name).toBe('gb')
       expect(rootNode.kind).toBe('root')
       expect(result.issues).toHaveLength(0)
     })
@@ -87,7 +87,7 @@ describe('recursiveParse (index.md-driven)', () => {
       const result = await recursiveParse(root)
       expect(result.rootIds).toHaveLength(2)
       const names = result.rootIds.map((id) => result.nodes[id].name).sort()
-      expect(names).toEqual(['modelA_NN', 'modelB_NN'])
+      expect(names).toEqual(['modelA', 'modelB'])
       expect(result.issues).toHaveLength(0)
     })
 
@@ -170,7 +170,7 @@ describe('recursiveParse (index.md-driven)', () => {
       expect(result.rootIds).toHaveLength(1)
       const rootNode = result.nodes[result.rootIds[0]]
       expect(rootNode).toBeDefined()
-      expect(rootNode.name).toBe('gb_NN')
+      expect(rootNode.name).toBe('gb')
       // The missing index.md issue is still reported as the first warning (downgraded when models found)
       expect(result.issues.length).toBeGreaterThan(0)
       expect(result.issues[0].message).toContain('No index.md found')
@@ -185,14 +185,12 @@ describe('recursiveParse (index.md-driven)', () => {
       const result = await recursiveParse(root)
       expect(result.rootIds).toHaveLength(2)
       const names = result.rootIds.map((id) => result.nodes[id].name).sort()
-      expect(names).toEqual(['modelA_NN', 'modelB_NN'])
+      expect(names).toEqual(['modelA', 'modelB'])
       expect(result.issues[0].message).toContain('No index.md found')
     })
 
     it('returns empty when no .md files with iNNfo frontmatter exist and index.md is missing', async () => {
-      const root = fakeDir('workspace', [
-        ['readme.md', fakeFile('readme.md', '# Just a readme')],
-      ])
+      const root = fakeDir('workspace', [['readme.md', fakeFile('readme.md', '# Just a readme')]])
 
       const result = await recursiveParse(root)
       expect(result.rootIds).toHaveLength(0)
@@ -202,7 +200,10 @@ describe('recursiveParse (index.md-driven)', () => {
 
     it('loads models with plain .md filenames (no _NN suffix)', async () => {
       const root = fakeDir('workspace', [
-        ['DeLorean_Time_Travel.md', fakeFile('DeLorean_Time_Travel.md', makeModel('Time Travel Procedure'))],
+        [
+          'DeLorean_Time_Travel.md',
+          fakeFile('DeLorean_Time_Travel.md', makeModel('Time Travel Procedure')),
+        ],
       ])
 
       const result = await recursiveParse(root)
@@ -215,7 +216,10 @@ describe('recursiveParse (index.md-driven)', () => {
 
     it('skips .md files without iNNfo frontmatter (no spec_version)', async () => {
       const root = fakeDir('workspace', [
-        ['not-a-model.md', fakeFile('not-a-model.md', '# Just markdown\n\nNo YAML frontmatter here.')],
+        [
+          'not-a-model.md',
+          fakeFile('not-a-model.md', '# Just markdown\n\nNo YAML frontmatter here.'),
+        ],
         ['real-model.md', fakeFile('real-model.md', makeModel('Real Model'))],
       ])
 
@@ -235,7 +239,7 @@ describe('recursiveParse (index.md-driven)', () => {
       const result = await recursiveParse(root)
       // Only one model should be loaded
       expect(result.rootIds).toHaveLength(1)
-      expect(result.nodes[result.rootIds[0]].name).toBe('exists_NN')
+      expect(result.nodes[result.rootIds[0]].name).toBe('exists')
 
       // Warning for missing file
       const missingIssues = result.issues.filter((i) => i.message.includes('not found'))
@@ -289,8 +293,8 @@ describe('recursiveParse (index.md-driven)', () => {
       const collisionIssues = result.issues.filter((i) => i.message.includes('appears in both'))
       expect(collisionIssues.length).toBeGreaterThan(0)
       expect(collisionIssues[0].message).toContain('"Database"')
-      expect(collisionIssues[0].message).toContain('modelA_NN')
-      expect(collisionIssues[0].message).toContain('modelB_NN')
+      expect(collisionIssues[0].message).toContain('modelA')
+      expect(collisionIssues[0].message).toContain('modelB')
     })
 
     it('no collision when all element names are unique across models', async () => {
@@ -335,5 +339,46 @@ describe('recursiveParse (index.md-driven)', () => {
         .map((n) => n.name)
       expect(elementNames).toEqual(expect.arrayContaining(['Users', 'Orders']))
     })
+  })
+})
+
+describe('normalizeSingleModel', () => {
+  it('parses a single model file directly and returns normalized nodes and issues', () => {
+    const modelContent = makeModel(
+      'Standalone Model',
+      `
+# _NN index
+
+* [[SingleNode]]
+
+# _NN Concepts
+
+* _NN Concepts: SingleNode
+  Description of single node.
+`,
+    )
+    const { nodes, issues } = normalizeSingleModel(
+      modelContent,
+      'standalone_NN.md',
+      'standalone_NN',
+    )
+    expect(issues).toHaveLength(0)
+
+    const rootId = 'standalone_NN'
+    expect(nodes[rootId]).toBeDefined()
+    expect(nodes[rootId].kind).toBe('root')
+    expect(nodes[rootId].name).toBe('standalone_NN')
+
+    const elementNode = Object.values(nodes).find((n) => n.name === 'SingleNode')
+    expect(elementNode).toBeDefined()
+    expect(elementNode!.kind).toBe('element')
+  })
+
+  it('returns empty nodes when content is not a model (missing spec_version)', () => {
+    const plainMarkdown =
+      '# Standalone Document\n\nThis is not a model because it has no spec_version in frontmatter.'
+    const { nodes, issues } = normalizeSingleModel(plainMarkdown, 'doc.md', 'doc')
+    expect(issues).toHaveLength(0)
+    expect(Object.keys(nodes)).toHaveLength(0)
   })
 })

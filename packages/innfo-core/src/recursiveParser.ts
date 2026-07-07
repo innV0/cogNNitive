@@ -12,7 +12,7 @@ const INDEX_MD = 'index.md'
  * Handles both `_NN.md` and bare `.md` filenames.
  */
 function stripMdSuffix(filename: string): string {
-  return filename.replace(/\.md$/i, '')
+  return filename.replace(/_NN\.md$/i, '').replace(/\.md$/i, '')
 }
 
 /**
@@ -267,13 +267,28 @@ function resolveElementAssets(
  * Shared by the wikilink-driven path (index.md present) and the fallback path
  * (index.md missing — standalone _NN.md files).
  */
-async function parseAndRegisterModel(
+/**
+ * Normalizes a single model content string, returning the parsed nodes and issues.
+ *
+ * @param content - Raw markdown contents of the model file
+ * @param refPath - Source file path or URL of the model
+ * @param refName - Derived name/identifier of the model (e.g. rootId)
+ * @param identity - Optional identity registry for ID qualification
+ * @returns An object containing the normalized ModelNode records and parsed issues
+ */
+export function normalizeSingleModel(
   content: string,
   refPath: string,
   refName: string,
-  ctx: ParseContext,
-  elementNameToModel: Map<string, string>,
-): Promise<void> {
+  identity?: IdentityRegistry,
+): { nodes: Record<string, ModelNode>; issues: ParseIssue[] } {
+  const resolvedIdentity = identity ?? new IdentityRegistry()
+  const ctx: ParseContext = {
+    nodes: {},
+    identity: resolvedIdentity,
+    issues: [],
+  }
+
   let parsed: ParsedModel
   try {
     parsed = parseModel(content)
@@ -282,12 +297,12 @@ async function parseAndRegisterModel(
       path: refPath,
       message: err instanceof Error ? err.message : String(err),
     })
-    return
+    return { nodes: ctx.nodes, issues: ctx.issues }
   }
 
   // Skip files without iNNfo frontmatter — not a model (§2.1)
   if (!parsed.frontmatter.spec_version) {
-    return
+    return { nodes: ctx.nodes, issues: ctx.issues }
   }
 
   // Determine asset mode (FR-004, default centralized)
@@ -362,17 +377,37 @@ async function parseAndRegisterModel(
   // Normalize in-file elements
   normalizeElementsIntoGraph(parsed, qualifiedId, refPath, ctx)
 
+  return { nodes: ctx.nodes, issues: ctx.issues }
+}
+
+async function parseAndRegisterModel(
+  content: string,
+  refPath: string,
+  refName: string,
+  ctx: ParseContext,
+  elementNameToModel: Map<string, string>,
+): Promise<void> {
+  const result = normalizeSingleModel(content, refPath, refName, ctx.identity)
+
+  // Merge resulting nodes and issues into context
+  for (const [id, node] of Object.entries(result.nodes)) {
+    ctx.nodes[id] = node
+  }
+  for (const issue of result.issues) {
+    ctx.issues.push(issue)
+  }
+
   // Track element names per model for cross-model collision detection (FR-005)
-  for (const [, elementNodes] of parsed.elements.entries()) {
-    for (const el of elementNodes) {
-      if (elementNameToModel.has(el.name)) {
-        const existingModel = elementNameToModel.get(el.name)!
+  for (const node of Object.values(result.nodes)) {
+    if (node.kind === 'element') {
+      if (elementNameToModel.has(node.name)) {
+        const existingModel = elementNameToModel.get(node.name)!
         ctx.issues.push({
           path: '<root>',
-          message: `Element "${el.name}" appears in both "${existingModel}" and "${refName}" — consider renaming to "${el.name} (${refName})"`,
+          message: `Element "${node.name}" appears in both "${existingModel}" and "${refName}" — consider renaming to "${node.name} (${refName})"`,
         })
       } else {
-        elementNameToModel.set(el.name, refName)
+        elementNameToModel.set(node.name, refName)
       }
     }
   }
@@ -439,7 +474,11 @@ export async function recursiveParse(
         const modelRefsFromScan: Array<{ name: string; path: string }> = []
         for await (const [name, entry] of root.entries()) {
           // Accept any .md file except index.md itself
-          if (entry.kind === 'file' && name.endsWith(INNFO_FILE_SUFFIX) && name.toLowerCase() !== INDEX_MD) {
+          if (
+            entry.kind === 'file' &&
+            name.endsWith(INNFO_FILE_SUFFIX) &&
+            name.toLowerCase() !== INDEX_MD
+          ) {
             modelRefsFromScan.push({ name: stripMdSuffix(name), path: name })
           }
         }

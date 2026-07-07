@@ -375,18 +375,18 @@ const contrastTextColor = computed(() => {
 // ── Pill inline style (YIQ background + text contrast) ─────────
 const pillStyle = computed(() => {
   if (!effectiveColorHex.value) return {}
-  
+
   // Selected concepts are styled entirely via solid background classes
   if (props.selected && props.kind === 'concept') {
     return {}
   }
-  
+
   // Standard/palette colors mapped to nodes use pure Tailwind class systems,
   // avoiding inline styles to preserve visual consistency and design aesthetics.
   if (isStandardColor.value && props.nodeId) {
     return {}
   }
-  
+
   const style: Record<string, string> = {}
   style.backgroundColor = getHexColorLight(effectiveColorHex.value)
   if (contrastTextColor.value) {
@@ -399,7 +399,7 @@ const pillStyle = computed(() => {
 const pillClasses = computed(() => {
   const baseClasses = [
     props.fullWidth ? 'flex w-full items-center' : 'inline-flex items-center max-w-full',
-    'px-3 py-1.5 text-xs gap-1.5',
+    'px-2 py-1.5 text-xs gap-1',
     'rounded-lg font-normal whitespace-normal break-words transition-all duration-200 select-none min-w-0',
     props.interactive
       ? 'cursor-pointer active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1'

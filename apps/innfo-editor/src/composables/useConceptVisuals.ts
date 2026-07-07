@@ -135,9 +135,11 @@ export function useConceptVisuals() {
 
     if (!conceptName) return undefined
 
+    const lowerName = conceptName.toLowerCase()
+
     // Pass 1: walk ancestor chain
     const metamodel = resolveEffectiveMetamodel(node.id, modelStore.nodes)
-    let match = metamodel.concepts.find((c) => c.name === conceptName)
+    let match = metamodel.concepts.find((c) => c.name.toLowerCase() === lowerName)
     if (match) return match
 
     // Pass 2: peer template resolution
@@ -152,7 +154,7 @@ export function useConceptVisuals() {
       const peerId = findTemplatePeer(root.id, modelStore.rootIds, modelStore.nodes)
       if (peerId) {
         const peerMeta = resolveEffectiveMetamodel(peerId, modelStore.nodes)
-        match = peerMeta.concepts.find((c) => c.name === conceptName)
+        match = peerMeta.concepts.find((c) => c.name.toLowerCase() === lowerName)
         if (match) return match
       }
     }
