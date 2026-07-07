@@ -68,8 +68,11 @@ const isConceptLike = (node: { kind?: string }) =>
 
 const editorView = computed<'text' | 'tree' | 'sheet'>(() => {
   if (!selectedNode.value) return 'sheet'
-  // Nodes with rawContent get the TextEditor (FILE-mode)
-  if (selectedNode.value.rawContent) return 'text'
+  // Nodes with rawContent show TextEditor, unless they have element children (use BlockFeed for structured view)
+  if (selectedNode.value.rawContent) {
+    if (isConceptLike(selectedNode.value) && selectedNode.value.childIds.length > 0) return 'sheet'
+    return 'text'
+  }
   // Concept/root nodes always show BlockFeed (sheet) — not TreeEditor
   if (isConceptLike(selectedNode.value)) return 'sheet'
   // Nodes with children get the TreeEditor (structural)

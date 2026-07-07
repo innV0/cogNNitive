@@ -125,20 +125,25 @@ test.describe('BlockSheet — 4 Tabs, Markdown, Relationships, Matrix Summary, M
   test('R-SC-11: Table tab appears for concepts with children and shows element rows', async ({
     page,
   }) => {
-    // Click the "Topic" concept node (has 3 children: Delorean, FluxCapacitor, Hoverboard)
-    await page.getByText('Topic', { exact: true }).first().click()
+    // Navigate to BTTFKB (root with 5 element children) via store
+    await page.evaluate(() => {
+      const app = (document.getElementById('app') as any).__vue_app__
+      const pinia = app.config.globalProperties.$pinia
+      pinia.state.value.ui.selectedNodeId = 'BTTFKB'
+    })
+    await expect(page.getByText(/Selected: BTTFKB/i)).toBeVisible({ timeout: 5000 })
 
-    // BlockSheet should show for the Topic concept
+    // BlockSheet should show (BTTFKB has children → sheet instead of text)
     await expect(page.getByTestId('block-sheet')).toBeVisible()
 
-    // Table tab should be present for concepts with children
+    // Table tab should be present for root with children
     const tableTab = page.getByRole('button', { name: 'Table', exact: true })
     await expect(tableTab).toBeVisible()
     await tableTab.click()
 
     // Table should render element rows with names
-    await expect(page.getByText('Delorean')).toBeVisible()
-    await expect(page.getByText('FluxCapacitor')).toBeVisible()
-    await expect(page.getByText('Hoverboard')).toBeVisible()
+    await expect(page.getByText('Delorean').first()).toBeVisible()
+    await expect(page.getByText('DocBrown').first()).toBeVisible()
+    await expect(page.getByText('MartyMcFly').first()).toBeVisible()
   })
 })

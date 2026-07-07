@@ -123,9 +123,14 @@ test.describe('Flujo de Negocio Completo: Edición, Guardado y Validación', () 
       await expect(pageInstance.getByText(/Format Version|Template:|Model Info|iNNfo/i).first()).toBeVisible()
     })
 
-    await test.step('Cuando vuelve al editor y selecciona un concepto con hijos (Topic)', async () => {
+    await test.step('Cuando vuelve al editor y selecciona BTTFKB (root con 5 elementos)', async () => {
       await pageInstance.getByRole('button', { name: 'editor' }).click()
-      await pageInstance.getByText('Topic', { exact: true }).first().click()
+      await pageInstance.evaluate(() => {
+        const app = (document.getElementById('app') as any).__vue_app__
+        const pinia = app.config.globalProperties.$pinia
+        pinia.state.value.ui.selectedNodeId = 'BTTFKB'
+      })
+      await expect(pageInstance.getByText(/Selected: BTTFKB/i)).toBeVisible({ timeout: 5000 })
     })
 
     await test.step('Entonces debe aparecer la pestaña "Table" en el BlockSheet', async () => {
@@ -135,7 +140,8 @@ test.describe('Flujo de Negocio Completo: Edición, Guardado y Validación', () 
 
     await test.step('Cuando hace clic en "Table" debe mostrar los elementos como filas', async () => {
       await pageInstance.getByRole('button', { name: 'Table', exact: true }).click()
-      await expect(pageInstance.getByText('FluxCapacitor')).toBeVisible()
+      await expect(pageInstance.getByText('Delorean').first()).toBeVisible()
+      await expect(pageInstance.getByText('DocBrown').first()).toBeVisible()
     })
   })
 })
