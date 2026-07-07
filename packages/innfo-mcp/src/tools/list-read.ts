@@ -9,10 +9,7 @@
 
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import {
-  listModels as coreListModels,
-  parseModel,
-} from '@innv0/innfo-core'
+import { listModels as coreListModels, parseModel } from '@innv0/innfo-core'
 import type { ModelInfo, ParsedModel } from '@innv0/innfo-core'
 
 /**

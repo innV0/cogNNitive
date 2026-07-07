@@ -1,6 +1,6 @@
 {
   "name": "@innv0/innfo-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server wrapping @innv0/innfo-core — semantic iNNfo tools over stdio",
   "type": "module",
   "main": "./dist/server.js",

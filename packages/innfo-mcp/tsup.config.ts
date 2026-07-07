@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup'
 export default defineConfig([
   {
     entry: {
-      server: 'src/server.ts'
+      server: 'src/server.ts',
     },
     format: 'esm',
     clean: true,
@@ -14,7 +14,7 @@ export default defineConfig([
   },
   {
     entry: {
-      'innfo-mcp.bundle': 'src/server.ts'
+      'innfo-mcp.bundle': 'src/server.ts',
     },
     format: 'esm',
     clean: false,
@@ -22,5 +22,12 @@ export default defineConfig([
     dts: false,
     noExternal: [/.*/],
     minify: true,
-  }
+    // Single-file ESM bundle: inlined CJS deps (MCP SDK, ajv) perform dynamic
+    // `require` of Node builtins. ESM has no `require`, so provide one via
+    // createRequire — otherwise the bundle throws at load ("Dynamic require of
+    // 'process' is not supported").
+    banner: {
+      js: "import{createRequire as __innfoCreateRequire}from'module';const require=__innfoCreateRequire(import.meta.url);",
+    },
+  },
 ])

@@ -1,145 +1,129 @@
 /**
  * get_spec and get_template tools.
  *
- * Both use the `resolveParentChain` mechanism from innfo-core to
- * fetch spec/template documents from the public URL, caching them
- * locally via the spec resolution chain.
+ * The MCP is publisher-agnostic: it never stores spec/template URLs or
+ * template names as constants. A spec/template is resolved ONLY from:
+ *   1. an explicit `url` supplied by the caller, or
+ *   2. the `parent_spec.url` declared by a loaded model (`model_id`).
  *
- * Version resolution:
- *   1. Explicit `version` argument wins if provided.
- *   2. Otherwise derive from the model filename.
- *   3. Fall back to the latest known version.
+ * Resolution runs through `resolveParentChain` (innfo-core), which walks
+ * the self-describing parent chain up to level 0, caching locally.
  */
 
-import { join } from 'node:path'
-import { readFile } from 'node:fs/promises'
+import { join, basename } from 'node:path'
+import { readFile, stat } from 'node:fs/promises'
 import {
-  resolveParentChain,
   getTemplate as coreGetTemplate,
   getFormatSpec,
-  resolveSpecVersionFromFilename,
   parseFrontmatter,
-  listModels,
 } from '@innv0/innfo-core'
 import type { SpecDocument, SpecCache } from '@innv0/innfo-core'
+import { resolveParentChainNode } from './resolver-node.js'
 
 /**
- * Base GitHub URL for the iNNfo spec repository.
- * Matches the convention used by existing models' `spec_url` field.
+ * Derive a chain-start name from a spec/template URL.
+ * `.../iNNfo_V_0-1-0_NN.md` → `iNNfo_V_0-1-0`.
  */
-const SPEC_BASE_URL = 'https://raw.githubusercontent.com/innV0/cogNNitive/v0.1.5/specs'
-
-/**
- * Mapping of template names to their spec filenames.
- * Template specs are level-2 documents that declare concepts, markers, matrices.
- */
-const TEMPLATE_SPECS: Record<string, string> = {
-  business: 'business_V_0-2-0_NN.md',
-  procedures: 'procedures_V_0-2-0_NN.md',
-  catalog: 'catalog_V_0-2-0_NN.md',
+export function deriveNameFromUrl(url: string): string {
+  return basename(url)
+    .replace(/\.(md|markdown)$/i, '')
+    .replace(/_(NN|FORMAT|F)$/i, '')
 }
 
 /**
- * Resolve a spec version from arguments and optional model id.
+ * Locate a model file on disk by id.
+ * Tries the id verbatim, then `_NN.md` and `_F.md` suffixes.
  */
-async function resolveVersion(
-  rootDir: string,
-  explicitVersion?: string,
-  modelId?: string,
-): Promise<string> {
-  if (explicitVersion) return explicitVersion
-  if (modelId) {
-    const derived = resolveSpecVersionFromFilename(modelId)
-    if (derived) return derived
-    // Also try scanning models for this id
-    const models = await listModels(rootDir)
-    const model = models.find((m) => m.id === modelId)
-    if (model?.version) return model.version
+export async function findModelFile(rootDir: string, id: string): Promise<string | null> {
+  const candidates = [join(rootDir, id), join(rootDir, `${id}_NN.md`), join(rootDir, `${id}_F.md`)]
+  for (const fp of candidates) {
+    try {
+      await stat(fp)
+      return fp
+    } catch {
+      continue
+    }
   }
-  // Fall back to latest known
-  return '0-1-2'
+  return null
 }
 
 /**
- * Get a spec document by building its public URL and resolving
- * the parent chain.
+ * Read a model's `parent_spec` reference ({ url, name }) from disk.
+ * Returns null when the model is missing or declares no resolvable parent.
+ */
+export async function readParentSpecUrl(
+  rootDir: string,
+  modelId: string,
+): Promise<{ url: string; name: string } | null> {
+  const filePath = await findModelFile(rootDir, modelId)
+  if (!filePath) return null
+  const content = await readFile(filePath, 'utf-8').catch(() => null)
+  if (!content) return null
+  const fm = parseFrontmatter(content)
+  const url = fm?.parent_spec?.url
+  const name = fm?.parent_spec?.name
+  return url && name ? { url, name } : null
+}
+
+/**
+ * Get the iNNfo specification (level-1) for a spec/template URL or a model.
+ *
+ * @param opts.url     Explicit spec/template URL to resolve from.
+ * @param opts.modelId Model id whose `parent_spec.url` seeds resolution.
+ *
+ * Returns `{ spec: null, specCache: null }` when neither input is provided.
  */
 export async function getSpec(
   rootDir: string,
-  explicitVersion?: string,
-  modelId?: string,
-): Promise<{ spec: SpecDocument | null; specCache: SpecCache | null; version: string }> {
-  const version = await resolveVersion(rootDir, explicitVersion, modelId)
+  opts: { url?: string; modelId?: string },
+): Promise<{ spec: SpecDocument | null; specCache: SpecCache | null }> {
+  let url = opts.url
+  let name: string | undefined
 
-  // The level-1 FORMAT spec URL
-  const specUrl = `${SPEC_BASE_URL}/iNNfo_V_${version}_NN.md`
-  const specName = `iNNfo_V_${version}`
+  if (!url && opts.modelId) {
+    const parent = await readParentSpecUrl(rootDir, opts.modelId)
+    if (parent) {
+      url = parent.url
+      name = parent.name
+    }
+  }
+
+  if (!url) return { spec: null, specCache: null }
+  if (!name) name = deriveNameFromUrl(url)
 
   try {
-    // ResolveParentChain starts from the parent spec reference, so we
-    // need a level-1 or level-0 URL. Let's build the level-1 URL directly.
-    // For level-1 (FORMAT spec), parent is defiNNe.
-    // We call resolveParentChain with the spec URL itself.
-    const specDir = join(rootDir, '.spec-cache')
-    const cache = await resolveParentChain(specUrl, specName, specDir)
-
-    // Extract the level-1 spec document (FORMAT itself)
-    const spec = getFormatSpec(cache) ?? null
-
-    return { spec, specCache: cache, version }
-  } catch (_err) {
-    // Try Level 0 (defiNNe) — it has no parent
-    try {
-      const defiNNeUrl = `${SPEC_BASE_URL}/defiNNe_V_${version}_NN.md`
-      const defiNNeName = `defiNNe_V_${version}`
-      const cache = await resolveParentChain(defiNNeUrl, defiNNeName, join(rootDir, '.spec-cache'))
-      const spec = getFormatSpec(cache) ?? null
-      return { spec, specCache: cache, version }
-    } catch {
-      return { spec: null, specCache: null, version }
-    }
+    const cache = await resolveParentChainNode(rootDir, url, name, join(rootDir, '.spec-cache'))
+    // get_spec always returns the level-1 iNNfo spec from the resolved chain,
+    // falling back to the requested document when no level-1 is present.
+    const spec = getFormatSpec(cache) ?? cache.specs.get(name) ?? null
+    return { spec, specCache: cache }
+  } catch {
+    return { spec: null, specCache: null }
   }
 }
 
 /**
- * Get a template document (level-2) by name.
+ * Resolve a template document directly from a URL — the model's own
+ * `parent_spec.url` is the source of truth. No hardcoded names or base URLs.
  */
-export async function getTemplate(
+export async function getTemplateFromUrl(
   rootDir: string,
+  url: string,
   name: string,
-  explicitVersion?: string,
 ): Promise<SpecDocument | null> {
-  const templateKey = name.toLowerCase()
-  const templateFile = TEMPLATE_SPECS[templateKey]
-  if (!templateFile) return null
-
-  // Extract version from filename if not explicit
-  const version = explicitVersion ?? resolveSpecVersionFromFilename(templateFile) ?? '0-1-1'
-
-  // Replace version in template filename
-  const versionedFile = templateFile.replace(/V_[\d-]+/, `V_${version}`)
-  const templateUrl = `${SPEC_BASE_URL}/${versionedFile}`
-  const templateName = templateKey
-
+  const cacheDir = join(rootDir, '.spec-cache')
   try {
-    const cache = await resolveParentChain(templateUrl, templateName, join(rootDir, '.spec-cache'))
+    const cache = await resolveParentChainNode(rootDir, url, name, cacheDir)
     const template = coreGetTemplate(cache) ?? null
-
-    // If the template was found by parent chain resolution, return it.
-    // Otherwise construct a basic SpecDocument from the fetched content.
     if (template) return template
 
-    // Fallback: if resolveParentChain didn't name it as template,
-    // try to read the fetched spec content directly.
-    const content = await readFile(
-      join(rootDir, '.spec-cache', `${templateName}_NN.md`),
-      'utf-8',
-    ).catch(() => null)
+    // Fallback: read the cached file directly and build a SpecDocument.
+    const content = await readFile(join(cacheDir, `${name}_NN.md`), 'utf-8').catch(() => null)
     if (content) {
       const fm = parseFrontmatter(content)
       if (fm) {
         return {
-          name: templateName,
+          name,
           level: fm.level ?? 2,
           parentName: fm.parent_spec?.name,
           parentUrl: fm.parent_spec?.url,
@@ -148,9 +132,21 @@ export async function getTemplate(
         }
       }
     }
-
     return null
   } catch {
     return null
   }
+}
+
+/**
+ * Resolve a template from a loaded model, deriving the URL from its
+ * `parent_spec.url`. Returns null when the model declares no parent.
+ */
+export async function getTemplateFromModel(
+  rootDir: string,
+  modelId: string,
+): Promise<SpecDocument | null> {
+  const parent = await readParentSpecUrl(rootDir, modelId)
+  if (!parent) return null
+  return getTemplateFromUrl(rootDir, parent.url, parent.name)
 }
