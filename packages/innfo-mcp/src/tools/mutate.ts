@@ -7,16 +7,10 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
-import {
-  parseModel,
-  serializeModel,
-  validateModel as coreValidate,
-  resolveSpecVersionFromFilename,
-} from '@innv0/innfo-core'
-import type { ParsedModel } from '@innv0/innfo-core'
+import { parseModel, serializeModel, validateModel as coreValidate } from '@innv0/innfo-core'
+import type { ParsedModel, SpecDocument, ValidationError } from '@innv0/innfo-core'
 
-import { getTemplate } from './spec.js'
+import { getTemplateFromUrl, findModelFile, deriveNameFromUrl } from './spec.js'
 
 /* ── Types ───────────────────────────────────────────────────── */
 
@@ -30,19 +24,16 @@ export interface ApplyChangeResult {
 /* ── Core logic ──────────────────────────────────────────────── */
 
 /**
- * Find a model file by id.
- * Tries exact path, then appending _NN.md.
+ * Resolve a model's template from its `parent_spec.url` (source of truth).
+ * Returns null when the model declares no resolvable parent.
  */
-async function findModelFile(rootDir: string, id: string): Promise<string | null> {
-  const candidates = [join(rootDir, id), join(rootDir, `${id}_NN.md`), join(rootDir, `${id}_F.md`)]
-  for (const fp of candidates) {
-    try {
-      const { stat } = await import('node:fs/promises')
-      await stat(fp)
-      return fp
-    } catch {
-      continue
-    }
+async function resolveTemplateForModel(
+  rootDir: string,
+  model: ParsedModel,
+): Promise<SpecDocument | null> {
+  const parent = model.frontmatter.parent_spec
+  if (parent?.url && parent?.name) {
+    return getTemplateFromUrl(rootDir, parent.url, parent.name)
   }
   return null
 }
@@ -73,57 +64,52 @@ export async function validateModel(
   rootDir: string,
   id?: string,
   content?: string,
+  templateUrl?: string,
 ): Promise<{
   valid: boolean
-  errors: Array<{ path: string; message: string }>
-  warnings: Array<{ path: string; message: string }>
+  errors: ValidationError[]
+  warnings: ValidationError[]
 }> {
   let model: ParsedModel
-  let modelVersion: string | null = null
 
   if (content) {
     model = parseModel(content)
-    modelVersion = model.frontmatter.model_version ?? null
   } else if (id) {
     const filePath = await findModelFile(rootDir, id)
     if (!filePath) {
       return {
         valid: false,
-        errors: [{ path: '', message: `Model not found: ${id}` }],
+        errors: [{ path: '', message: `Model not found: ${id}`, severity: 'error' }],
         warnings: [],
       }
     }
     model = await loadModel(filePath)
-    modelVersion = resolveSpecVersionFromFilename(id)
-    if (!modelVersion) {
-      modelVersion = model.frontmatter.model_version ?? null
-    }
   } else {
     return {
       valid: false,
-      errors: [{ path: '', message: 'Provide either id or content' }],
+      errors: [{ path: '', message: 'Provide either id or content', severity: 'error' }],
       warnings: [],
     }
   }
 
-  // Resolve template from the parent_spec reference
-  let template = null
-  if (model.frontmatter.parent_spec?.name) {
-    const parentName = model.frontmatter.parent_spec.name
-    // Extract template name from parent spec name (e.g. business_V_0-1-1 → business)
-    const templateName = parentName.split('_V_')[0] ?? parentName
-    template = await getTemplate(rootDir, templateName, modelVersion ?? undefined)
+  // Resolve the template only from the model's parent_spec.url, or from an
+  // explicit templateUrl supplied by the caller. Never from a constant.
+  let template = await resolveTemplateForModel(rootDir, model)
+  if (!template && templateUrl) {
+    template = await getTemplateFromUrl(rootDir, templateUrl, deriveNameFromUrl(templateUrl))
   }
 
-  const formatSpec = null // Level-1 spec not needed for model validation
-  const result = coreValidate(model, template, formatSpec)
-
-  // Map ValidationResult to our simpler shape
-  return {
-    valid: result.valid,
-    errors: result.errors,
-    warnings: result.warnings,
+  const result = coreValidate(model, template, null)
+  const warnings: ValidationError[] = [...result.warnings]
+  if (!template) {
+    warnings.push({
+      path: 'parent_spec',
+      message: 'No template resolved; structural validation only',
+      severity: 'warning',
+    })
   }
+
+  return { valid: result.valid, errors: result.errors, warnings }
 }
 
 /* ── apply_change ────────────────────────────────────────────── */
@@ -195,16 +181,8 @@ export async function applyChange(
     return { success: false, errors: [{ path: '', message: `Operation failed: ${err}` }] }
   }
 
-  // Validate after mutation
-  const modelVersion =
-    resolveSpecVersionFromFilename(id) ?? model.frontmatter.model_version ?? undefined
-  let template = null
-  if (model.frontmatter.parent_spec?.name) {
-    const parentName = model.frontmatter.parent_spec.name
-    const templateName = parentName.split('_V_')[0] ?? parentName
-    template = await getTemplate(rootDir, templateName, modelVersion)
-  }
-
+  // Validate after mutation — template resolved only from parent_spec.url.
+  const template = await resolveTemplateForModel(rootDir, model)
   const validationResult = coreValidate(model, template, null)
 
   if (!validationResult.valid) {

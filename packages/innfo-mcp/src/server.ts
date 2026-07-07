@@ -21,13 +21,13 @@ import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprot
 import type { ListToolsResult, CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js'
 
 import { listModels, readModel } from './tools/list-read.js'
-import { getSpec, getTemplate } from './tools/spec.js'
+import { getSpec, getTemplateFromUrl, getTemplateFromModel, deriveNameFromUrl } from './tools/spec.js'
 import { validateModel, applyChange } from './tools/mutate.js'
 
 /** Root directory for model scanning (defaults to `models/` under CWD) */
 const ROOT_DIR: string = process.env.INNFO_MODELS_DIR ?? process.cwd()
 
-const server = new Server({ name: 'innfo-mcp', version: '0.1.0' }, { capabilities: { tools: {} } })
+const server = new Server({ name: 'innfo-mcp', version: '0.2.0' }, { capabilities: { tools: {} } })
 
 /* ── Tool definitions ───────────────────────────────────────── */
 
@@ -58,39 +58,54 @@ const toolDefinitions: Tool[] = [
   },
   {
     name: 'get_spec',
-    description: 'Retrieve the iNNfo specification document for a given version',
+    description:
+      'Resolve the iNNfo specification (level-1) from an explicit url or from a loaded model. Provide either url or model_id — the URL is never taken from an internal constant',
     inputSchema: {
       type: 'object',
       properties: {
-        version: {
+        url: {
           type: 'string',
-          description: 'SemVer override (e.g. "0-1-2"). Defaults from model filename if omitted',
+          description: 'Explicit spec/template URL to resolve the parent chain from',
         },
-        model_id: { type: 'string', description: 'Model id to derive version from' },
+        model_id: {
+          type: 'string',
+          description: "Model id whose frontmatter parent_spec.url seeds resolution",
+        },
       },
     },
   },
   {
     name: 'get_template',
-    description: 'Retrieve an iNNfo template (business/procedures/kb) by name and version',
+    description:
+      'Resolve an iNNfo template (level-2) from an explicit url or from a loaded model. Provide either url or model_id — template names/URLs are never hardcoded',
     inputSchema: {
       type: 'object',
       properties: {
-        name: { type: 'string', description: 'Template name (e.g. business, procedures, catalog)' },
-        version: { type: 'string', description: 'SemVer override' },
+        url: { type: 'string', description: 'Explicit template URL to resolve from' },
+        model_id: {
+          type: 'string',
+          description: "Model id whose parent_spec.url points to its template",
+        },
+        name: {
+          type: 'string',
+          description: 'Optional chain-start name; derived from the url when omitted',
+        },
       },
-      required: ['name'],
     },
   },
   {
     name: 'validate_model',
     description:
-      'Validate an iNNfo model against its template. Provide either id (file on disk) or content (raw text)',
+      'Validate an iNNfo model against its template. Provide id (file on disk) or content (raw text). The template is resolved from the model parent_spec.url, or from an optional template_url',
     inputSchema: {
       type: 'object',
       properties: {
         id: { type: 'string', description: 'Model id (reads from disk)' },
         content: { type: 'string', description: 'Raw model content string (inline)' },
+        template_url: {
+          type: 'string',
+          description: 'Optional explicit template URL when the model has no resolvable parent_spec.url',
+        },
       },
     },
   },
@@ -159,27 +174,40 @@ async function handleReadModel(args: Record<string, unknown>): Promise<CallToolR
 }
 
 async function handleGetSpec(args: Record<string, unknown>): Promise<CallToolResult> {
-  const version = args.version as string | undefined
+  const url = args.url as string | undefined
   const modelId = args.model_id as string | undefined
-  const spec = await getSpec(ROOT_DIR, version, modelId)
-  return textResult(JSON.stringify(spec, null, 2))
+  if (!url && !modelId) return errorResult('Provide either url or model_id')
+  const result = await getSpec(ROOT_DIR, { url, modelId })
+  if (!result.spec)
+    return errorResult('Spec could not be resolved from the provided url/model_id')
+  return textResult(JSON.stringify(result, null, 2))
 }
 
 async function handleGetTemplate(args: Record<string, unknown>): Promise<CallToolResult> {
-  const name = args.name as string
-  const version = args.version as string | undefined
-  if (!name) return errorResult('Missing required argument: name')
-  const template = await getTemplate(ROOT_DIR, name, version)
+  const url = args.url as string | undefined
+  const modelId = args.model_id as string | undefined
+  const name = args.name as string | undefined
+
+  let template = null
+  if (url) {
+    template = await getTemplateFromUrl(ROOT_DIR, url, name ?? deriveNameFromUrl(url))
+  } else if (modelId) {
+    template = await getTemplateFromModel(ROOT_DIR, modelId)
+  } else {
+    return errorResult('Provide either url or model_id')
+  }
+
   if (!template)
-    return errorResult(`Template not found: ${name}${version ? ` version ${version}` : ''}`)
+    return errorResult('Template could not be resolved from the provided url/model_id')
   return textResult(JSON.stringify(template, null, 2))
 }
 
 async function handleValidateModel(args: Record<string, unknown>): Promise<CallToolResult> {
   const id = args.id as string | undefined
   const content = args.content as string | undefined
+  const templateUrl = args.template_url as string | undefined
   if (!id && !content) return errorResult('Provide either id or content')
-  const result = await validateModel(ROOT_DIR, id, content)
+  const result = await validateModel(ROOT_DIR, id, content, templateUrl)
   return textResult(JSON.stringify(result, null, 2))
 }
 
