@@ -121,4 +121,24 @@ test.describe('BlockSheet — 4 Tabs, Markdown, Relationships, Matrix Summary, M
     const addRelBtn = page.getByText(/Add relationship|Edit relationship|Delete relationship/i)
     expect(await addRelBtn.count()).toBe(0)
   })
+
+  test('R-SC-11: Table tab appears for concepts with children and shows element rows', async ({
+    page,
+  }) => {
+    // Click the "Topic" concept node (has 3 children: Delorean, FluxCapacitor, Hoverboard)
+    await page.getByText('Topic', { exact: true }).first().click()
+
+    // BlockSheet should show for the Topic concept
+    await expect(page.getByTestId('block-sheet')).toBeVisible()
+
+    // Table tab should be present for concepts with children
+    const tableTab = page.getByRole('button', { name: 'Table', exact: true })
+    await expect(tableTab).toBeVisible()
+    await tableTab.click()
+
+    // Table should render element rows with names
+    await expect(page.getByText('Delorean')).toBeVisible()
+    await expect(page.getByText('FluxCapacitor')).toBeVisible()
+    await expect(page.getByText('Hoverboard')).toBeVisible()
+  })
 })
