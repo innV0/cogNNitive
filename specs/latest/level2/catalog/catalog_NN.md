@@ -1,12 +1,11 @@
 ---
 specification_version: "V_0-1-3"
 specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.1.0/level2/catalog/catalog_V_0-1-2_NN.md"
-level: 3
+level: 2
 parent_spec:
   name: "iNNfo_V_0-1-0"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.1.0/level1/iNNfo_V_0-1-0_NN.md"
 title: "Catalog Template"
-model_version: "V_0-1-3"
 concepts:
   - name: "Artist"
     icon: "music"

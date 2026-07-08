@@ -27,6 +27,11 @@ All notable changes to the iNNfo specification ecosystem are documented here.
 - Sample parent chain URLs point to the new level-based paths.
 - Samples organized by template: each lives in its template's `samples/` folder.
 
+### Errata (2026-07-08, in-place)
+- **Level-2 templates mislabeled as level 3**: `business_V_0-1-1`, `procedures_V_0-1-1`, and `catalog_V_0-1-2` declared `level: 3` in their frontmatter. Corrected to `level: 2` per defiNNe §1/§5.3. This defect caused `getTemplate` (innfo-core resolver) to prefer these templates over real level-3 models via `getSpecForLevel(cache, 3)`.
+- **Spurious `model_version` on templates**: the same three templates carried a `model_version` key, which defiNNe §5.3 reserves for level-3 models. Removed from the level-2 frontmatter.
+- Applied to both the versioned `v0.1.0/` files and their `latest/` mirrors.
+
 ### Backwards Compatibility Notes
 - Previous spec versions (FORMAT V_0-1-0 through V_0-1-5) have been removed. Historical copies are in `specs.bak/`.
 - Models authored against legacy `FORMAT_V_*` or `_F.md` conventions are NOT compatible and must be migrated.

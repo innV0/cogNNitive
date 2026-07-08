@@ -1,12 +1,11 @@
 ---
 specification_version: "V_0-1-2"
 specification_url: "https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.1.0/level2/procedures/procedures_V_0-1-1_NN.md"
-level: 3
+level: 2
 parent_spec:
   name: "iNNfo_V_0-1-0"
   url: "https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.1.0/level1/iNNfo_V_0-1-0_NN.md"
 title: "Procedures Template"
-model_version: "V_0-1-2"
 concepts:
   - name: "Procedure"
     icon: "file-text"
