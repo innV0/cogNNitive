@@ -271,7 +271,9 @@ const mergedConcepts = computed<MergedConceptItem[]>(() => {
     items.push({ name: concept.name, ghost: !isPresent, children })
   }
 
-  items.sort((a, b) => a.name.localeCompare(b.name))
+  // Sort by template declaration order (from metamodelStore.concepts)
+  const orderIndex = new Map(metamodelStore.concepts.map((c, i) => [c.name, i]))
+  items.sort((a, b) => (orderIndex.get(a.name) ?? 999) - (orderIndex.get(b.name) ?? 999))
   return items
 })
 
