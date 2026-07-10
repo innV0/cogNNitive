@@ -7,6 +7,9 @@ import type { ModelDriver } from './driver'
 const INNFO_FILE_SUFFIX = '.md'
 const INDEX_MD = 'index.md'
 
+/** Directories whose contents are never parsed as models. */
+const IGNORED_DIRECTORIES = new Set(['backups', 'archive', 'specs', '.spec-cache'])
+
 /**
  * Strips the final `.md` suffix from a filename to derive the model name.
  * Handles both `_NN.md` and bare `.md` filenames.
@@ -428,6 +431,16 @@ function isNotFound(err: unknown): boolean {
 }
 
 /**
+ * Returns true when the given path is inside an ignored directory
+ * (backups/, archive/, specs/, .spec-cache/).
+ */
+function isIgnoredPath(filePath: string): boolean {
+  const normalized = filePath.replace(/\\/g, '/')
+  const firstSegment = normalized.split('/')[0]
+  return IGNORED_DIRECTORIES.has(firstSegment)
+}
+
+/**
  * Parses a workspace by reading `index.md` as the single entry point.
  *
  * Step 1: Read index.md from root handle (or driver)
@@ -477,7 +490,8 @@ export async function recursiveParse(
           if (
             entry.kind === 'file' &&
             name.endsWith(INNFO_FILE_SUFFIX) &&
-            name.toLowerCase() !== INDEX_MD
+            name.toLowerCase() !== INDEX_MD &&
+            !isIgnoredPath(name)
           ) {
             modelRefsFromScan.push({ name: stripMdSuffix(name), path: name })
           }
@@ -549,7 +563,12 @@ export async function recursiveParse(
     const target = match[1].trim()
     // Treat wikilinks ending in .md as model references
     // (the _NN.md suffix is recommended but not required — §8.1)
-    if (target.endsWith(INNFO_FILE_SUFFIX) && target.toLowerCase() !== INDEX_MD) {
+    // Skip targets inside ignored directories (backups/, archive/, specs/, …)
+    if (
+      target.endsWith(INNFO_FILE_SUFFIX) &&
+      target.toLowerCase() !== INDEX_MD &&
+      !isIgnoredPath(target)
+    ) {
       const name = stripMdSuffix(target)
       modelRefs.push({ name, path: target })
     }

@@ -8,7 +8,7 @@ export interface ParentRef {
 
 export interface ConceptField {
   name: string
-  type: 'string' | 'select' | 'reference' | 'image' | 'file' | 'video' | 'audio'
+  type: 'string' | 'select' | 'reference' | 'image' | 'file' | 'video' | 'audio' | 'markdown_inline' | 'markdown_file'
   options?: string[]
   target_concepts?: string[]
 }

@@ -21,6 +21,8 @@ export interface DirectoryHandleLike {
   entries(): AsyncIterableIterator<[string, FileHandleLike | DirectoryHandleLike]>
   getFileHandle(name: string, options?: { create?: boolean }): Promise<FileHandleLike>
   getDirectoryHandle(name: string, options?: { create?: boolean }): Promise<DirectoryHandleLike>
+  /** Optional: mirrors FileSystemDirectoryHandle.removeEntry (may not be available in all environments). */
+  removeEntry?(name: string, options?: { recursive?: boolean }): Promise<void>
 }
 
 export function isDirectoryHandle(
