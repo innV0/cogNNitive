@@ -50,22 +50,22 @@
         <div class="relative inline-flex rounded-md shadow-xs">
           <button
             @click="handleSave"
-            :disabled="!unsavedChanges"
+            :disabled="!shouldShowSave"
             class="inline-flex items-center gap-1.5 rounded-l-md px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition-all cursor-pointer"
             :class="
-              unsavedChanges
+              shouldShowSave
                 ? 'bg-primary text-primary-foreground ring-primary/20 hover:bg-primary/90'
                 : 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 ring-emerald-600/20 cursor-default'
             "
           >
-            <component :is="unsavedChanges ? Save : CheckCircle" class="w-3.5 h-3.5" />
-            <span>{{ unsavedChanges ? 'Save' : 'Saved' }}</span>
+            <component :is="shouldShowSave ? Save : CheckCircle" class="w-3.5 h-3.5" />
+            <span>{{ shouldShowSave ? 'Save' : 'Saved' }}</span>
           </button>
           <button
             @click="toggleSaveDropdown"
             class="inline-flex items-center rounded-r-md px-2 py-1.5 text-xs font-semibold ring-1 ring-inset transition-all cursor-pointer border-l"
             :class="
-              unsavedChanges
+              shouldShowSave
                 ? 'bg-primary text-primary-foreground ring-primary/20 border-primary-foreground/10 hover:bg-primary/90'
                 : 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 ring-emerald-600/20 border-emerald-250 dark:border-emerald-850 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/40'
             "
@@ -474,6 +474,7 @@ const displayLocalPath = computed(() => {
 })
 
 const unsavedChanges = computed(() => modelStore.dirtyIds.size > 0)
+const shouldShowSave = computed(() => unsavedChanges.value || !workspaceStore.hasHandle)
 
 const infoModalOpen = ref(false)
 
