@@ -71,7 +71,7 @@ const starters: StarterTemplate[] = [
     url: `${starterBase}Business_V_1-0-0_starter_NN.md`,
     templateName: 'business',
     sampleUrl:
-      'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.2.0/level2/business/samples/Ghostbusters_V_0-1-2_business_NN.md',
+      'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/latest/level2/business/samples/Ghostbusters_V_0-1-2_business_NN.md',
     sampleName: 'Ghostbusters',
   },
   {
@@ -82,7 +82,7 @@ const starters: StarterTemplate[] = [
     url: `${starterBase}Procedures_V_1-0-0_starter_NN.md`,
     templateName: 'procedures',
     sampleUrl:
-      'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.2.0/level2/procedures/samples/CodeReviewProcess_V_1-0-0_procedures_NN.md',
+      'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/latest/level2/procedures/samples/CodeReviewProcess_V_1-0-0_procedures_NN.md',
     sampleName: 'Code Review Process',
   },
   {
@@ -93,7 +93,7 @@ const starters: StarterTemplate[] = [
     url: `${starterBase}Organization_V_1-0-0_starter_NN.md`,
     templateName: 'organization',
     sampleUrl:
-      'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.2.0/level2/organization/samples/EngineeringTeam_V_1-0-0_organization_NN.md',
+      'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/latest/level2/organization/samples/EngineeringTeam_V_1-0-0_organization_NN.md',
     sampleName: 'Engineering Team',
   },
 ]

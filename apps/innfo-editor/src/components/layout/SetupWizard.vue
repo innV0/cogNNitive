@@ -6,6 +6,7 @@ import { addToHistory } from '../../stores/historyStore'
 import { useUrlDocLoader } from '../../composables/useUrlDocLoader'
 import type { DirectoryHandleLike } from '../../model/fs-types'
 import { buildFormatFilename } from '../../utils/version'
+import { parseFrontmatter } from '@innv0/innfo-core'
 
 type TemplateChoice = 'blank' | 'business' | 'procedures' | 'organization' | 'sandbox'
 
@@ -39,7 +40,7 @@ const samples: SampleInfo[] = [
     templateLabel: 'Business',
     sampleName: 'Ghostbusters',
     description: 'Ghost-catching franchise: SWOT, risks, market, finance, legal, and operations.',
-    url: 'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.2.0/level2/business/samples/Ghostbusters_V_0-1-2_business_NN.md',
+    url: 'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/latest/level2/business/samples/Ghostbusters_V_0-1-2_business_NN.md',
   },
   {
     id: 'sample-procedures',
@@ -47,7 +48,7 @@ const samples: SampleInfo[] = [
     templateLabel: 'Procedures',
     sampleName: 'Code Review Process',
     description: 'PR-based code reviews: roles, step-by-step workflow, tool bindings, and hotfix path.',
-    url: 'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.2.0/level2/procedures/samples/CodeReviewProcess_V_1-0-0_procedures_NN.md',
+    url: 'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/latest/level2/procedures/samples/CodeReviewProcess_V_1-0-0_procedures_NN.md',
   },
   {
     id: 'sample-organization',
@@ -55,7 +56,7 @@ const samples: SampleInfo[] = [
     templateLabel: 'Organization',
     sampleName: 'Engineering Team',
     description: 'Team structure: positions, roles, members, reporting lines, and skills matrix.',
-    url: 'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/v0.2.0/level2/organization/samples/EngineeringTeam_V_1-0-0_organization_NN.md',
+    url: 'https://raw.githubusercontent.com/innV0/cogNNitive/main/specs/latest/level2/organization/samples/EngineeringTeam_V_1-0-0_organization_NN.md',
   },
 ]
 
@@ -163,6 +164,183 @@ async function createFolder(): Promise<void> {
   }
 }
 
+/**
+ * Creates the standard workspace directory structure and support files.
+ */
+async function initWorkspaceStructure(handle: DirectoryHandleLike, modelName: string, chosenTemplate: TemplateChoice): Promise<void> {
+  // Create dot-directories (application-managed)
+  await handle.getDirectoryHandle('.specs', { create: true })
+
+  // Create traNNsform/ (visible) with subdirectories
+  const traNNsformDir = await handle.getDirectoryHandle('traNNsform', { create: true })
+  await traNNsformDir.getDirectoryHandle('input', { create: true })
+  await traNNsformDir.getDirectoryHandle('output', { create: true })
+  const templatesDir = await traNNsformDir.getDirectoryHandle('templates', { create: true })
+  const snippetsDir = await traNNsformDir.getDirectoryHandle('snippets', { create: true })
+
+  // Download traNNsform files from GitHub (non-blocking — log on failure)
+  const TRANSFORM_BASE_URL = 'https://raw.githubusercontent.com/innV0/cogNNitive/main/traNNsform'
+  const transformFiles = [
+    { path: '', name: 'AGENT.md' },
+    { path: '', name: 'README.md' },
+    { path: 'templates', name: 'business.md' },
+    { path: 'templates', name: 'procedures.md' },
+    { path: 'templates', name: 'catalog.md' },
+    { path: 'templates', name: '_generic.md' },
+    { path: 'snippets', name: 'chart-patterns.md' },
+  ]
+
+  for (const file of transformFiles) {
+    try {
+      const url = `${TRANSFORM_BASE_URL}/${file.path}/${file.name}`
+      const resp = await fetch(url)
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+      const text = await resp.text()
+
+      const dir = file.path === ''
+        ? traNNsformDir
+        : file.path === 'templates' ? templatesDir : snippetsDir
+
+      const fileHandle = await dir.getFileHandle(file.name, { create: true })
+      if (fileHandle.createWritable) {
+        const w = await fileHandle.createWritable()
+        await w.write(text)
+        await w.close()
+      }
+    } catch (err) {
+      console.warn(`[cogNNitive] Failed to download traNNsform/${file.path}/${file.name}:`, err)
+    }
+  }
+
+  // Create README
+  const readmeContent = `# ${modelName}
+
+This workspace was created by cogNNitive — a structured knowledge model editor for the iNNfo format.
+
+## Workspace contents
+
+| Path | Purpose |
+|------|---------|
+| \`index.md\` | Entry point that maps your model structure |
+| \`${modelName}_V_1-0-0_${chosenTemplate}_NN.md\` | Your model file |
+| \`cogNNitive.html\` | Open this to launch the editor |
+| \`.specs/\` | Template specifications (auto-managed) |
+| \`.backups/\` | Auto-save history (auto-managed) |
+| \`traNNsform/\` | AI-powered transformation tools for import and export |
+
+## How to edit
+
+- **cogNNitive editor**: Open \`cogNNitive.html\` in your browser
+- **AI agent**: Use Claude Code, OpenCode, or anti-gravity to edit via natural language
+`
+  const readmeHandle = await handle.getFileHandle('README.md', { create: true })
+  if (readmeHandle.createWritable) {
+    const w = await readmeHandle.createWritable()
+    await w.write(readmeContent)
+    await w.close()
+  }
+
+  // Create cogNNitive.html — redirects to the deployed app URL
+  const appUrl = import.meta.env.BASE_URL || 'https://cognnitive.app'
+  const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cogNNitive — ${modelName}</title>
+  <meta http-equiv="refresh" content="0; url=${appUrl}">
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #fafafa; color: #333; text-align: center; }
+    a { color: #4d0e4e; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <p>Redirecting to <a href="${appUrl}">cogNNitive</a> — if you are not redirected, click the link.</p>
+</body>
+</html>`
+  const htmlFileHandle = await handle.getFileHandle('cogNNitive.html', { create: true })
+  if (htmlFileHandle.createWritable) {
+    const w = await htmlFileHandle.createWritable()
+    await w.write(htmlContent)
+    await w.close()
+  }
+}
+
+/**
+ * Creates an index.md entry point for the workspace.
+ */
+async function createIndexMd(handle: DirectoryHandleLike, modelName: string, templateName: string): Promise<void> {
+  const content = `---
+spec_version: "V_0-1-5"
+level: 0
+title: "${modelName} Index"
+---
+# _NN index
+* [[${modelName}_V_1-0-0_${templateName}_NN.md]]
+`
+  const fileHandle = await handle.getFileHandle('index.md', { create: true })
+  if (fileHandle.createWritable) {
+    const w = await fileHandle.createWritable()
+    await w.write(content)
+    await w.close()
+  }
+}
+
+/**
+ * Walks the spec parent chain starting from the chosen template's URL
+ * and pre-populates .specs/ so both the editor and AI agents have
+ * local copies without fetching on first use.
+ */
+async function prepopulateSpecs(
+  handle: DirectoryHandleLike,
+  starterUrl: string,
+): Promise<void> {
+  const starterResp = await window.fetch(starterUrl)
+  if (!starterResp.ok) return
+  const starterFm = parseFrontmatter(await starterResp.text())
+  if (!starterFm) return
+
+  let currentUrl: string | undefined = (starterFm as any)?.parent_spec?.url
+  let currentName: string | undefined = (starterFm as any)?.parent_spec?.name
+  let depth = 10
+
+  while (currentUrl && currentName && depth-- > 0) {
+    const specsDir = await handle.getDirectoryHandle('.specs', { create: true })
+    const filename = `${currentName}_NN.md`
+
+    // Skip if already exists
+    try {
+      const existing = await specsDir.getFileHandle(filename)
+      const file = await existing.getFile()
+      const fm = parseFrontmatter(await file.text())
+      currentUrl = (fm as any)?.parent_spec?.url
+      currentName = (fm as any)?.parent_spec?.name
+      continue
+    } catch {
+      // Not found — download
+    }
+
+    try {
+      const resp = await window.fetch(currentUrl)
+      if (!resp.ok) break
+      const content = await resp.text()
+
+      const fileHandle = await specsDir.getFileHandle(filename, { create: true })
+      if (fileHandle.createWritable) {
+        const w = await fileHandle.createWritable()
+        await w.write(content)
+        await w.close()
+      }
+
+      const fm = parseFrontmatter(content)
+      currentUrl = (fm as any)?.parent_spec?.url
+      currentName = (fm as any)?.parent_spec?.name
+    } catch {
+      break
+    }
+  }
+}
+
 async function finishWizard(): Promise<void> {
   error.value = null
   busy.value = true
@@ -184,6 +362,18 @@ async function finishWizard(): Promise<void> {
     const handle = folderHandle.value
     const name = modelName.value.trim() || 'MyModel'
 
+    // Create workspace structure (directories + support files)
+    await initWorkspaceStructure(handle, name, templateChoice.value)
+
+    // Pre-populate .specs/ with the full spec chain so both the editor
+    // and AI agents have local copies without fetching on first use.
+    if (templateChoice.value !== 'blank' && templateChoice.value !== 'sandbox') {
+      const starter = getStarterByTemplate(templateChoice.value)
+      if (starter) {
+        await prepopulateSpecs(handle, starter.url)
+      }
+    }
+
     if (templateChoice.value === 'blank') {
       const loader = useUrlDocLoader()
       const frontmatter = {
@@ -195,6 +385,7 @@ async function finishWizard(): Promise<void> {
         markers: [],
       }
       await loader.loadFromFrontmatter(frontmatter, `${name}_NN.md`)
+      await createIndexMd(handle, name, 'business')
       workspaceStore.hasParsed = true
       workspaceStore.hasHandle = true
       workspaceStore.handle = handle
@@ -223,6 +414,9 @@ async function finishWizard(): Promise<void> {
     const writable = await fileHandle.createWritable()
     await writable.write(content)
     await writable.close()
+
+    // Create index.md pointing to the model
+    await createIndexMd(handle, name, templateChoice.value)
 
     await workspaceStore.open(handle)
     await addToHistory(handle.name, handle)
@@ -401,7 +595,11 @@ const stepTitles = [
         <div class="wizard__file-list">
           <div class="wizard__file">
             <code>cogNNitive.html</code>
-            <span>Open this file to launch the application in your browser</span>
+            <span>Bookmark to launch the application — redirects to the editor URL</span>
+          </div>
+          <div class="wizard__file">
+            <code>README.md</code>
+            <span>Overview of your workspace structure</span>
           </div>
           <div class="wizard__file">
             <code>index.md</code>
@@ -416,18 +614,12 @@ const stepTitles = [
             <span>Template specifications downloaded automatically</span>
           </div>
           <div class="wizard__file">
-            <code>.backups/</code>
-            <span>Automatic save history</span>
-          </div>
-          <div class="wizard__file">
-            <code>.traNNsform/</code>
-            <span>Export templates for AI-powered transformations</span>
+            <code>traNNsform/</code>
+            <span>AI-powered transformation tools for import and export</span>
           </div>
         </div>
 
-        <div class="wizard__note">
-          All files are plain Markdown — you can edit them with any text editor or AI agent.
-        </div>
+
 
         <div class="wizard__actions">
           <button class="wizard__btn wizard__btn--ghost" @click="goToStep(2)">Back</button>
@@ -532,8 +724,8 @@ const stepTitles = [
         <div class="wizard__editors">
           <div class="wizard__editor-card">
             <strong>cogNNitive editor</strong>
-            <p>Open <code>{{ folderPath || 'your workspace' }}/cogNNitive.html</code> in your browser
-            for the full UI: tree navigation, graph view, matrices, and structured fields.</p>
+            <p>Open <code>cogNNitive.html</code> in your workspace folder to launch the app.
+            Use the full UI: tree navigation, graph view, matrices, and structured fields.</p>
           </div>
           <div class="wizard__editor-card">
             <strong>AI agent</strong>
