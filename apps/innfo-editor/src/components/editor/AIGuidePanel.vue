@@ -155,7 +155,7 @@
           </p>
           <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
             <div class="p-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-700">
-              <code class="block text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-mono">Generate an export for {{ modelFilename }}</code>
+              <code class="block text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-mono">Generate an export for {{ modelFilename }} following traNNsform/AGENT.md</code>
             </div>
             <div class="flex items-center justify-end gap-2 px-4 py-2 bg-white dark:bg-slate-900">
               <button @click="copyExportPrompt"
@@ -165,10 +165,12 @@
               </button>
             </div>
           </div>
-          <p class="text-xs text-slate-400 dark:text-slate-500">
-            The agent will read <code class="text-2xs bg-slate-100 dark:bg-slate-800 px-1 rounded">traNNsform/AGENT.md</code> for full instructions.
-            After generating, check the <strong>Navigator</strong> view to see your export.
-          </p>
+          <div class="bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/30 rounded-lg px-4 py-3 text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+            <strong>Important:</strong> Some agents may try to use their own export format and save the file in the wrong location.
+            The <code class="text-2xs bg-amber-100 dark:bg-amber-900/40 px-1 rounded">traNNsform/AGENT.md</code> file tells them exactly where to save
+            (<code class="text-2xs bg-amber-100 dark:bg-amber-900/40 px-1 rounded">traNNsform/outputs/</code>) and how to name the file so it appears here.
+            If your agent doesn't follow the protocol, direct it to read <code class="text-2xs bg-amber-100 dark:bg-amber-900/40 px-1 rounded">traNNsform/AGENT.md</code> first.
+          </div>
         </div>
       </section>
 
@@ -261,7 +263,7 @@ async function ensureTemplates(): Promise<void> {
 
 /** Copies the export instruction to clipboard. */
 function copyExportPrompt(): void {
-  const text = `Generate an export for ${modelFilename.value}`
+  const text = `Generate an export for ${modelFilename.value} following traNNsform/AGENT.md`
   navigator.clipboard.writeText(text).catch(() => {
     const ta = document.createElement('textarea')
     ta.value = text
