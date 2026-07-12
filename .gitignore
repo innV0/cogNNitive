@@ -13,6 +13,8 @@ dist/
 openspec/changes/archive/
 test-results/
 e2e-reports/
+# Generated Playwright screenshots / aria snapshots (test output)
+e2e-fixtures/
 # Local AI runtime state
 .atl/
 # Backup
