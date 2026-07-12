@@ -23,11 +23,10 @@
         class="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20 border border-purple-200/60 dark:border-purple-800/30 rounded-xl p-5"
       >
         <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-          Edit and view your models here in cogNNitive, or drive them with an AI agent like
-          <strong>Claude Code</strong>, <strong>Google Antigravity</strong>, or
+          Edit and view your models here in cogNNitive, or drive them with
           <strong>OpenCode</strong>
-          through their desktop, CLI, or TUI versions. Follow the steps below — they're saved as you
-          go, so you only set up your agent once.
+          — the supported AI agent for cogNNitive. Follow the steps below — they're saved as you go,
+          so you only set up your agent once.
         </p>
       </div>
 
@@ -133,15 +132,15 @@
       <!-- Step 2.5: MCP tools -->
       <div v-if="step.id === 'mcp'" class="mt-3 space-y-3">
         <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-          Your agent needs the <strong>innfo-mcp</strong> server to validate model structure and
-          apply changes correctly. Open the terminal in your workspace and tell your agent
-          <em>"I want to edit a model"</em> — it will check MCP availability and guide you through
-          activation.
+          OpenCode needs the <strong>innfo-mcp</strong> server to validate model structure and
+          apply changes correctly. Open OpenCode in your workspace and tell it:
+          <em>"Load the innv0-innfo skill and check that innfo-mcp is configured"</em>.
+          The skill detects if the MCP server is set up and guides you through any steps.
         </p>
         <div
           class="bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/30 rounded-lg px-4 py-3 text-xs text-amber-700 dark:text-amber-400 leading-relaxed"
         >
-          If your agent reports that innfo-mcp tools are not available, direct it to read
+          If OpenCode reports that innfo-mcp tools are not available, tell it to read
           <code class="text-2xs bg-amber-100 dark:bg-amber-900/40 px-1 rounded"
             >docs/mcp-setup.md</code
           >
@@ -339,7 +338,7 @@
         </div>
 
         <div v-else class="space-y-3">
-          <p class="text-xs text-slate-500 dark:text-slate-400">Tell your AI agent:</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Tell OpenCode:</p>
           <div
             class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden"
           >
@@ -348,7 +347,7 @@
             >
               <code
                 class="block text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-mono"
-                >Generate an export for {{ modelFilename }} following traNNsform/AGENT.md</code
+                >Load the innv0-innfo skill — generate an HTML visualizer for {{ modelFilename }} following traNNsform/AGENT.md</code
               >
             </div>
             <div class="flex items-center justify-end gap-2 px-4 py-2 bg-white dark:bg-slate-900">
@@ -364,20 +363,18 @@
           <div
             class="bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/30 rounded-lg px-4 py-3 text-xs text-amber-700 dark:text-amber-400 leading-relaxed"
           >
-            <strong>Important:</strong> Some agents may try to use their own export format and save
-            the file in the wrong location. The
+            <strong>Important:</strong> The innv0-innfo skill knows to follow
             <code class="text-2xs bg-amber-100 dark:bg-amber-900/40 px-1 rounded"
               >traNNsform/AGENT.md</code
             >
-            file tells them exactly where to save (<code
+            for the exact output path (<code
               class="text-2xs bg-amber-100 dark:bg-amber-900/40 px-1 rounded"
               >traNNsform/output/</code
-            >) and how to name the file so it appears here. If your agent doesn't follow the
-            protocol, direct it to read
+            >) and naming conventions. If OpenCode saves the file elsewhere, tell it to read
             <code class="text-2xs bg-amber-100 dark:bg-amber-900/40 px-1 rounded"
               >traNNsform/AGENT.md</code
             >
-            first.
+            for the correct location.
           </div>
         </div>
       </section>
@@ -409,30 +406,16 @@ const hasWorkspace = computed(() => workspaceStore.hasHandle)
 const workspaceName = computed(() => workspaceStore.handle?.name ?? null)
 const templatesReady = ref(false)
 
-const CHAT_PROMPT = 'I want to edit a model in the chat'
+const CHAT_PROMPT = 'Load the innv0-innfo skill — I need to edit a model'
 
 // ── AI agents (download links) ──────────────────────────────────────────────
 const tools = [
   {
-    name: 'Claude Code',
-    initials: 'CC',
-    description: 'Powerful agent with a generous free tier. Desktop, CLI, and TUI.',
-    url: 'https://claude.com/download',
-    recommended: true,
-  },
-  {
-    name: 'Google Antigravity',
-    initials: 'AG',
-    description: 'Agentic IDE for editing models and documentation.',
-    url: 'https://antigravity.google/download',
-    recommended: false,
-  },
-  {
     name: 'OpenCode',
     initials: 'OC',
-    description: 'Open-source coding agent built for the terminal.',
+    description: 'Supported AI agent for cogNNitive. Open-source terminal-native coding agent.',
     url: 'https://opencode.ai/download',
-    recommended: false,
+    recommended: true,
   },
 ]
 
@@ -446,9 +429,9 @@ interface Step {
 const steps: Step[] = [
   {
     id: 'agent',
-    title: 'Choose (or download) an AI agent',
+    title: 'Install OpenCode',
     description:
-      "Already using an AI agent? Just pick the one you work with — no need to install anything, simply mark this step done. Otherwise, install one below — desktop, CLI, or TUI, whatever you're comfortable with. We recommend <strong>Claude Code</strong> by default. This is a one-time setup, so it stays checked next time.",
+      "cogNNitive works with <strong>OpenCode</strong> — download and install it below. OpenCode reads project skills natively and discovers them automatically. This is a one-time setup, so it stays checked next time.",
   },
   {
     id: 'workspace',
@@ -460,19 +443,19 @@ const steps: Step[] = [
     id: 'mcp',
     title: 'Configure MCP tools for your agent',
     description:
-      'Your agent needs the innfo-mcp MCP server to validate models. When you say "I want to edit a model", the agent will check availability and guide you through activation.',
+      'OpenCode needs the innfo-mcp MCP server to validate models. When you say "Load the innv0-innfo skill and check that innfo-mcp is configured", OpenCode loads the skill which detects if the MCP server is set up and guides you through activation.',
   },
   {
     id: 'chat',
     title: 'Edit models via chat',
     description:
-      "Once configured, tell your agent what you want in plain language: add concepts, change fields, restructure sections, and more. Pasting the prompt below triggers cogNNitive's AI skill, which teaches your agent how to read and edit iNNfo models correctly:",
+      "Once configured, tell OpenCode what you want. Start by pasting the prompt below — it loads the innv0-innfo skill so OpenCode knows how to work with iNNfo models. Then describe the changes you need: add concepts, change fields, restructure sections, and more:",
   },
   {
     id: 'sidebar',
     title: 'Use right sidebar prompts to go deeper',
     description:
-      'When viewing a model in cogNNitive, the <strong>right sidebar</strong> shows <strong>suggested prompts</strong> for each concept. Copy and paste them into your agent to dive deeper into that specific concept or element.',
+      'When viewing a model in cogNNitive, the <strong>right sidebar</strong> shows <strong>suggested prompts</strong> for each concept. Copy them into OpenCode to explore a specific concept or element in more detail.',
   },
 ]
 
@@ -604,7 +587,7 @@ function copyChatPrompt(): void {
 
 /** Copies the export instruction to clipboard. */
 function copyExportPrompt(): void {
-  copyText(`Generate an export for ${modelFilename.value} following traNNsform/AGENT.md`)
+  copyText(`Load the innv0-innfo skill — generate an HTML visualizer for ${modelFilename.value} following traNNsform/AGENT.md`)
 }
 
 onMounted(() => {
