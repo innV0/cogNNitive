@@ -20,7 +20,7 @@ export async function integrateGate(opts: IntegrateOptions): Promise<IntegrateRe
   }
 
   const newFileName = replaceVersionInFilename(fileName, newVersion)
-  let updatedContent = content.replace(
+  const updatedContent = content.replace(
     new RegExp(`model_version:\\s*['"]?${escapeRegex(currentVersion)}['"]?`, 'm'),
     `model_version: "${newVersion}"`,
   )

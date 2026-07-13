@@ -55,7 +55,7 @@ test.describe('AI Workflow Modal — Unified Modal Integration', () => {
 
   test('R-AI-03: Guide tab — Copy button copies prompt starting with "innfo:" and shows confirmation', async ({ page }) => {
     // Mock clipboard
-    let copiedText = ''
+    const copiedText = ''
     await page.evaluate(() => {
       navigator.clipboard.writeText = async (text: string) => {
         ;(window as any).__clipboard = text
@@ -90,7 +90,7 @@ test.describe('AI Workflow Modal — Unified Modal Integration', () => {
   })
 
   test('R-AI-04: Import tab — Copy button copies "innfo:"-prefixed prompt', async ({ page }) => {
-    let copiedText = ''
+    const copiedText = ''
     await page.evaluate(() => {
       navigator.clipboard.writeText = async (text: string) => {
         ;(window as any).__clipboard = text
@@ -121,7 +121,7 @@ test.describe('AI Workflow Modal — Unified Modal Integration', () => {
   })
 
   test('R-AI-05: Export tab — Copy button copies "innfo:"-prefixed prompt', async ({ page }) => {
-    let copiedText = ''
+    const copiedText = ''
     await page.evaluate(() => {
       navigator.clipboard.writeText = async (text: string) => {
         ;(window as any).__clipboard = text
