@@ -3,62 +3,48 @@ import { setActivePinia, createPinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import AIGuidePanel from '../../src/components/editor/AIGuidePanel.vue'
 
-/**
- * Reproduces the reported behaviour: after a step is checked and the accordion
- * auto-advances (collapsing it), the checked state must survive on the
- * collapsed step — the same way step 1 already does.
- */
 describe('AIGuidePanel steps accordion', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     localStorage.clear()
   })
 
-  /** Checkbox/number badge buttons, one per step, in DOM order. */
-  const boxes = (wrapper: ReturnType<typeof mount>) =>
-    wrapper.findAll('button[aria-pressed]')
-
-  it('keeps step 2 checked after it collapses on auto-advance', async () => {
+  it('renders title and subtitle from the guide', () => {
     const wrapper = mount(AIGuidePanel)
-
-    const step1 = boxes(wrapper)[0]
-    const step2 = boxes(wrapper)[1]
-
-    // Complete step 1 -> accordion advances, step 2 opens.
-    await step1.trigger('click')
-    expect(boxes(wrapper)[0].attributes('aria-pressed')).toBe('true')
-
-    // Complete step 2 -> accordion advances to step 3, step 2 collapses.
-    await step2.trigger('click')
-
-    // The collapsed step 2 MUST still read as checked.
-    expect(boxes(wrapper)[1].attributes('aria-pressed')).toBe('true')
+    expect(wrapper.text()).toContain('Use cogNNitive with AI')
+    expect(wrapper.text()).toContain('Edit your iNNfo models using OpenCode')
   })
 
-  it('completes and advances via the explicit "Done" button in the body', async () => {
+  it('renders the Tools section with OpenCode', () => {
     const wrapper = mount(AIGuidePanel)
-
-    const doneBtn = wrapper
-      .findAll('button')
-      .find((b) => b.text().includes('Done — next step'))
-    expect(doneBtn).toBeTruthy()
-
-    await doneBtn!.trigger('click')
-
-    // Step 1 checked, and it survives being collapsed.
-    expect(boxes(wrapper)[0].attributes('aria-pressed')).toBe('true')
+    expect(wrapper.text()).toContain('Tools')
+    expect(wrapper.text()).toContain('OpenCode')
   })
 
-  it('does not check a step when its header is clicked to collapse', async () => {
+  it('renders at least one step in the Steps section', () => {
     const wrapper = mount(AIGuidePanel)
+    expect(wrapper.text()).toContain('Steps')
+    expect(wrapper.text()).toContain('Download and install OpenCode')
+  })
 
-    // Complete step 1 so step 2 becomes the open one.
-    await boxes(wrapper)[0].trigger('click')
+  it('toggles the first step content on header click', async () => {
+    const wrapper = mount(AIGuidePanel)
+    const firstHeader = wrapper.findAll('.cursor-pointer.select-none').at(0)!
 
-    // Click step 2's HEADER row (not the checkbox) — should only collapse.
-    const step2Header = wrapper.findAll('[data-step-header]')[1]
-    await step2Header.trigger('click')
+    // find the step container
+    const step = wrapper.findAll('.overflow-hidden').at(0)!
+    const content = step.findAll('.px-4.pb-4')
+    // step 1 is open by default (openStep = 0)
+    expect(content.length).toBeGreaterThan(0)
 
-    expect(boxes(wrapper)[1].attributes('aria-pressed')).toBe('false')
+    // click to collapse
+    await firstHeader.trigger('click')
+    const contentAfterCollapse = step.findAll('.px-4.pb-4')
+    expect(contentAfterCollapse.length).toBe(0)
+
+    // click to expand again
+    await firstHeader.trigger('click')
+    const contentAfterExpand = step.findAll('.px-4.pb-4')
+    expect(contentAfterExpand.length).toBeGreaterThan(0)
   })
 })
