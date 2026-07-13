@@ -45,19 +45,19 @@
           <span>graph</span>
         </button>
 
-        <!-- Navigator -->
+        <!-- Exports -->
         <button
           class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer capitalize border border-transparent"
           :class="
-            uiStore.activeView === 'navigator'
+            uiStore.activeView === 'exports'
               ? 'bg-white dark:bg-slate-700 text-primary shadow-xs'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
           "
-          @click="uiStore.setActiveView('navigator')"
-          data-testid="view-switcher-navigator"
+          @click="uiStore.setActiveView('exports')"
+          data-testid="view-switcher-exports"
         >
-          <Compass class="w-3.5 h-3.5 shrink-0" />
-          <span>navigator</span>
+          <FileOutput class="w-3.5 h-3.5 shrink-0" />
+          <span>exports</span>
         </button>
       </div>
 
@@ -105,8 +105,40 @@
         </div>
       </div>
 
+      <!-- Exports section (when Exports view is active) -->
+      <div v-if="uiStore.activeView === 'exports'" class="space-y-1">
+        <div class="flex items-center gap-1.5 px-2 py-1">
+          <FileOutput class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Outputs
+          </h2>
+        </div>
+
+        <div v-if="exportsLoading" class="flex items-center gap-2 px-2 py-2 text-xs text-slate-400 dark:text-slate-500">
+          <Loader class="w-3 h-3 animate-spin" />
+          <span>Scanning exports...</span>
+        </div>
+
+        <div v-else-if="exportsList.length === 0" class="px-2 py-2 text-xs text-slate-400 dark:text-slate-500 italic">
+          No exports in <code class="text-2xs bg-slate-100 dark:bg-slate-800 px-1 rounded">traNNsform/output/</code>
+        </div>
+
+        <div v-else class="space-y-0.5">
+          <div
+            v-for="xf in exportsList"
+            :key="xf.name"
+            class="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors group"
+            @click="openExport(xf)"
+          >
+            <FileOutput class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
+            <span class="text-xs truncate flex-1 text-slate-700 dark:text-slate-300">{{ xf.name }}</span>
+            <ExternalLink class="w-3 h-3 text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+          </div>
+        </div>
+      </div>
+
       <!-- Tree section: complete-only or merged all, grouped by model -->
-      <div class="space-y-2">
+      <div v-else class="space-y-2">
         <div v-for="rootId in visibleRootIds" :key="rootId" class="space-y-1">
           <!-- Model Header (File) -->
           <div
@@ -157,8 +189,8 @@
         </p>
       </div>
 
-      <!-- Relations Section -->
-      <div class="space-y-1">
+      <!-- Relations Section (hidden in exports view) -->
+      <div v-if="uiStore.activeView !== 'exports'" class="space-y-1">
         <div class="flex items-center justify-between px-2 py-1">
           <div class="flex items-center gap-1.5">
             <Table2 class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
@@ -215,13 +247,17 @@ import {
   Table2,
   Settings,
   FileText,
-  Compass,
+  FileOutput,
+  ExternalLink,
+  Loader,
   Database,
   ChevronDown,
 } from 'lucide-vue-next'
 import { useModelStore } from '../../stores/modelStore'
 import { useMetamodelStore } from '../../stores/metamodelStore'
 import { useUiStore } from '../../stores/uiStore'
+import { useWorkspaceStore } from '../../stores/workspaceStore'
+import type { FileHandleLike, DirectoryHandleLike } from '../../model/fs-types'
 import { useResizablePanel } from '../../composables/useResizablePanel'
 import ConceptTreeNode from './ConceptTreeNode.vue'
 import VirtualGroupNode, { type TreeGroup } from './VirtualGroupNode.vue'
@@ -236,6 +272,52 @@ const emit = defineEmits<{
 const modelStore = useModelStore()
 const metamodelStore = useMetamodelStore()
 const uiStore = useUiStore()
+const workspaceStore = useWorkspaceStore()
+
+const exportsList = ref<Array<{ name: string; handle: FileHandleLike }>>([])
+const exportsLoading = ref(false)
+
+async function scanExports(): Promise<void> {
+  if (!workspaceStore.handle) return
+  exportsLoading.value = true
+  exportsList.value = []
+  try {
+    const transformDir = await workspaceStore.handle.getDirectoryHandle('traNNsform')
+    let outputsDir: DirectoryHandleLike
+    try {
+      outputsDir = await transformDir.getDirectoryHandle('output')
+    } catch {
+      exportsLoading.value = false
+      return
+    }
+    const results: Array<{ name: string; handle: FileHandleLike }> = []
+    for await (const [name, entry] of outputsDir.entries()) {
+      if (entry.kind !== 'file') continue
+      results.push({ name, handle: entry as unknown as FileHandleLike })
+    }
+    results.sort((a, b) => a.name.localeCompare(b.name))
+    exportsList.value = results
+  } catch {
+    // no traNNsform directory
+  } finally {
+    exportsLoading.value = false
+  }
+}
+
+async function openExport(xf: { name: string; handle: FileHandleLike }): Promise<void> {
+  const content = await xf.handle.getFile().then((f) => f.text())
+  const blob = new Blob([content], { type: 'text/html' })
+  const url = URL.createObjectURL(blob)
+  window.open(url, '_blank')
+  setTimeout(() => URL.revokeObjectURL(url), 60000)
+}
+
+watch(
+  () => uiStore.activeView,
+  (view) => {
+    if (view === 'exports') scanExports()
+  },
+)
 
 const visibleRootIds = computed(() => {
   return modelStore.rootIds.filter((id) => !id.startsWith('spec:'))
