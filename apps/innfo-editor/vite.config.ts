@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
-  base: '/app/',
+  base: '/cogNNitive/app/',
   plugins: [vue()],
   resolve: {
     conditions: ['browser'],
